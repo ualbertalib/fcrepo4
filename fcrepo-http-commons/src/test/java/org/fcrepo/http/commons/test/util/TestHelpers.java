@@ -56,6 +56,7 @@ import org.fcrepo.http.commons.AbstractResource;
 import org.fcrepo.kernel.Datastream;
 import org.fcrepo.kernel.FedoraObject;
 import org.fcrepo.kernel.identifiers.UUIDPidMinter;
+import org.glassfish.jersey.uri.internal.JerseyUriBuilder;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.modeshape.jcr.api.NamespaceRegistry;
@@ -65,7 +66,6 @@ import org.modeshape.jcr.api.query.QueryManager;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.update.GraphStore;
 import com.hp.hpl.jena.update.GraphStoreFactory;
-import com.sun.jersey.api.uri.UriBuilderImpl;
 
 public abstract class TestHelpers {
 
@@ -83,7 +83,7 @@ public abstract class TestHelpers {
             public UriBuilder
                     answer(final InvocationOnMock invocation) throws Throwable {
 
-                final UriBuilder ub = new UriBuilderImpl();
+                final UriBuilder ub = new JerseyUriBuilder();
                 ub.scheme("http");
                 ub.host("localhost");
                 ub.path("/fcrepo");

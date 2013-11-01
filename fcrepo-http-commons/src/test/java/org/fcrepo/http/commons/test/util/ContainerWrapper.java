@@ -16,7 +16,7 @@
 
 package org.fcrepo.http.commons.test.util;
 
-import static com.sun.jersey.api.container.grizzly2.GrizzlyServerFactory.createHttpServer;
+import static org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory.createHttpServer;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.net.URI;

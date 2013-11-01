@@ -29,6 +29,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Calendar;
 
+import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.joda.time.DateTime;
@@ -41,7 +42,6 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.sparql.core.DatasetImpl;
 import com.hp.hpl.jena.sparql.util.Context;
 import com.hp.hpl.jena.sparql.util.Symbol;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 public class RdfSerializationUtilsTest {
 
@@ -67,7 +67,7 @@ public class RdfSerializationUtilsTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testSetCachingHeaders() {
-        final MultivaluedMap<?, ?> headers = new MultivaluedMapImpl();
+        final MultivaluedMap<?, ?> headers = new MultivaluedHashMap();
         setCachingHeaders((MultivaluedMap<String, Object>) headers, testData);
         assertTrue(headers.get("Cache-Control").size() > 0);
     }
@@ -75,7 +75,7 @@ public class RdfSerializationUtilsTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testSetCachingHeadersWithLastModified() {
-        final MultivaluedMap<?, ?> headers = new MultivaluedMapImpl();
+        final MultivaluedMap<?, ?> headers = new MultivaluedHashMap();
 
         final Model m = createDefaultModel();
 

@@ -19,6 +19,7 @@ package org.fcrepo.http.commons.test.util;
 import static java.lang.reflect.Proxy.newProxyInstance;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
+import static org.apache.commons.codec.binary.Base64.decodeBase64;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
@@ -38,8 +39,7 @@ import javax.ws.rs.WebApplicationException;
 
 import org.glassfish.grizzly.http.server.GrizzlyPrincipal;
 import org.slf4j.Logger;
-import static  com.sun.jersey.api.core.HttpRequestContext.AUTHORIZATION;
-import static com.sun.jersey.core.util.Base64.base64Decode;
+import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 
 /**
  * @author Gregory Jansen
@@ -55,9 +55,6 @@ public class TestAuthenticationRequestFilter implements Filter {
 
     /*
      * (non-Javadoc)
-     * @see
-     * com.sun.jersey.spi.container.ContainerRequestFilter#filter(com.sun.jersey
-     * .spi.container.ContainerRequest)
      */
     @Override
     public void doFilter(final ServletRequest request,
@@ -124,7 +121,7 @@ public class TestAuthenticationRequestFilter implements Filter {
         }
         authentication = authentication.substring("Basic ".length());
         final String[] values =
-            new String(base64Decode(authentication)).split(":");
+            new String(decodeBase64(authentication)).split(":");
         if (values.length < 2) {
             throw new WebApplicationException(400);
             // "Invalid syntax for username and password"

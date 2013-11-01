@@ -37,13 +37,13 @@ import javax.ws.rs.core.UriInfo;
 
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import org.fcrepo.http.commons.api.rdf.HttpGraphSubjects;
+import org.glassfish.jersey.uri.internal.JerseyUriBuilder;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.sun.jersey.api.uri.UriBuilderImpl;
 
 public class HttpGraphSubjectsTest {
 
@@ -165,13 +165,13 @@ public class HttpGraphSubjectsTest {
     private static UriInfo getUriInfoImpl(final String path) {
         // UriInfo ui = mock(UriInfo.class,withSettings().verboseLogging());
         final UriInfo ui = mock(UriInfo.class);
-        final UriBuilder ub = new UriBuilderImpl();
+        final UriBuilder ub = new JerseyUriBuilder();
         ub.scheme("http");
         ub.host("localhost");
         ub.port(8080);
         ub.path("/fcrepo");
 
-        final UriBuilder rb = new UriBuilderImpl();
+        final UriBuilder rb = new JerseyUriBuilder();
         rb.scheme("http");
         rb.host("localhost");
         rb.port(8080);

@@ -17,8 +17,7 @@
 package org.fcrepo.http.api;
 
 import static com.hp.hpl.jena.rdf.model.ModelFactory.createDefaultModel;
-import static com.sun.jersey.api.Responses.clientError;
-import static com.sun.jersey.api.Responses.notAcceptable;
+import static javax.ws.rs.core.Response.notAcceptable;
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM_TYPE;
 import static javax.ws.rs.core.MediaType.TEXT_HTML;
 import static javax.ws.rs.core.Response.created;
@@ -60,11 +59,13 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.NotAcceptableException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -462,7 +463,7 @@ public class FedoraNodes extends AbstractResource {
                     result = datastreamService.createDatastream(session, newObjectPath);
                     break;
                 default:
-                    throw new WebApplicationException(clientError().entity("Unknown object type " + objectType).build());
+                    throw new ClientErrorException("Unknown object type " + objectType, 400);
             }
 
             if (requestBodyStream != null) {
@@ -480,7 +481,7 @@ public class FedoraNodes extends AbstractResource {
                     final Lang lang = contentTypeToLang(contentTypeString);
 
                     if (lang == null) {
-                        throw new WebApplicationException(notAcceptable().entity("Invalid Content type " + contentType).build());
+                        throw new NotAcceptableException("Invalid Content type " + contentType);
                     }
 
                     final String format = lang.getName()

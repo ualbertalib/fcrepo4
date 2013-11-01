@@ -17,7 +17,7 @@
 package org.fcrepo.http.commons;
 
 import static com.hp.hpl.jena.rdf.model.ModelFactory.createDefaultModel;
-import static com.sun.jersey.api.Responses.notAcceptable;
+import static javax.ws.rs.core.Response.notAcceptable;
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM_TYPE;
 import static org.apache.jena.riot.WebContent.contentTypeSPARQLUpdate;
 import static org.apache.jena.riot.WebContent.contentTypeToLang;
@@ -187,8 +187,10 @@ public abstract class AbstractResource {
                             final Lang lang = contentTypeToLang(contentType);
 
                             if (lang == null) {
+                                // TODO the NULL is supposed to be a list of acceptable
+                                // variants.
                                 throw new WebApplicationException(
-                                        notAcceptable().entity(
+                                        notAcceptable(null).entity(
                                                 "Invalid Content type "
                                                         + contentType).build());
                             }
