@@ -16,24 +16,22 @@
 
 package org.fcrepo.http.api.repository;
 
+import javax.inject.Inject;
 import javax.jcr.Session;
 import javax.ws.rs.Path;
 
 import org.fcrepo.http.api.FedoraTransactions;
-import org.fcrepo.http.commons.session.InjectedSession;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 /**
  * This stub is a hack to mount the functionality of FedoraTransactions at the
  * root of this webapp. Without it, the globbing from FedoraNodes would own this
  * path instead.
  */
-@Component
 @Scope("prototype")
 @Path("/fcr:tx")
 public class FedoraRepositoryTransactions extends FedoraTransactions {
 
-    @InjectedSession
+    @Inject
     protected Session session;
 }

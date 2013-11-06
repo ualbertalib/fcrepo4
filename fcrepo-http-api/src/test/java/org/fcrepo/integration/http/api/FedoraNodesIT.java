@@ -58,6 +58,7 @@ import java.util.Iterator;
 import java.util.UUID;
 
 import javax.jcr.RepositoryException;
+import javax.ws.rs.core.HttpHeaders;
 
 import nu.validator.htmlparser.sax.HtmlParser;
 import nu.validator.saxtree.TreeBuilder;
@@ -73,6 +74,7 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.impl.client.cache.CachingHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.fcrepo.http.commons.domain.RDFMediaType;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.ErrorHandler;
@@ -86,6 +88,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.sparql.core.Quad;
 import com.hp.hpl.jena.update.GraphStore;
+import com.hp.hpl.jena.vocabulary.RDFTest;
 
 public class FedoraNodesIT extends AbstractResourceIT {
 
@@ -142,7 +145,7 @@ public class FedoraNodesIT extends AbstractResourceIT {
         final String location = response.getFirstHeader("Location").getValue();
 
         final HttpGet httpGet = new HttpGet(location);
-
+        httpGet.addHeader(HttpHeaders.ACCEPT, RDFMediaType.N3_ALT1);
         final HttpResponse result = client.execute(httpGet);
 
         final GraphStore graphStore =
@@ -170,6 +173,7 @@ public class FedoraNodesIT extends AbstractResourceIT {
         final String location = response.getFirstHeader("Location").getValue();
 
         final HttpGet httpGet = new HttpGet(location);
+        httpGet.addHeader(HttpHeaders.ACCEPT, RDFMediaType.N3_ALT1);
 
         final HttpResponse result = client.execute(httpGet);
 
@@ -241,8 +245,9 @@ public class FedoraNodesIT extends AbstractResourceIT {
         assertEquals(404, getStatus(new HttpGet(serverAddress + pid + "/ds1")));
         assertEquals(CREATED.getStatusCode(), getStatus(postDSMethod(pid,
                 "ds1", "foo")));
+        HttpGet get = new HttpGet(serverAddress + pid + "/ds1");
         final HttpResponse response =
-            execute(new HttpGet(serverAddress + pid + "/ds1"));
+            execute(get);
         assertEquals(EntityUtils.toString(response.getEntity()), 200, response
                 .getStatusLine().getStatusCode());
         assertEquals(TURTLE, response.getFirstHeader("Content-Type").getValue());

@@ -25,6 +25,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.servlet.http.HttpServletRequest;
@@ -37,19 +38,16 @@ import javax.ws.rs.core.PathSegment;
 import javax.ws.rs.core.Response;
 
 import org.fcrepo.http.commons.AbstractResource;
-import org.fcrepo.http.commons.session.InjectedSession;
 import org.fcrepo.kernel.Transaction;
 import org.fcrepo.kernel.TxSession;
 import org.fcrepo.kernel.services.TransactionService;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 /**
  * Transactions over REST
  */
-@Component
 @Scope("prototype")
 @Path("/{path: .*}/fcr:tx")
 public class FedoraTransactions extends AbstractResource {
@@ -59,7 +57,7 @@ public class FedoraTransactions extends AbstractResource {
     @Autowired
     private TransactionService txService;
 
-    @InjectedSession
+    @Inject
     protected Session session;
 
     /**

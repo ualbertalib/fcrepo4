@@ -17,7 +17,6 @@
 package org.fcrepo.http.api;
 
 import static com.hp.hpl.jena.rdf.model.ModelFactory.createDefaultModel;
-import static javax.ws.rs.core.Response.notAcceptable;
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM_TYPE;
 import static javax.ws.rs.core.MediaType.TEXT_HTML;
 import static javax.ws.rs.core.Response.created;
@@ -54,6 +53,7 @@ import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.jcr.ItemExistsException;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
@@ -92,14 +92,11 @@ import org.fcrepo.http.commons.api.rdf.HttpGraphSubjects;
 import org.fcrepo.http.commons.domain.MOVE;
 import org.fcrepo.http.commons.domain.PATCH;
 import org.fcrepo.http.commons.domain.COPY;
-import org.fcrepo.http.commons.session.InjectedSession;
 import org.fcrepo.kernel.Datastream;
 import org.fcrepo.kernel.FedoraResource;
 import org.fcrepo.kernel.rdf.GraphSubjects;
 import org.modeshape.jcr.api.JcrConstants;
 import org.slf4j.Logger;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.codahale.metrics.annotation.Timed;
 import com.hp.hpl.jena.query.Dataset;
@@ -109,13 +106,10 @@ import com.hp.hpl.jena.rdf.model.Resource;
 /**
  * CRUD operations on Fedora Nodes
  */
-@Component
-@Scope("prototype")
 @Path("/{path: .*}")
 public class FedoraNodes extends AbstractResource {
 
-    @InjectedSession
-    protected Session session;
+    @Inject Session session;
 
     private static final Logger logger = getLogger(FedoraNodes.class);
 
@@ -232,7 +226,7 @@ public class FedoraNodes extends AbstractResource {
             return propertiesDataset;
 
         } finally {
-            session.logout();
+            this.session.logout();
         }
 
     }
@@ -307,7 +301,7 @@ public class FedoraNodes extends AbstractResource {
             }
 
         } finally {
-            session.logout();
+            this.session.logout();
         }
     }
 
@@ -373,7 +367,7 @@ public class FedoraNodes extends AbstractResource {
 
             return status(SC_NO_CONTENT).build();
         } finally {
-            session.logout();
+            this.session.logout();
         }
     }
 
@@ -519,7 +513,7 @@ public class FedoraNodes extends AbstractResource {
             return created(location).entity(newObjectPath).build();
 
         } finally {
-            session.logout();
+            this.session.logout();
         }
     }
 
@@ -565,7 +559,7 @@ public class FedoraNodes extends AbstractResource {
             session.save();
             return noContent().build();
         } finally {
-            session.logout();
+            this.session.logout();
         }
     }
 
@@ -602,7 +596,7 @@ public class FedoraNodes extends AbstractResource {
         } catch (final PathNotFoundException e) {
             return status(SC_CONFLICT).entity("There is no node that will serve as the parent of the moved item").build();
         } finally {
-            session.logout();
+            this.session.logout();
         }
 
     }
@@ -640,7 +634,7 @@ public class FedoraNodes extends AbstractResource {
         } catch (final PathNotFoundException e) {
             return status(SC_CONFLICT).entity("There is no node that will serve as the parent of the moved item").build();
         } finally {
-            session.logout();
+            this.session.logout();
         }
 
     }

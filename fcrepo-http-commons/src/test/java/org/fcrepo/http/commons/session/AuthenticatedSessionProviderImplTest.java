@@ -21,35 +21,37 @@ import static org.mockito.Mockito.verify;
 
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.SecurityContext;
 
-import org.fcrepo.http.commons.session.AuthenticatedSessionProviderImpl;
+import org.fcrepo.http.commons.session.AuthenticatedSessionProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.modeshape.jcr.api.ServletCredentials;
 
 public class AuthenticatedSessionProviderImplTest {
 
-    private Repository mockRepo;
-
+    private SessionFactory mockSessions;
+    
     @Before
     public void setUp() {
-        mockRepo = mock(Repository.class);
+        mockSessions = mock(SessionFactory.class);
     }
 
     @Test
     public void testCredentialsProvided() throws RepositoryException {
         final ServletCredentials mockCreds = mock(ServletCredentials.class);
-        final AuthenticatedSessionProviderImpl test =
-            new AuthenticatedSessionProviderImpl(mockRepo, mockCreds);
-        test.getAuthenticatedSession();
-        verify(mockRepo).login(mockCreds);
+        final AuthenticatedSessionProvider test =
+                new AuthenticatedSessionProvider(mockSessions, (SecurityContext)null, (HttpServletRequest)null);
+        test.provide();
+        verify(mockSessions).getSession(null, null);
     }
 
     @Test
     public void testNoCredentialsProvided() throws RepositoryException {
-        final AuthenticatedSessionProviderImpl test =
-            new AuthenticatedSessionProviderImpl(mockRepo, null);
-        test.getAuthenticatedSession();
-        verify(mockRepo).login();
+        final AuthenticatedSessionProvider test =
+            new AuthenticatedSessionProvider(mockSessions, (SecurityContext)null, (HttpServletRequest)null);
+        test.provide();
+        verify(mockSessions).getSession(null, null);
     }
 }

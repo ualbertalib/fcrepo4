@@ -65,7 +65,7 @@ public class TestAuthenticationRequestFilter implements Filter {
         // Validate the extracted credentials
         Set<String> containerRoles = emptySet();
         if (FEDORA_ADMIN_USER.equals(username)) {
-            containerRoles = singleton("fedoraAdmin");
+            containerRoles = singleton(FEDORA_ADMIN_USER);
             log.info("ADMIN AUTHENTICATED");
         } else {
             containerRoles = singleton("fedoraUser");
@@ -112,6 +112,9 @@ public class TestAuthenticationRequestFilter implements Filter {
 
     private String getUsername(final HttpServletRequest request) {
         // Extract authentication credentials
+        if (request == null) {
+            throw new IllegalStateException("request was null");
+        }
         String authentication = request.getHeader(AUTHORIZATION);
         if (authentication == null) {
             return null;

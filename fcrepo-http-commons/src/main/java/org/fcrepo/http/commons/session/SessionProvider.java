@@ -24,23 +24,17 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
 
+import org.glassfish.hk2.api.Factory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.sun.jersey.api.core.InjectParam;
-import com.sun.jersey.core.spi.component.ComponentContext;
-import com.sun.jersey.spi.inject.Injectable;
-import com.sun.jersey.spi.inject.PerRequestTypeInjectableProvider;
 
 /**
  * Provide a JCR session within the current request context
  */
 @Provider
-public class SessionProvider extends
-        PerRequestTypeInjectableProvider<InjectedSession, Session> {
+public class SessionProvider implements Factory<Session> {
 
     @Autowired
-    @InjectParam
     SessionFactory sessionFactory;
 
     @Context
@@ -55,13 +49,22 @@ public class SessionProvider extends
      * Yes, this provider really provides sessions
      */
     public SessionProvider() {
-        super(Session.class);
+        //super(Session.class);
+    }
+
+    /**
+     * Get the injectable thing, until we delete this code for HK2 stuff
+     * @param a
+     * @return
+     */
+    @Override
+    public Session provide() {
+        logger.trace("Returning new InjectableSession...");
+        return sessionFactory.getSession(secContext, request);
     }
 
     @Override
-    public Injectable<Session> getInjectable(final ComponentContext ic,
-            final InjectedSession a) {
-        logger.trace("Returning new InjectableSession...");
-        return new InjectableSession(sessionFactory, secContext, request);
+    public void dispose(Session session) {
+        session.logout();
     }
 }

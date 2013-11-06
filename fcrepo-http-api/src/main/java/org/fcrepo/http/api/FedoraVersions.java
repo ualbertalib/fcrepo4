@@ -34,6 +34,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.io.IOException;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.ws.rs.GET;
@@ -52,24 +53,21 @@ import javax.ws.rs.core.Variant;
 import org.fcrepo.http.commons.AbstractResource;
 import org.fcrepo.http.commons.api.rdf.HttpGraphSubjects;
 import org.fcrepo.http.commons.responses.RdfStreamStreamingOutput;
-import org.fcrepo.http.commons.session.InjectedSession;
 import org.fcrepo.kernel.FedoraResource;
 import org.fcrepo.kernel.utils.LogoutCallback;
 import org.slf4j.Logger;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 /**
  * Endpoint for retrieving previous versions of nodes
  *
  * @todo note that the versioning mechanics are not fully wired up yet
  */
-@Component
 @Scope("prototype")
 @Path("/{path: .*}/fcr:versions")
 public class FedoraVersions extends AbstractResource {
 
-    @InjectedSession
+    @Inject
     protected Session session;
 
     private static final Logger LOGGER = getLogger(FedoraNodes.class);

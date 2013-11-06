@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
@@ -59,7 +60,6 @@ import org.glassfish.jersey.media.multipart.ContentDisposition;
 import org.glassfish.jersey.media.multipart.MultiPart;
 import org.fcrepo.http.commons.AbstractResource;
 import org.fcrepo.http.commons.api.rdf.HttpGraphSubjects;
-import org.fcrepo.http.commons.session.InjectedSession;
 import org.fcrepo.kernel.Datastream;
 import org.fcrepo.kernel.exception.InvalidChecksumException;
 import org.fcrepo.kernel.utils.ContentDigest;
@@ -78,7 +78,7 @@ import com.codahale.metrics.annotation.Timed;
 @Path("/{path: .*}/fcr:datastreams")
 public class FedoraDatastreams extends AbstractResource {
 
-    @InjectedSession
+    @Inject
     protected Session session;
 
     private final Logger logger = getLogger(FedoraDatastreams.class);

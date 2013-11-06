@@ -21,11 +21,10 @@ import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.DatasetFactory;
 import org.fcrepo.http.commons.AbstractResource;
 import org.fcrepo.http.commons.responses.HtmlTemplate;
-import org.fcrepo.http.commons.session.InjectedSession;
 import org.slf4j.Logger;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
+import javax.inject.Inject;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.ws.rs.Consumes;
@@ -54,14 +53,13 @@ import static org.slf4j.LoggerFactory.getLogger;
  * Expose node types at a REST endpoint
  * @author cbeer
  */
-@Component
 @Scope("prototype")
 @Path("/fcr:nodetypes")
 public class FedoraRepositoryNodeTypes extends AbstractResource {
 
     private final Logger LOGGER = getLogger(FedoraRepositoryNodeTypes.class);
 
-    @InjectedSession
+    @Inject
     protected Session session;
 
     /**

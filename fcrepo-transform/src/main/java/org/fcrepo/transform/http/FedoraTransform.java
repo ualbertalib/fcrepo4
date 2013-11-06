@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -59,12 +60,11 @@ import org.springframework.stereotype.Component;
 import com.codahale.metrics.annotation.Timed;
 import com.hp.hpl.jena.query.Dataset;
 
-@Component
 @Scope("prototype")
 @Path("/{path: .*}/fcr:transform")
 public class FedoraTransform extends AbstractResource {
 
-    @InjectedSession
+    @Inject
     protected Session session;
 
     private final Logger logger = getLogger(FedoraTransform.class);

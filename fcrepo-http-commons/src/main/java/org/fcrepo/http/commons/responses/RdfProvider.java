@@ -25,14 +25,16 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+
+import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
+import org.fcrepo.http.commons.domain.RDFMediaType;
 import org.slf4j.Logger;
-import org.springframework.stereotype.Component;
 
 import com.hp.hpl.jena.query.Dataset;
 
@@ -41,7 +43,16 @@ import com.hp.hpl.jena.query.Dataset;
  * with cache headers.
  */
 @Provider
-@Component
+@Produces(value = {
+        RDFMediaType.TURTLE,
+        RDFMediaType.NTRIPLES,
+        RDFMediaType.RDF_XML,
+        RDFMediaType.RDF_JSON,
+        RDFMediaType.N3,
+        RDFMediaType.N3_ALT1,
+        RDFMediaType.N3_ALT2,
+        RDFMediaType.TRI_G,
+        RDFMediaType.NQUADS})
 public class RdfProvider implements MessageBodyWriter<Dataset> {
 
     private static final Logger logger = getLogger(RdfProvider.class);

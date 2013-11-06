@@ -148,9 +148,4 @@ public class SessionFactoryTest {
         verify(txSession).impersonate(any(Credentials.class));
     }
 
-    @Test
-    public void testGetSessionProvider() {
-        when(mockContext.getUserPrincipal()).thenReturn(mockUser);
-        testObj.getSessionProvider(mockContext, mockRequest);
-    }
 }

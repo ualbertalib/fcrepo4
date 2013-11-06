@@ -32,6 +32,7 @@ import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -56,12 +57,10 @@ import org.fcrepo.http.commons.AbstractResource;
 import org.fcrepo.http.commons.api.rdf.HttpGraphSubjects;
 import org.fcrepo.http.commons.domain.Range;
 import org.fcrepo.http.commons.responses.RangeRequestInputStream;
-import org.fcrepo.http.commons.session.InjectedSession;
 import org.fcrepo.kernel.Datastream;
 import org.fcrepo.kernel.exception.InvalidChecksumException;
 import org.slf4j.Logger;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.codahale.metrics.annotation.Timed;
 
@@ -69,7 +68,6 @@ import com.codahale.metrics.annotation.Timed;
  * Content controller for adding, reading, and manipulating
  * binary streams
  */
-@Component
 @Scope("prototype")
 @Path("/{path: .*}/fcr:content")
 public class FedoraContent extends AbstractResource {
@@ -78,7 +76,7 @@ public class FedoraContent extends AbstractResource {
 
     public static final int PARTIAL_CONTENT = 206;
 
-    @InjectedSession
+    @Inject
     protected Session session;
 
     private final Logger logger = getLogger(FedoraContent.class);

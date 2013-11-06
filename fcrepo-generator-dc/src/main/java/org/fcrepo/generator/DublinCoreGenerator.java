@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -51,7 +52,7 @@ public class DublinCoreGenerator extends AbstractResource {
     @Resource
     List<DCGenerator> dcgenerators;
 
-    @InjectedSession
+    @Inject
     protected Session session;
 
     /**

@@ -16,16 +16,50 @@
 
 package org.fcrepo.http.commons.session;
 
+import javax.inject.Inject;
 import javax.jcr.Session;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.SecurityContext;
+
+import org.glassfish.hk2.api.Factory;
+import org.glassfish.jersey.process.internal.RequestScoped;
 
 /**
- * Provide a JCR session for an authenticated HTTP session
+ * Retrieve a JCR session by just passing along the HTTP
+ * credentials.
  */
-public interface AuthenticatedSessionProvider {
+@RequestScoped
+public class AuthenticatedSessionProvider implements
+        Factory<Session> {
 
+    private final SessionFactory sessions;
+
+    private final SecurityContext securityContext;
+
+    private final HttpServletRequest request;
     /**
-     * Get an authenticated JCR session
-     * @return
+     * Get a new session provider for the JCR repository
+     *
+     * @param sessions
+     * @param request
      */
-    Session getAuthenticatedSession();
+    @Inject
+    public AuthenticatedSessionProvider(final SessionFactory sessions,
+            final SecurityContext securityContext,
+            final HttpServletRequest request) {
+        this.sessions = sessions;
+        this.securityContext = securityContext;
+        this.request = request;
+    }
+
+    @Override
+    public Session provide() {
+        return sessions.getSession(securityContext, request);
+    }
+
+    @Override
+    public void dispose(Session instance) {
+        instance.logout();
+    }
+
 }

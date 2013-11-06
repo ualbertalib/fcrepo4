@@ -32,6 +32,7 @@ import static org.fcrepo.http.commons.domain.RDFMediaType.TURTLE;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.inject.Inject;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.ws.rs.Consumes;
@@ -44,9 +45,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.fcrepo.http.commons.AbstractResource;
 import org.fcrepo.http.commons.responses.HtmlTemplate;
-import org.fcrepo.http.commons.session.InjectedSession;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.codahale.metrics.annotation.Timed;
 import com.hp.hpl.jena.query.Dataset;
@@ -60,12 +59,11 @@ import com.hp.hpl.jena.query.Dataset;
  *
  * @author ajs6f
  */
-@Component
 @Scope("prototype")
 @Path("/fcr:namespaces")
 public class FedoraRepositoryNamespaces extends AbstractResource {
 
-    @InjectedSession
+    @Inject
     protected Session session;
 
     /**

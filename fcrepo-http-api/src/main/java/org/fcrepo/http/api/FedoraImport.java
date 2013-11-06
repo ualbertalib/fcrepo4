@@ -25,6 +25,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.ws.rs.DefaultValue;
@@ -37,13 +38,11 @@ import javax.ws.rs.core.Response;
 
 import org.fcrepo.http.commons.AbstractResource;
 import org.fcrepo.http.commons.api.rdf.HttpGraphSubjects;
-import org.fcrepo.http.commons.session.InjectedSession;
 import org.fcrepo.kernel.exception.InvalidChecksumException;
 import org.fcrepo.serialization.SerializerUtil;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 /**
  * Import serialized objects at a given endpoint
@@ -51,12 +50,11 @@ import org.springframework.stereotype.Component;
  * @author ajs6f
  * @author cbeer
  */
-@Component
 @Scope("prototype")
 @Path("/{path: .*}/fcr:import")
 public class FedoraImport extends AbstractResource {
 
-    @InjectedSession
+    @Inject
     protected Session session;
 
     @Autowired

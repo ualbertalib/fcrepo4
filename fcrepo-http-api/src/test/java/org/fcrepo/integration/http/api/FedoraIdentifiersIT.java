@@ -29,6 +29,7 @@ import java.io.IOException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.fcrepo.http.commons.domain.RDFMediaType;
 import org.junit.Test;
 
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
@@ -46,7 +47,7 @@ public class FedoraIdentifiersIT extends AbstractResourceIT {
     @Test
     public void testGetNextHasAPid() throws IOException {
         final HttpPost method = new HttpPost(serverAddress + "fcr:pid");
-        method.setHeader("Accept", "application/n3");
+        method.setHeader("Accept", RDFMediaType.N3_ALT1);
         final HttpResponse response = client.execute(method);
         logger.debug("Executed testGetNextHasAPid()");
         final GraphStore graphStore =

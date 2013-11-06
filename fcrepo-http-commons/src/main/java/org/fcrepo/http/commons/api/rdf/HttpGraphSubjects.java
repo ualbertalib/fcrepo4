@@ -83,7 +83,7 @@ public class HttpGraphSubjects implements GraphSubjects {
     public Resource getGraphSubject(final String absPath)
         throws RepositoryException {
         final URI result =
-                nodesBuilder.buildFromMap(getPathMap(absPath));
+                nodesBuilder.buildFromEncodedMap(getPathMap(absPath));
         LOGGER.debug("Translated path {} into RDF subject {}", absPath, result);
         return createResource(result.toString());
     }
@@ -95,7 +95,7 @@ public class HttpGraphSubjects implements GraphSubjects {
 
     @Override
     public Resource getGraphSubject(final Node node) throws RepositoryException {
-        final URI result = nodesBuilder.buildFromMap(getPathMap(node));
+        final URI result = nodesBuilder.buildFromEncodedMap(getPathMap(node));
         LOGGER.debug("Translated node {} into RDF subject {}", node, result);
         return createResource(result.toString());
     }

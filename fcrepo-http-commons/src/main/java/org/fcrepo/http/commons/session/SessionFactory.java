@@ -21,6 +21,8 @@ import static com.google.common.base.Throwables.propagate;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -33,20 +35,19 @@ import org.fcrepo.kernel.exception.TransactionMissingException;
 import org.fcrepo.kernel.services.TransactionService;
 import org.modeshape.jcr.api.ServletCredentials;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-
 /**
  * Factory for generating sessions for HTTP requests, taking
  * into account transactions, workspaces, and authentication.
  */
+@Singleton
 public class SessionFactory {
 
     private static final Logger logger = getLogger(SessionFactory.class);
 
-    @Autowired
+    @Inject
     private Repository repo;
 
-    @Autowired
+    @Inject
     private TransactionService transactionService;
 
     /**
@@ -189,20 +190,6 @@ public class SessionFactory {
         } catch (final RepositoryException e) {
             throw propagate(e);
         }
-    }
-
-    /**
-     * Get the configured Session Provider
-     *
-     * @param securityContext
-     * @param servletRequest
-     * @return
-     */
-    public AuthenticatedSessionProvider getSessionProvider(
-            final SecurityContext securityContext,
-            final HttpServletRequest servletRequest) {
-        final ServletCredentials creds = new ServletCredentials(servletRequest);
-        return new AuthenticatedSessionProviderImpl(repo, creds);
     }
 
     /**

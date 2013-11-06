@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.inject.Inject;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
@@ -46,11 +47,9 @@ import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.fcrepo.http.commons.AbstractResource;
 import org.fcrepo.jms.legacy.LegacyMethod;
 import org.fcrepo.kernel.observer.FedoraEvent;
-import org.fcrepo.http.commons.session.InjectedSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -61,7 +60,6 @@ import com.google.common.eventbus.Subscribe;
  */
 @Path("/fcr:webhooks")
 @Scope("prototype")
-@Component
 public class FedoraWebhooks extends AbstractResource {
 
     /**
@@ -88,7 +86,7 @@ public class FedoraWebhooks extends AbstractResource {
 
     protected static HttpClient client;
 
-    @InjectedSession
+    @Inject
     protected Session session;
 
     /**

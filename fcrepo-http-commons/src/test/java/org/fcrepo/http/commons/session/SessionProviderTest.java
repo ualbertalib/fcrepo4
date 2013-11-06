@@ -18,7 +18,6 @@ package org.fcrepo.http.commons.session;
 
 import static org.fcrepo.http.commons.test.util.TestHelpers.setField;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -30,9 +29,6 @@ import javax.ws.rs.core.SecurityContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-
-import com.sun.jersey.core.spi.component.ComponentContext;
-import com.sun.jersey.spi.inject.Injectable;
 
 public class SessionProviderTest {
 
@@ -47,11 +43,6 @@ public class SessionProviderTest {
     @Mock
     private SecurityContext mockSecurityContext;
 
-    @Mock
-    private ComponentContext con;
-
-    @Mock
-    private InjectedSession in;
 
     @Mock
     private HttpServletRequest mockHttpServletRequest;
@@ -71,10 +62,8 @@ public class SessionProviderTest {
     }
 
     @Test
-    public void testGetInjectable() {
-        final Injectable<Session> inj = testObj.getInjectable(con, in);
-        assertNotNull("Didn't get an Injectable<Session>!", inj);
-        assertTrue("Didn't get an InjectableSession!", InjectableSession.class
-                .isAssignableFrom(inj.getClass()));
+    public void testProvide() {
+        final Session inj = testObj.provide();
+        assertNotNull("Didn't get an Session!", inj);
     }
 }

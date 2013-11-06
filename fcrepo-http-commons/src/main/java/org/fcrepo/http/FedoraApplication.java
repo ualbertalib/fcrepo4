@@ -13,25 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.fcrepo.http;
 
-package org.fcrepo.http.api.repository;
-
-import javax.inject.Inject;
 import javax.jcr.Session;
-import javax.ws.rs.Path;
 
-import org.fcrepo.http.api.FedoraIdentifiers;
-import org.springframework.context.annotation.Scope;
+import org.fcrepo.http.commons.session.AuthenticatedSessionProvider;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.server.ResourceConfig;
 
-/**
- * This stub is a hack to mount the functionality of FedoraIdentifiers at the
- * root of this webapp. Without it, the globbing from FedoraNodes would own this
- * path instead.
- */
-@Scope("prototype")
-@Path("/fcr:pid")
-public class FedoraRepositoryIdentifiers extends FedoraIdentifiers {
 
-    @Inject
-    protected Session session;
+public class FedoraApplication extends ResourceConfig {
+
+    /**
+     * THIS IS OUR RESOURCE CONFIG!
+     */
+    public FedoraApplication() {
+        super();
+        register(new FactoryBinder());
+    }
+
+    static class FactoryBinder extends AbstractBinder {
+
+        @Override
+        protected void configure() {
+            bindFactory(AuthenticatedSessionProvider.class).to(Session.class);
+        }
+    }
 }

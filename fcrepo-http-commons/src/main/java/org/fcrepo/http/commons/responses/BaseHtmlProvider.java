@@ -44,6 +44,7 @@ import javax.annotation.PostConstruct;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeTypeIterator;
+import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -77,6 +78,7 @@ import com.hp.hpl.jena.rdf.model.Model;
  * @date May 19, 2013
  */
 @Provider
+@Produces(value = {MediaType.APPLICATION_XHTML_XML, MediaType.TEXT_HTML})
 public class BaseHtmlProvider implements MessageBodyWriter<Dataset> {
 
     @Autowired

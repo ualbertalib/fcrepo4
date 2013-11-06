@@ -32,6 +32,8 @@ import static org.fcrepo.kernel.RdfLexicon.NOT_IMPLEMENTED;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.net.MalformedURLException;
+
+import javax.inject.Inject;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Workspace;
@@ -47,11 +49,9 @@ import javax.ws.rs.core.UriInfo;
 import org.fcrepo.http.api.FedoraNodes;
 import org.fcrepo.http.commons.AbstractResource;
 import org.fcrepo.http.commons.responses.HtmlTemplate;
-import org.fcrepo.http.commons.session.InjectedSession;
 import org.fcrepo.kernel.utils.JcrRdfTools;
 import org.slf4j.Logger;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.DatasetFactory;
@@ -62,14 +62,13 @@ import com.hp.hpl.jena.rdf.model.Resource;
  * This class exposes the JCR workspace functionality. It may be
  * too JCR-y in the long run, but this lets us exercise the functionality.
  */
-@Component
 @Scope("prototype")
 @Path("/fcr:workspaces")
 public class FedoraRepositoryWorkspaces extends AbstractResource {
 
     private static final Logger logger = getLogger(FedoraRepositoryWorkspaces.class);
 
-    @InjectedSession
+    @Inject
     protected Session session;
 
     /**

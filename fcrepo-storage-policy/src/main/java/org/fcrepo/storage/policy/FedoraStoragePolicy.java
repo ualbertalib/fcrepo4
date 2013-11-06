@@ -30,9 +30,9 @@ import org.modeshape.jcr.api.JcrTools;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
@@ -63,12 +63,11 @@ import java.io.IOException;
  * @date Aug 14, 2013
  */
 
-@Component
 @Scope("prototype")
 @Path("/{path: .*}/fcr:storagepolicy")
 public class FedoraStoragePolicy extends AbstractResource {
 
-    @InjectedSession
+    @Inject
     protected Session session;
 
     @Context

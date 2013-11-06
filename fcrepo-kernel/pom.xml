@@ -42,6 +42,16 @@
       <groupId>org.fcrepo</groupId>
       <artifactId>fcrepo-metrics</artifactId>
       <version>${project.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.sun.jersey</groupId>
+          <artifactId>jersey-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.sun.jersey</groupId>
+          <artifactId>jersey-server</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>	
     <dependency>
       <groupId>org.apache.jena</groupId>

@@ -24,9 +24,11 @@ import java.util.Collection;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.ws.rs.core.Application;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 
+import org.fcrepo.http.FedoraApplication;
 import org.fcrepo.http.commons.webxml.WebAppConfig;
 import org.fcrepo.http.commons.webxml.bind.ContextParam;
 import org.fcrepo.http.commons.webxml.bind.Filter;
@@ -35,13 +37,13 @@ import org.fcrepo.http.commons.webxml.bind.InitParam;
 import org.fcrepo.http.commons.webxml.bind.Listener;
 import org.fcrepo.http.commons.webxml.bind.Servlet;
 import org.fcrepo.http.commons.webxml.bind.ServletMapping;
-import org.glassfish.grizzly.http.server.HttpHandler;
 import org.glassfish.grizzly.http.server.HttpServer;
-import org.glassfish.grizzly.http.server.Request;
-import org.glassfish.grizzly.http.server.Response;
 import org.glassfish.grizzly.servlet.FilterRegistration;
 import org.glassfish.grizzly.servlet.ServletRegistration;
 import org.glassfish.grizzly.servlet.WebappContext;
+import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
+import org.glassfish.jersey.server.ApplicationHandler;
+import org.glassfish.jersey.server.ResourceConfig;
 import org.slf4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -77,21 +79,13 @@ public class ContainerWrapper implements ApplicationContextAware {
                         this.configLocation));
 
         final URI uri = URI.create("http://localhost:" + port);
-
-        server = createHttpServer(uri, new HttpHandler() {
-
-            @Override
-            public void service(final Request req, final Response res) throws Exception {
-                res.setStatus(404, "Not found");
-                res.getWriter().write("404: not found");
-            }
-        });
-
         // create a "root" web application
+        FedoraApplication application = new FedoraApplication();
         appContext = new WebappContext(o.displayName(), "/");
 
         for (final ContextParam p : o.contextParams()) {
             appContext.addContextInitParameter(p.name(), p.value());
+            application.property(p.name(), p.value());
         }
 
         for (final Listener l : o.listeners()) {
@@ -133,8 +127,11 @@ public class ContainerWrapper implements ApplicationContextAware {
             }
         }
 
+        application.packages("org.fcrepo.http");
+        server = createHttpServer(uri, application);
+        
         appContext.deploy(server);
-
+        
         logger.debug("started grizzly webserver endpoint at " +
                 server.getHttpHandler().getName());
     }

@@ -33,7 +33,6 @@ import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
 import org.slf4j.Logger;
-import org.springframework.stereotype.Component;
 
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.ResultSet;
@@ -44,7 +43,6 @@ import com.hp.hpl.jena.query.ResultSet;
  *
  */
 @Provider
-@Component
 public class QueryExecutionProvider implements MessageBodyWriter<QueryExecution> {
 
     private static final Logger logger = getLogger(QueryExecutionProvider.class);
