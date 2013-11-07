@@ -18,6 +18,9 @@ package org.fcrepo.integration.http.api;
 
 import static org.junit.Assert.assertEquals;
 
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -29,7 +32,7 @@ public class FedoraHtmlIT extends AbstractResourceIT {
     public void testGetRoot() throws Exception {
 
         final HttpGet method = new HttpGet(serverAddress);
-        method.addHeader("Accept", "text/html");
+        method.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
         final HttpResponse response = client.execute(method);
         assertEquals(200, response.getStatusLine().getStatusCode());
 
@@ -43,7 +46,7 @@ public class FedoraHtmlIT extends AbstractResourceIT {
         assertEquals(201, postResponse.getStatusLine().getStatusCode());
 
         final HttpGet method = new HttpGet(serverAddress + "FedoraHtmlObject");
-        method.addHeader("Accept", "text/html");
+        method.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
         final HttpResponse response = client.execute(method);
         assertEquals(200, response.getStatusLine().getStatusCode());
 
@@ -63,7 +66,7 @@ public class FedoraHtmlIT extends AbstractResourceIT {
 
         final HttpGet method =
             new HttpGet(serverAddress + "FedoraHtmlObject2/ds1");
-        method.addHeader("Accept", "text/html");
+        method.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
         final HttpResponse response = client.execute(method);
         assertEquals(200, response.getStatusLine().getStatusCode());
 
@@ -73,7 +76,7 @@ public class FedoraHtmlIT extends AbstractResourceIT {
     public void testGetNamespaces() throws Exception {
 
         final HttpGet method = new HttpGet(serverAddress + "fcr:namespaces");
-        method.addHeader("Accept", "text/html");
+        method.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
         final HttpResponse response = client.execute(method);
         assertEquals(200, response.getStatusLine().getStatusCode());
 

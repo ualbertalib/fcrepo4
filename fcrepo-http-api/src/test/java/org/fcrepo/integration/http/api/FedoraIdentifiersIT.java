@@ -27,6 +27,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
+import javax.ws.rs.core.HttpHeaders;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.fcrepo.http.commons.domain.RDFMediaType;
@@ -47,7 +49,7 @@ public class FedoraIdentifiersIT extends AbstractResourceIT {
     @Test
     public void testGetNextHasAPid() throws IOException {
         final HttpPost method = new HttpPost(serverAddress + "fcr:pid");
-        method.setHeader("Accept", RDFMediaType.N3_ALT1);
+        method.setHeader(HttpHeaders.ACCEPT, RDFMediaType.N3_APPLICATION);
         final HttpResponse response = client.execute(method);
         logger.debug("Executed testGetNextHasAPid()");
         final GraphStore graphStore =
@@ -62,7 +64,7 @@ public class FedoraIdentifiersIT extends AbstractResourceIT {
     public void testGetNextHasTwoPids() throws IOException {
         final HttpPost method =
                 new HttpPost(serverAddress + "fcr:pid?numPids=2");
-        method.setHeader("Accept", "application/n3");
+        method.setHeader(HttpHeaders.ACCEPT, RDFMediaType.N3_APPLICATION);
         final HttpResponse response = client.execute(method);
         logger.debug("Executed testGetNextHasTwoPids()");
         final GraphStore graphStore =
@@ -83,7 +85,7 @@ public class FedoraIdentifiersIT extends AbstractResourceIT {
     @Test
     public void testGetNextHasAPidWithPath() throws IOException {
         final HttpPost method = new HttpPost(serverAddress + "fcr:pid");
-        method.setHeader("Accept", "application/n3");
+        method.setHeader(HttpHeaders.ACCEPT, RDFMediaType.N3_APPLICATION);
         final HttpResponse response = client.execute(method);
         logger.debug("Executed testGetNextHasAPidWithPath()");
         final GraphStore graphStore =
@@ -98,7 +100,7 @@ public class FedoraIdentifiersIT extends AbstractResourceIT {
     public void testGetNextHasTwoPidsWithPath() throws IOException {
         final HttpPost method =
                 new HttpPost(serverAddress + "fcr:pid?numPids=2");
-        method.setHeader("Accept", "application/n3");
+        method.setHeader(HttpHeaders.ACCEPT, RDFMediaType.N3_APPLICATION);
         final HttpResponse response = client.execute(method);
         logger.debug("Executed testGetNextHasTwoPidsWithPath()");
         final GraphStore graphStore =

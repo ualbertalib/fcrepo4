@@ -22,6 +22,8 @@ import static org.apache.http.client.params.ClientPNames.HANDLE_REDIRECTS;
 import java.io.IOException;
 import java.net.URI;
 
+import javax.ws.rs.core.HttpHeaders;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
@@ -70,7 +72,7 @@ public class AuthzEndpointIT extends AbstractOAuthResourceIT {
                 new HttpPost(tokenEndpoint +
                         "?grant_type=authorization_code&code=" + authCode +
                         "&client_secret=foo&client_id=CLIENT-ID&redirect_uri=http://example.com");
-        post.addHeader("Accept", APPLICATION_JSON);
+        post.addHeader(HttpHeaders.ACCEPT, APPLICATION_JSON);
         post.addHeader("Content-type", APPLICATION_FORM_URLENCODED);
         final HttpResponse tokenResponse = client.execute(post);
         logger.debug("Got a token response: \n{}", EntityUtils

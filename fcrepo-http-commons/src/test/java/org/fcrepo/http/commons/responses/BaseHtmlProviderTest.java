@@ -111,7 +111,7 @@ public class BaseHtmlProviderTest {
         setField(baseHtmlProvider, "templatesMap", singletonMap("nt:file",
                 mockTemplate));
         baseHtmlProvider.writeTo(testData, Dataset.class, mock(Type.class),
-                new Annotation[] {}, MediaType.valueOf("text/html"),
+                new Annotation[] {}, MediaType.TEXT_HTML_TYPE,
                 new MultivaluedHashMap(), outStream);
         final byte[] results = outStream.toByteArray();
         assertTrue("Got no output from serialization!", results.length > 0);
@@ -139,8 +139,7 @@ public class BaseHtmlProviderTest {
         final HtmlTemplate mockAnnotation = mock(HtmlTemplate.class);
         when(mockAnnotation.value()).thenReturn("some:file");
         baseHtmlProvider.writeTo(testData, Dataset.class, mock(Type.class),
-                new Annotation[] {mockAnnotation}, MediaType
-                        .valueOf("text/html"),
+                new Annotation[] {mockAnnotation}, MediaType.TEXT_HTML_TYPE,
                 new MultivaluedHashMap(), outStream);
         final byte[] results = outStream.toByteArray();
         assertTrue("Got no output from serialization!", results.length > 0);

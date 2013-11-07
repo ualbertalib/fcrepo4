@@ -40,14 +40,14 @@ public class FedoraVersionsIT extends AbstractResourceIT {
         final String pid = "FedoraDatastreamsTest1";
 
         execute(postObjMethod(pid));
-        final HttpGet method =
+        final HttpGet getVersion =
             new HttpGet(serverAddress + pid + "/fcr:versions");
-        final HttpResponse resp = execute(method);
+        final HttpResponse resp = execute(getVersion);
         final String profile = EntityUtils.toString(resp.getEntity());
         assertEquals("Failed to retrieve version profile!\n" + profile, 200,
                 resp.getStatusLine().getStatusCode());
         logger.debug("Retrieved version profile:");
-        final Model results = extract(profile);
+        final Model results = extract(profile, getMediaType(resp.getEntity()));
         final Resource subject =
             createResource(serverAddress + pid + "/fcr:versions");
         assertTrue("Didn't find a version triple!", results.contains(subject,
@@ -73,7 +73,7 @@ public class FedoraVersionsIT extends AbstractResourceIT {
         assertEquals("Failed to retrieve new version!\n" + version, 200, resp
                 .getStatusLine().getStatusCode());
         logger.info("Got version profile:");
-        final Model results = extract(version);
+        final Model results = extract(version, getMediaType(resp.getEntity()));
         assertTrue("Found no version!", results.contains(null,
                 HAS_PRIMARY_TYPE, "nt:frozenNode"));
     }

@@ -78,7 +78,7 @@ import com.hp.hpl.jena.rdf.model.Model;
  * @date May 19, 2013
  */
 @Provider
-@Produces(value = {MediaType.APPLICATION_XHTML_XML, MediaType.TEXT_HTML})
+@Produces(MediaType.TEXT_HTML)
 public class BaseHtmlProvider implements MessageBodyWriter<Dataset> {
 
     @Autowired
@@ -182,7 +182,7 @@ public class BaseHtmlProvider implements MessageBodyWriter<Dataset> {
             final OutputStream entityStream) throws IOException,
         WebApplicationException {
 
-        LOGGER.debug("Writing an HTML response for: {}", rdf);
+        LOGGER.debug("Writing an HTML response for: {} mediaType {}", rdf, mediaType);
         LOGGER.trace("Attempting to discover our subject");
         final Node subject = getDatasetSubject(rdf);
 

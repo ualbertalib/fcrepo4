@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.ws.rs.core.HttpHeaders;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
@@ -44,8 +46,8 @@ public class TokenEndpointIT extends AbstractOAuthResourceIT {
                 new HttpPost(
                         tokenEndpoint +
                                 "?grant_type=password&username=foo&password=bar&client_secret=foo&client_id=bar");
-        post.addHeader("Accept", APPLICATION_JSON);
-        post.addHeader("Content-type", APPLICATION_FORM_URLENCODED);
+        post.addHeader(HttpHeaders.ACCEPT, APPLICATION_JSON);
+        post.addHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_FORM_URLENCODED);
         final HttpResponse tokenResponse = client.execute(post);
         logger.debug("Got a token response: \n{}", EntityUtils
                 .toString(tokenResponse.getEntity()));
@@ -71,8 +73,8 @@ public class TokenEndpointIT extends AbstractOAuthResourceIT {
                 new HttpPost(
                         tokenEndpoint +
                                 "?grant_type=password&username=foo&password=bar&client_secret=foo&client_id=bar");
-        post.addHeader("Accept", APPLICATION_JSON);
-        post.addHeader("Content-type", APPLICATION_FORM_URLENCODED);
+        post.addHeader(HttpHeaders.ACCEPT, APPLICATION_JSON);
+        post.addHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_FORM_URLENCODED);
         final HttpResponse tokenResponse = client.execute(post);
         final String tokenResponseString =
                 EntityUtils.toString(tokenResponse.getEntity());

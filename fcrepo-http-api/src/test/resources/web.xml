@@ -21,7 +21,7 @@
 		<servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
 		<init-param>
 			<param-name>jersey.config.server.provider.packages</param-name>
-			<param-value>org.fcrepo.http;org.fcrepo.http.api</param-value>
+			<param-value>org.fcrepo.http;org.fcrepo.http.commons.responses;org.fcrepo.http.api</param-value>
 		</init-param>
 		<init-param>
       <param-name>javax.ws.rs.Application</param-name>

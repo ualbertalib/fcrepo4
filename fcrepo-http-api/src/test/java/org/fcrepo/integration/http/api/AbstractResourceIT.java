@@ -20,14 +20,16 @@ import static com.hp.hpl.jena.rdf.model.ModelFactory.createDefaultModel;
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.parseInt;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.apache.jena.riot.WebContent.contentTypeToLang;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 
+import javax.ws.rs.core.MediaType;
+
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -38,6 +40,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.util.EntityUtils;
+import org.fcrepo.http.commons.domain.RDFMediaType;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -126,14 +129,19 @@ public abstract class AbstractResourceIT {
     }
 
     protected Model extract(final String serialization) throws IOException {
-        logger.debug("Reading RDF:\n{}", serialization);
-        try (
-
-            final InputStream rdf =
-                new ByteArrayInputStream(serialization.getBytes(Charset
-                        .forName("UTF8")))) {
-            return createDefaultModel().read(rdf, null);
-        }
+        return extract(serialization, RDFMediaType.TURTLE_TYPE);
+    }
+    
+    protected Model extract(final String serialization,
+            final MediaType mediaType)
+    throws IOException {
+        String lang = contentTypeToLang(mediaType.toString()).getName();
+        logger.debug("Reading {} RDF:\n{}", lang, serialization);
+        return createDefaultModel().read(new StringReader(serialization), null,lang);
+    }
+    
+    protected static MediaType getMediaType(HttpEntity entity) {
+        return MediaType.valueOf(entity.getContentType().getValue());
     }
 
 }

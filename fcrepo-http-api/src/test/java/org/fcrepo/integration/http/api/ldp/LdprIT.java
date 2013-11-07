@@ -33,6 +33,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
+import javax.ws.rs.core.HttpHeaders;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -102,7 +104,7 @@ public class LdprIT extends AbstractResourceIT {
             @Override
             public boolean apply(final String input) {
                 final HttpGet testMethod = new HttpGet(serverAddress + "");
-                testMethod.setHeader("Accept", input);
+                testMethod.setHeader(HttpHeaders.ACCEPT, input);
                 try {
                     client.execute(testMethod);
                 } catch (final IOException e) {

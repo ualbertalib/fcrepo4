@@ -23,9 +23,9 @@ import static com.hp.hpl.jena.vocabulary.RDF.type;
 import static javax.ws.rs.core.MediaType.TEXT_HTML;
 import static javax.ws.rs.core.Response.status;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import static org.fcrepo.http.commons.domain.RDFMediaType.N3;
-import static org.fcrepo.http.commons.domain.RDFMediaType.N3_ALT1;
-import static org.fcrepo.http.commons.domain.RDFMediaType.N3_ALT2;
+import static org.fcrepo.http.commons.domain.RDFMediaType.N3_TEXT_RDF;
+import static org.fcrepo.http.commons.domain.RDFMediaType.N3_APPLICATION;
+import static org.fcrepo.http.commons.domain.RDFMediaType.N3_TEXT;
 import static org.fcrepo.http.commons.domain.RDFMediaType.NTRIPLES;
 import static org.fcrepo.http.commons.domain.RDFMediaType.RDF_JSON;
 import static org.fcrepo.http.commons.domain.RDFMediaType.RDF_XML;
@@ -133,7 +133,7 @@ public class FedoraFieldSearch extends AbstractResource implements
      */
     @GET
     @Timed
-    @Produces({TURTLE, N3, N3_ALT1, N3_ALT2, RDF_XML, RDF_JSON, NTRIPLES})
+    @Produces({TURTLE, N3_TEXT_RDF, N3_APPLICATION, N3_TEXT, RDF_XML, RDF_JSON, NTRIPLES})
     public Dataset searchSubmitRdf(@QueryParam("q") final String terms,
             @QueryParam("offset") @DefaultValue("0") final long offset,
             @QueryParam("limit") @DefaultValue("25") final int limit,

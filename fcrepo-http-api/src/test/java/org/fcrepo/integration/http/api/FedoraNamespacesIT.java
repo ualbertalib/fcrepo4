@@ -27,6 +27,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 
+import javax.ws.rs.core.HttpHeaders;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -41,7 +43,7 @@ public class FedoraNamespacesIT extends AbstractResourceIT {
     public void testGet() throws Exception {
 
         final HttpGet get = new HttpGet(serverAddress + "fcr:namespaces");
-        get.addHeader("Accept", "application/n-triples");
+        get.addHeader(HttpHeaders.ACCEPT, "application/n-triples");
         final HttpResponse response = execute(get);
         final int status = response.getStatusLine().getStatusCode();
         assertEquals(200, status);
@@ -70,7 +72,7 @@ public class FedoraNamespacesIT extends AbstractResourceIT {
         execute(post);
 
         final HttpGet get = new HttpGet(serverAddress + "fcr:namespaces");
-        get.addHeader("Accept", "application/n-triples");
+        get.addHeader(HttpHeaders.ACCEPT, "application/n-triples");
         final HttpResponse response = execute(get);
         final int status = response.getStatusLine().getStatusCode();
         assertEquals(200, status);
@@ -109,7 +111,7 @@ public class FedoraNamespacesIT extends AbstractResourceIT {
         execute(post);
 
         final HttpGet get = new HttpGet(serverAddress + "fcr:namespaces");
-        get.addHeader("Accept", "application/n-triples");
+        get.addHeader(HttpHeaders.ACCEPT, "application/n-triples");
         final HttpResponse response = execute(get);
         final int status = response.getStatusLine().getStatusCode();
         assertEquals(200, status);
@@ -148,7 +150,7 @@ public class FedoraNamespacesIT extends AbstractResourceIT {
         execute(post);
 
         final HttpGet get = new HttpGet(serverAddress + "fcr:namespaces");
-        get.addHeader("Accept", "application/n-triples");
+        get.addHeader(HttpHeaders.ACCEPT, "application/n-triples");
         final HttpResponse response = execute(get);
         final int status = response.getStatusLine().getStatusCode();
         assertEquals(200, status);
@@ -187,7 +189,7 @@ public class FedoraNamespacesIT extends AbstractResourceIT {
         execute(post);
 
         final HttpGet get = new HttpGet(serverAddress + "fcr:namespaces");
-        get.addHeader("Accept", "application/n-triples");
+        get.addHeader(HttpHeaders.ACCEPT, "application/n-triples");
         final HttpResponse response = execute(get);
         final int status = response.getStatusLine().getStatusCode();
         assertEquals(200, status);

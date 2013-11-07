@@ -34,6 +34,8 @@ import org.springframework.test.context.ContextConfiguration;
 
 import java.io.ByteArrayInputStream;
 
+import javax.ws.rs.core.HttpHeaders;
+
 @ContextConfiguration({"/spring-test/test-container.xml"})
 public class DublinCoreGeneratorIT extends AbstractResourceIT {
 
@@ -52,7 +54,7 @@ public class DublinCoreGeneratorIT extends AbstractResourceIT {
         assertEquals(204, getStatus(post));
         final HttpGet getWorstCaseOaiMethod =
                 new HttpGet(serverOAIAddress + "DublinCoreTest1/oai:dc");
-        getWorstCaseOaiMethod.setHeader("Accept", TEXT_XML);
+        getWorstCaseOaiMethod.setHeader(HttpHeaders.ACCEPT, TEXT_XML);
         final HttpResponse response = client.execute(getWorstCaseOaiMethod);
 
         assertEquals(200, response.getStatusLine().getStatusCode());
@@ -83,7 +85,7 @@ public class DublinCoreGeneratorIT extends AbstractResourceIT {
 
         final HttpGet getWorstCaseOaiMethod =
             new HttpGet(serverOAIAddress + pid + "/oai:dc");
-        getWorstCaseOaiMethod.setHeader("Accept", TEXT_XML);
+        getWorstCaseOaiMethod.setHeader(HttpHeaders.ACCEPT, TEXT_XML);
         response = client.execute(getWorstCaseOaiMethod);
         assertEquals(200, response.getStatusLine().getStatusCode());
         final String content = EntityUtils.toString(response.getEntity());

@@ -37,6 +37,7 @@ import java.io.OutputStream;
 
 import javax.ws.rs.core.MediaType;
 
+import org.fcrepo.http.commons.domain.RDFMediaType;
 import org.fcrepo.kernel.utils.iterators.RdfStream;
 import org.junit.Before;
 import org.junit.Test;
@@ -68,7 +69,7 @@ public class RdfStreamStreamingOutputTest {
     @Mock
     private RdfStream mockRdfStream;
 
-    private MediaType testMediaType = valueOf("application/rdf+xml");
+    private MediaType testMediaType = valueOf(RDFMediaType.RDF_XML);
 
     private static final ValueFactory vf = getInstance();
 

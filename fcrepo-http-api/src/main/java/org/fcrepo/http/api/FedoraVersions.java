@@ -21,9 +21,9 @@ import static javax.ws.rs.core.Response.noContent;
 import static javax.ws.rs.core.Response.ok;
 import static javax.ws.rs.core.Response.status;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
-import static org.fcrepo.http.commons.domain.RDFMediaType.N3;
-import static org.fcrepo.http.commons.domain.RDFMediaType.N3_ALT1;
-import static org.fcrepo.http.commons.domain.RDFMediaType.N3_ALT2;
+import static org.fcrepo.http.commons.domain.RDFMediaType.N3_TEXT_RDF;
+import static org.fcrepo.http.commons.domain.RDFMediaType.N3_APPLICATION;
+import static org.fcrepo.http.commons.domain.RDFMediaType.N3_TEXT;
 import static org.fcrepo.http.commons.domain.RDFMediaType.NTRIPLES;
 import static org.fcrepo.http.commons.domain.RDFMediaType.POSSIBLE_RDF_VARIANTS;
 import static org.fcrepo.http.commons.domain.RDFMediaType.RDF_JSON;
@@ -82,7 +82,7 @@ public class FedoraVersions extends AbstractResource {
      * @throws RepositoryException
      */
     @GET
-    @Produces({TURTLE, N3, N3_ALT1, N3_ALT2, RDF_XML, RDF_JSON, NTRIPLES})
+    @Produces({TURTLE, N3_TEXT_RDF, N3_APPLICATION, N3_TEXT, RDF_XML, RDF_JSON, NTRIPLES})
     public Response getVersionList(@PathParam("path")
             final List<PathSegment> pathList,
             @Context
@@ -147,7 +147,7 @@ public class FedoraVersions extends AbstractResource {
      */
     @Path("/{versionLabel}")
     @GET
-    @Produces({TURTLE, N3, N3_ALT1, N3_ALT2, RDF_XML, RDF_JSON, NTRIPLES})
+    @Produces({TURTLE, N3_TEXT_RDF, N3_APPLICATION, N3_TEXT, RDF_XML, RDF_JSON, NTRIPLES})
     public Response getVersion(@PathParam("path")
             final List<PathSegment> pathList,
             @PathParam("versionLabel")

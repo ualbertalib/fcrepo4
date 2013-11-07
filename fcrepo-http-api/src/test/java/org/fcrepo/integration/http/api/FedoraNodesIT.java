@@ -59,10 +59,12 @@ import java.util.UUID;
 
 import javax.jcr.RepositoryException;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 
 import nu.validator.htmlparser.sax.HtmlParser;
 import nu.validator.saxtree.TreeBuilder;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.client.methods.HttpDelete;
@@ -145,7 +147,7 @@ public class FedoraNodesIT extends AbstractResourceIT {
         final String location = response.getFirstHeader("Location").getValue();
 
         final HttpGet httpGet = new HttpGet(location);
-        httpGet.addHeader(HttpHeaders.ACCEPT, RDFMediaType.N3_ALT1);
+        httpGet.addHeader(HttpHeaders.ACCEPT, RDFMediaType.N3_APPLICATION);
         final HttpResponse result = client.execute(httpGet);
 
         final GraphStore graphStore =
@@ -159,7 +161,7 @@ public class FedoraNodesIT extends AbstractResourceIT {
     @Test
     public void testIngestWithNewAndGraph() throws Exception {
         final HttpPost method = postObjMethod("");
-        method.addHeader("Content-Type", "application/n3");
+        method.addHeader(HttpHeaders.CONTENT_TYPE, RDFMediaType.N3_APPLICATION);
         final BasicHttpEntity entity = new BasicHttpEntity();
         final String rdf = "<> <http://purl.org/dc/terms/title> \"this is a title\".";
         entity.setContent(new ByteArrayInputStream(rdf.getBytes()));
@@ -173,7 +175,7 @@ public class FedoraNodesIT extends AbstractResourceIT {
         final String location = response.getFirstHeader("Location").getValue();
 
         final HttpGet httpGet = new HttpGet(location);
-        httpGet.addHeader(HttpHeaders.ACCEPT, RDFMediaType.N3_ALT1);
+        httpGet.addHeader(HttpHeaders.ACCEPT, RDFMediaType.N3_APPLICATION);
 
         final HttpResponse result = client.execute(httpGet);
 
@@ -246,9 +248,15 @@ public class FedoraNodesIT extends AbstractResourceIT {
         assertEquals(CREATED.getStatusCode(), getStatus(postDSMethod(pid,
                 "ds1", "foo")));
         HttpGet get = new HttpGet(serverAddress + pid + "/ds1");
+        get.setHeader(HttpHeaders.ACCEPT, null);
         final HttpResponse response =
             execute(get);
-        assertEquals(EntityUtils.toString(response.getEntity()), 200, response
+        String entity = EntityUtils.toString(response.getEntity());
+        String url = get.getURI().toURL().toString();
+        
+        String sanity = IOUtils.toString(Runtime.getRuntime().exec("curl -v " + url).getInputStream());
+        assertEquals(entity, sanity);
+        assertEquals(entity, 200, response
                 .getStatusLine().getStatusCode());
         assertEquals(TURTLE, response.getFirstHeader("Content-Type").getValue());
     }
@@ -277,7 +285,7 @@ public class FedoraNodesIT extends AbstractResourceIT {
     @Test
     public void testGetRepositoryGraph() throws Exception {
         final HttpGet getObjMethod = new HttpGet(serverAddress + "");
-        getObjMethod.addHeader("Accept", "application/n-triples");
+        getObjMethod.addHeader(HttpHeaders.ACCEPT, "application/n-triples");
         final HttpResponse response = client.execute(getObjMethod);
         assertEquals(OK.getStatusCode(), response.getStatusLine()
                 .getStatusCode());
@@ -295,7 +303,7 @@ public class FedoraNodesIT extends AbstractResourceIT {
         client.execute(postObjMethod("FedoraDescribeTestGraph"));
         final HttpGet getObjMethod =
                 new HttpGet(serverAddress + "FedoraDescribeTestGraph");
-        getObjMethod.addHeader("Accept", "text/html");
+        getObjMethod.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
         final HttpResponse response = client.execute(getObjMethod);
         assertEquals(OK.getStatusCode(), response.getStatusLine()
                 .getStatusCode());
@@ -309,7 +317,7 @@ public class FedoraNodesIT extends AbstractResourceIT {
         client.execute(postObjMethod("FedoraDescribeTestGraph"));
         final HttpGet getObjMethod =
                 new HttpGet(serverAddress + "FedoraDescribeTestGraph");
-        getObjMethod.addHeader("Accept", "application/rdf+xml");
+        getObjMethod.addHeader(HttpHeaders.ACCEPT, RDFMediaType.RDF_XML);
         final HttpResponse response = client.execute(getObjMethod);
         assertEquals(OK.getStatusCode(), response.getStatusLine()
                 .getStatusCode());
@@ -344,7 +352,7 @@ public class FedoraNodesIT extends AbstractResourceIT {
         client.execute(postObjMethod("FedoraDescribeWithChildrenTestGraph/c"));
         final HttpGet getObjMethod =
             new HttpGet(serverAddress + "FedoraDescribeWithChildrenTestGraph");
-        getObjMethod.addHeader("Accept", "application/rdf+xml");
+        getObjMethod.addHeader(HttpHeaders.ACCEPT, RDFMediaType.RDF_XML);
         final HttpResponse response = client.execute(getObjMethod);
         assertEquals(OK.getStatusCode(), response.getStatusLine()
                                              .getStatusCode());
@@ -377,7 +385,7 @@ public class FedoraNodesIT extends AbstractResourceIT {
         client.execute(postObjMethod("FedoraDescribeTestGraph"));
         final HttpGet getObjMethod =
             new HttpGet(serverAddress + "FedoraDescribeTestGraph?non-member-properties");
-        getObjMethod.addHeader("Accept", "application/n-triples");
+        getObjMethod.addHeader(HttpHeaders.ACCEPT, "application/n-triples");
         final HttpResponse response = client.execute(getObjMethod);
         assertEquals(OK.getStatusCode(), response.getStatusLine()
                                              .getStatusCode());
@@ -402,7 +410,7 @@ public class FedoraNodesIT extends AbstractResourceIT {
         final HttpGet getObjMethod =
                 new HttpGet(serverAddress +
                         "FedoraDescribeTestGraphByUuid");
-        getObjMethod.addHeader("Accept", "application/n3");
+        getObjMethod.addHeader(HttpHeaders.ACCEPT, RDFMediaType.N3_APPLICATION);
         final HttpResponse response = client.execute(getObjMethod);
         assertEquals(OK.getStatusCode(), response.getStatusLine()
                 .getStatusCode());
@@ -419,7 +427,7 @@ public class FedoraNodesIT extends AbstractResourceIT {
 
         final HttpGet getObjMethodByUuid =
                 new HttpGet(serverAddress + "%5B" + uuid + "%5D");
-        getObjMethodByUuid.addHeader("Accept", "application/n3");
+        getObjMethodByUuid.addHeader(HttpHeaders.ACCEPT, RDFMediaType.N3_APPLICATION);
         final HttpResponse uuidResponse = client.execute(getObjMethod);
         assertEquals(200, uuidResponse.getStatusLine().getStatusCode());
 
@@ -477,7 +485,7 @@ public class FedoraNodesIT extends AbstractResourceIT {
 
         new HttpGet(subjectURI);
 
-        getObjMethod.addHeader("Accept", "application/n-triples");
+        getObjMethod.addHeader(HttpHeaders.ACCEPT, "application/n-triples");
         final HttpResponse getResponse = client.execute(getObjMethod);
         assertEquals(OK.getStatusCode(), getResponse.getStatusLine()
                 .getStatusCode());
@@ -518,7 +526,7 @@ public class FedoraNodesIT extends AbstractResourceIT {
         final String subjectURI =
             serverAddress + "FedoraReplaceGraph";
         final HttpPut replaceMethod = new HttpPut(subjectURI);
-        replaceMethod.addHeader("Content-Type", "application/n3");
+        replaceMethod.addHeader("Content-Type", RDFMediaType.N3_APPLICATION);
         final BasicHttpEntity e = new BasicHttpEntity();
         e.setContent(new ByteArrayInputStream(
                 ("<" + subjectURI + "> <info:rubydora#label> \"asdfg\"")
@@ -530,7 +538,7 @@ public class FedoraNodesIT extends AbstractResourceIT {
 
         final HttpGet getObjMethod = new HttpGet(subjectURI);
 
-        getObjMethod.addHeader("Accept", "application/rdf+xml");
+        getObjMethod.addHeader(HttpHeaders.ACCEPT, RDFMediaType.RDF_XML);
         final HttpResponse getResponse = client.execute(getObjMethod);
         assertEquals(OK.getStatusCode(), getResponse.getStatusLine().getStatusCode());
         final Model model = createDefaultModel();
@@ -557,11 +565,11 @@ public class FedoraNodesIT extends AbstractResourceIT {
             serverAddress + "FedoraRoundTripGraph";
 
         final HttpGet getObjMethod = new HttpGet(subjectURI);
-        getObjMethod.addHeader("Accept", "application/n3");
+        getObjMethod.addHeader(HttpHeaders.ACCEPT, RDFMediaType.N3_APPLICATION);
         final HttpResponse getResponse = client.execute(getObjMethod);
 
         final HttpPut replaceMethod = new HttpPut(subjectURI);
-        replaceMethod.addHeader("Content-Type", "application/n3");
+        replaceMethod.addHeader("Content-Type", RDFMediaType.N3_APPLICATION);
         final BasicHttpEntity e = new BasicHttpEntity();
         e.setContent(getResponse.getEntity().getContent());
         replaceMethod.setEntity(e);
@@ -576,7 +584,7 @@ public class FedoraNodesIT extends AbstractResourceIT {
         final String sizeNode = randomUUID().toString();
 
         final HttpGet describeMethod = new HttpGet(serverAddress + "");
-        describeMethod.addHeader("Accept", "text/n3");
+        describeMethod.addHeader(HttpHeaders.ACCEPT, "text/n3");
         HttpResponse response = client.execute(describeMethod);
         assertEquals(OK.getStatusCode(), response.getStatusLine()
                 .getStatusCode());
@@ -618,7 +626,7 @@ public class FedoraNodesIT extends AbstractResourceIT {
     @Test
     public void testDescribeCount() throws Exception {
         final HttpGet describeMethod = new HttpGet(serverAddress + "");
-        describeMethod.addHeader("Accept", "text/n3");
+        describeMethod.addHeader(HttpHeaders.ACCEPT, "text/n3");
         HttpResponse response = client.execute(describeMethod);
         assertEquals(OK.getStatusCode(), response.getStatusLine()
                 .getStatusCode());
@@ -667,7 +675,7 @@ public class FedoraNodesIT extends AbstractResourceIT {
     @Test
     public void testGetProjectedNode() throws Exception {
         final HttpGet method = new HttpGet(serverAddress + "files/FileSystem1");
-        method.setHeader("Accept", "text/n3");
+        method.setHeader(HttpHeaders.ACCEPT, "text/n3");
         final HttpResponse response = execute(method);
 
         assertEquals(OK.getStatusCode(), response.getStatusLine()
@@ -782,7 +790,7 @@ public class FedoraNodesIT extends AbstractResourceIT {
 
     private void validateHTML(final String path) throws Exception {
         final HttpGet getMethod = new HttpGet(serverAddress + path);
-        getMethod.addHeader("Accept", "text/html");
+        getMethod.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
         final HttpResponse response = client.execute(getMethod);
         assertEquals(OK.getStatusCode(), response.getStatusLine()
                 .getStatusCode());

@@ -28,10 +28,13 @@ import static org.fcrepo.kernel.RdfLexicon.IS_FIXITY_RESULT_OF;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import javax.ws.rs.core.HttpHeaders;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.fcrepo.http.commons.domain.RDFMediaType;
 import org.junit.Test;
 
 import com.hp.hpl.jena.update.GraphStore;
@@ -48,7 +51,7 @@ public class FedoraFixityIT extends AbstractResourceIT {
         final HttpGet method2 =
             new HttpGet(serverAddress
                     + "FedoraDatastreamsTest11/zxc/fcr:fixity");
-        method2.setHeader("Accept", "application/n3");
+        method2.setHeader(HttpHeaders.ACCEPT, RDFMediaType.N3_APPLICATION);
         final HttpResponse response = execute(method2);
         assertEquals(200, response.getStatusLine().getStatusCode());
         final HttpEntity entity = response.getEntity();

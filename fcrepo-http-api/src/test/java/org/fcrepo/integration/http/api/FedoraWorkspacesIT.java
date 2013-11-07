@@ -26,11 +26,14 @@ import java.io.InputStream;
 import java.util.List;
 
 import javax.jcr.RepositoryException;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.fcrepo.http.commons.domain.RDFMediaType;
 import org.junit.Test;
 
 import com.hp.hpl.jena.update.GraphStore;
@@ -40,7 +43,7 @@ public class FedoraWorkspacesIT extends AbstractResourceIT {
     @Test
     public void testGetWorkspaces() throws Exception {
         final HttpGet httpGet = new HttpGet(serverAddress + "fcr:workspaces");
-        httpGet.setHeader("Accept", "text/html");
+        httpGet.setHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
         final HttpResponse response = execute(httpGet);
         assertEquals(200, response.getStatusLine().getStatusCode());
 
@@ -77,7 +80,7 @@ public class FedoraWorkspacesIT extends AbstractResourceIT {
 
         final HttpGet httpGet =
             new HttpGet(serverAddress + "workspace:" + workspace + "/" + pid);
-        httpGet.setHeader("Accept", "application/n3");
+        httpGet.setHeader(HttpHeaders.ACCEPT, RDFMediaType.N3_APPLICATION);
         final HttpResponse profileResponse = execute(httpGet);
         assertEquals(200, profileResponse.getStatusLine().getStatusCode());
         final GraphStore graphStore =

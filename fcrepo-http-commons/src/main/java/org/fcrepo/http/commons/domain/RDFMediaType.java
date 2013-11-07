@@ -41,17 +41,17 @@ import javax.ws.rs.core.Variant;
  */
 public abstract class RDFMediaType extends MediaType {
 
-    public static final String N3 = contentTypeN3;
+    public static final String N3_TEXT_RDF = contentTypeN3;
 
-    public static final MediaType N3_TYPE = typeFromString(N3);
+    public static final MediaType N3_TEXT_RDF_TYPE = typeFromString(N3_TEXT_RDF);
 
-    public static final String N3_ALT1 = contentTypeN3Alt1;
+    public static final String N3_APPLICATION = contentTypeN3Alt1;
 
-    public static final MediaType N3_ALT1_TYPE = typeFromString(N3_ALT1);
+    public static final MediaType N3_APPLICATION_TYPE = typeFromString(N3_APPLICATION);
 
-    public static final String N3_ALT2 = contentTypeN3Alt2;
+    public static final String N3_TEXT = contentTypeN3Alt2;
 
-    public static final MediaType N3_ALT2_TYPE = typeFromString(N3_ALT2);
+    public static final MediaType N3_TEXT_TYPE = typeFromString(N3_TEXT);
 
     public static final String TURTLE = contentTypeTurtle;
 
@@ -78,8 +78,12 @@ public abstract class RDFMediaType extends MediaType {
     public static final MediaType NQUADS_TYPE = typeFromString(NQUADS);
 
     public static final List<Variant> POSSIBLE_RDF_VARIANTS = mediaTypes(
-            RDF_XML_TYPE, NTRIPLES_TYPE, TURTLE_TYPE, RDF_JSON_TYPE, N3_TYPE,
-            N3_ALT1_TYPE, N3_ALT2_TYPE, TRI_G_TYPE, NQUADS_TYPE).add().build();
+            TURTLE_TYPE, RDF_XML_TYPE, NTRIPLES_TYPE, RDF_JSON_TYPE, N3_TEXT_RDF_TYPE,
+            N3_APPLICATION_TYPE, N3_TEXT_TYPE, TRI_G_TYPE, NQUADS_TYPE).add().build();
+
+    public static final List<Variant> ALL_VARIANTS = mediaTypes(
+            TURTLE_TYPE, RDF_XML_TYPE, NTRIPLES_TYPE, RDF_JSON_TYPE, N3_TEXT_RDF_TYPE,
+            N3_APPLICATION_TYPE, N3_TEXT_TYPE, TRI_G_TYPE, NQUADS_TYPE, MediaType.TEXT_HTML_TYPE).add().build();
 
     private static MediaType typeFromString(final String type) {
         return new MediaType(type.split("/")[0], type.split("/")[1]);

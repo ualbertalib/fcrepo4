@@ -33,6 +33,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.net.URI;
 
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -40,6 +43,7 @@ import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
+import org.fcrepo.http.commons.domain.RDFMediaType;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -51,7 +55,7 @@ public class FedoraFieldSearchIT extends AbstractResourceIT {
     @Test
     public void testSearchHtml() throws Exception {
         final HttpGet method = new HttpGet(serverAddress + "fcr:search");
-        method.setHeader("Accept", "text/html");
+        method.setHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
 
         final HttpResponse resp = execute(method);
 
@@ -65,7 +69,7 @@ public class FedoraFieldSearchIT extends AbstractResourceIT {
     @Test
     public void testSearchResultsHtml() throws Exception {
         final HttpGet method = new HttpGet(serverAddress + "fcr:search");
-        method.setHeader("Accept", "text/html");
+        method.setHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
         final URI uri =
             new URIBuilder(method.getURI()).addParameter("q", "testobj")
                     .addParameter("offset", "0").addParameter("limit", "1")
@@ -103,7 +107,7 @@ public class FedoraFieldSearchIT extends AbstractResourceIT {
         postDc.releaseConnection();
 
         final HttpGet method = new HttpGet(serverAddress + "fcr:search");
-        method.setHeader("Accept", "application/n3");
+        method.setHeader(HttpHeaders.ACCEPT, RDFMediaType.N3_APPLICATION);
         final URI uri =
             new URIBuilder(method.getURI()).addParameter("q", "testobj")
                     .addParameter("offset", "0").addParameter("limit", "1")
@@ -148,7 +152,7 @@ public class FedoraFieldSearchIT extends AbstractResourceIT {
     public void testSearchSubmitPaging() throws Exception {
 
         final HttpGet method = new HttpGet(serverAddress + "fcr:search");
-        method.setHeader("Accept", "application/n3");
+        method.setHeader(HttpHeaders.ACCEPT, RDFMediaType.N3_APPLICATION);
         final URI uri =
                 new URIBuilder(method.getURI()).addParameter("q", "testobj")
                         .addParameter("offset", "1").addParameter("limit", "1")

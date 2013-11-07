@@ -62,6 +62,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.IOUtils;
+import org.fcrepo.http.commons.domain.RDFMediaType;
 import org.fcrepo.kernel.Datastream;
 import org.fcrepo.kernel.FedoraObject;
 import org.fcrepo.kernel.FedoraResource;
@@ -325,7 +326,7 @@ public class FedoraNodesTest {
             new ByteArrayInputStream("<a> <b> <c>".getBytes());
         when(mockNodes.getObject(mockSession, path)).thenReturn(mockObject);
 
-        testObj.createOrReplaceObjectRdf(createPathList(pid), getUriInfoImpl(), MediaType.valueOf("application/n3"), mockStream, mockRequest);
+        testObj.createOrReplaceObjectRdf(createPathList(pid), getUriInfoImpl(), RDFMediaType.N3_APPLICATION_TYPE, mockStream, mockRequest);
         verify(mockObject).replaceProperties(any(GraphSubjects.class), any(Model.class));
     }
 

@@ -26,7 +26,6 @@ import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
-import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -43,16 +42,6 @@ import com.hp.hpl.jena.query.Dataset;
  * with cache headers.
  */
 @Provider
-@Produces(value = {
-        RDFMediaType.TURTLE,
-        RDFMediaType.NTRIPLES,
-        RDFMediaType.RDF_XML,
-        RDFMediaType.RDF_JSON,
-        RDFMediaType.N3,
-        RDFMediaType.N3_ALT1,
-        RDFMediaType.N3_ALT2,
-        RDFMediaType.TRI_G,
-        RDFMediaType.NQUADS})
 public class RdfProvider implements MessageBodyWriter<Dataset> {
 
     private static final Logger logger = getLogger(RdfProvider.class);
@@ -67,13 +56,16 @@ public class RdfProvider implements MessageBodyWriter<Dataset> {
 
         logger.debug("Writing a response for: {} with MIMEtype: {}", rdf,
                 mediaType);
-
+        MediaType realType = (mediaType == null ||
+                mediaType.equals(RDFMediaType.WILDCARD_TYPE)) ?
+                        RDFMediaType.TURTLE_TYPE :
+                        mediaType;
         // add standard headers
-        httpHeaders.put("Content-type", singletonList((Object) mediaType.toString()));
+        httpHeaders.put("Content-type", singletonList((Object) realType.toString()));
 
         setCachingHeaders(httpHeaders, rdf);
 
-        new GraphStoreStreamingOutput(rdf, mediaType).write(entityStream);
+        new GraphStoreStreamingOutput(rdf, realType).write(entityStream);
     }
 
     @Override
@@ -82,6 +74,9 @@ public class RdfProvider implements MessageBodyWriter<Dataset> {
 
         // we can return a result for any MIME type that Jena can serialize
         final Boolean appropriateMimeType =
+                mediaType == null ||
+                mediaType.equals(MediaType.WILDCARD_TYPE) ||
+                mediaType.equals(RDFMediaType.RDF_XML_TYPE) ||
                 contentTypeToLang(mediaType.toString()) != null;
         return appropriateMimeType &&
                 (Dataset.class.isAssignableFrom(type) || Dataset.class

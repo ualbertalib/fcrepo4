@@ -25,6 +25,8 @@ import static org.fcrepo.http.commons.test.util.TestHelpers.parseTriples;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import javax.ws.rs.core.HttpHeaders;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -32,6 +34,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.util.EntityUtils;
+import org.fcrepo.http.commons.domain.RDFMediaType;
 import org.junit.Test;
 
 import com.hp.hpl.jena.graph.Node;
@@ -56,7 +59,7 @@ public class FedoraDatastreamsIT extends AbstractResourceIT {
 
         final HttpGet getDSesMethod =
                 new HttpGet(serverAddress + "FedoraDatastreamsTest7");
-        getDSesMethod.addHeader("Accept", "text/n3");
+        getDSesMethod.addHeader(HttpHeaders.ACCEPT, RDFMediaType.N3_TEXT);
         final HttpResponse response = client.execute(getDSesMethod);
         assertEquals(200, response.getStatusLine().getStatusCode());
         final GraphStore result =
@@ -97,7 +100,7 @@ public class FedoraDatastreamsIT extends AbstractResourceIT {
 
         final HttpGet getDSesMethod =
             new HttpGet(serverAddress + "FedoraDatastreamsTest8");
-        getDSesMethod.addHeader("Accept", "text/n3");
+        getDSesMethod.addHeader(HttpHeaders.ACCEPT, RDFMediaType.N3_TEXT);
         final HttpResponse response = client.execute(getDSesMethod);
         assertEquals(200, response.getStatusLine().getStatusCode());
 

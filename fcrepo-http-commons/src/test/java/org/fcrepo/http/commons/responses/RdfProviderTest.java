@@ -34,6 +34,7 @@ import java.lang.reflect.Type;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
 
+import org.fcrepo.http.commons.domain.RDFMediaType;
 import org.fcrepo.http.commons.responses.RdfProvider;
 import org.junit.Test;
 
@@ -63,11 +64,11 @@ public class RdfProviderTest {
         assertTrue(
                 "Gave false response to RdfProvider.isWriteable() that contained a legitimate combination of parameters!",
                 rdfProvider.isWriteable(Dataset.class, Dataset.class, null,
-                        valueOf("application/rdf+xml")));
+                        RDFMediaType.RDF_XML_TYPE));
         assertFalse(
                 "RdfProvider.isWriteable() should return false if asked to serialize anything other than Dataset!",
                 rdfProvider.isWriteable(RdfProvider.class, RdfProvider.class,
-                        null, valueOf("application/rdf+xml")));
+                        null, RDFMediaType.RDF_XML_TYPE));
         assertFalse(
                 "RdfProvider.isWriteable() should return false to text/html!",
                 rdfProvider.isWriteable(Dataset.class, Dataset.class, null,
@@ -88,7 +89,7 @@ public class RdfProviderTest {
         final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 
         rdfProvider.writeTo(testData, Dataset.class, mock(Type.class), null,
-                valueOf("application/rdf+xml"), mock(MultivaluedMap.class),
+                RDFMediaType.RDF_XML_TYPE, mock(MultivaluedMap.class),
                 outStream);
         final byte[] results = outStream.toByteArray();
         assertTrue("Got no output from serialization!", results.length > 0);

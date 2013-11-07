@@ -30,9 +30,9 @@ import static org.apache.http.HttpStatus.SC_NO_CONTENT;
 import static org.apache.http.HttpStatus.SC_PRECONDITION_FAILED;
 import static org.apache.jena.riot.WebContent.contentTypeSPARQLUpdate;
 import static org.apache.jena.riot.WebContent.contentTypeToLang;
-import static org.fcrepo.http.commons.domain.RDFMediaType.N3;
-import static org.fcrepo.http.commons.domain.RDFMediaType.N3_ALT1;
-import static org.fcrepo.http.commons.domain.RDFMediaType.N3_ALT2;
+import static org.fcrepo.http.commons.domain.RDFMediaType.N3_TEXT_RDF;
+import static org.fcrepo.http.commons.domain.RDFMediaType.N3_APPLICATION;
+import static org.fcrepo.http.commons.domain.RDFMediaType.N3_TEXT;
 import static org.fcrepo.http.commons.domain.RDFMediaType.NTRIPLES;
 import static org.fcrepo.http.commons.domain.RDFMediaType.RDF_JSON;
 import static org.fcrepo.http.commons.domain.RDFMediaType.RDF_XML;
@@ -92,6 +92,7 @@ import org.fcrepo.http.commons.api.rdf.HttpGraphSubjects;
 import org.fcrepo.http.commons.domain.MOVE;
 import org.fcrepo.http.commons.domain.PATCH;
 import org.fcrepo.http.commons.domain.COPY;
+import org.fcrepo.http.commons.domain.RDFMediaType;
 import org.fcrepo.kernel.Datastream;
 import org.fcrepo.kernel.FedoraResource;
 import org.fcrepo.kernel.rdf.GraphSubjects;
@@ -128,7 +129,7 @@ public class FedoraNodes extends AbstractResource {
      * @throws IOException
      */
     @GET
-    @Produces({TURTLE, N3, N3_ALT1, N3_ALT2, RDF_XML, RDF_JSON, NTRIPLES,
+    @Produces({TURTLE, N3_TEXT_RDF, N3_APPLICATION, N3_TEXT, RDF_XML, RDF_JSON, NTRIPLES,
             TEXT_HTML})
     public Dataset describe(@PathParam("path") final List<PathSegment> pathList,
             @QueryParam("offset") @DefaultValue("0") final int offset,
@@ -139,6 +140,7 @@ public class FedoraNodes extends AbstractResource {
             @Context final UriInfo uriInfo) throws RepositoryException, IOException {
         final String path = toPath(pathList);
         logger.trace("Getting profile for {}", path);
+        logger.debug("Getting profile for {} of type {}", path, request.selectVariant(RDFMediaType.POSSIBLE_RDF_VARIANTS));
 
         try {
             final FedoraResource resource =
@@ -315,7 +317,7 @@ public class FedoraNodes extends AbstractResource {
      * @throws Exception
      */
     @PUT
-    @Consumes({TURTLE, N3, N3_ALT1, N3_ALT2, RDF_XML, RDF_JSON, NTRIPLES})
+    @Consumes({TURTLE, N3_TEXT_RDF, N3_APPLICATION, N3_TEXT, RDF_XML, RDF_JSON, NTRIPLES})
     @Timed
     public Response createOrReplaceObjectRdf(
             @PathParam("path") final List<PathSegment> pathList,

@@ -29,10 +29,13 @@ import static org.fcrepo.kernel.services.TransactionService.REAP_INTERVAL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import javax.ws.rs.core.HttpHeaders;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.fcrepo.http.commons.domain.RDFMediaType;
 import org.junit.Test;
 
 import com.hp.hpl.jena.graph.Node;
@@ -122,7 +125,7 @@ public class FedoraTransactionsIT extends AbstractResourceIT {
         /* fetch the created tx from the endpoint */
         final HttpGet getTx =
             new HttpGet(txLocation + "/object-in-tx-rollback");
-        getTx.setHeader("Accept", "application/n3");
+        getTx.setHeader(HttpHeaders.ACCEPT, RDFMediaType.N3_APPLICATION);
         resp = execute(getTx);
         assertEquals(
                 "Expected to find our object within the scope of the transaction",
@@ -174,7 +177,7 @@ public class FedoraTransactionsIT extends AbstractResourceIT {
 
         /* fetch the created tx from the endpoint */
         final HttpGet getTx = new HttpGet(txLocation + "/" + objectInTxCommit);
-        getTx.setHeader("Accept", "application/n3");
+        getTx.setHeader(HttpHeaders.ACCEPT, RDFMediaType.N3_APPLICATION);
         resp = execute(getTx);
         assertEquals(
                 "Expected to find our object within the scope of the transaction",

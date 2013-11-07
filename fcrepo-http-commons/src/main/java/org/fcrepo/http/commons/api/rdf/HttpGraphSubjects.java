@@ -96,7 +96,7 @@ public class HttpGraphSubjects implements GraphSubjects {
     @Override
     public Resource getGraphSubject(final Node node) throws RepositoryException {
         final URI result = nodesBuilder.buildFromEncodedMap(getPathMap(node));
-        LOGGER.debug("Translated node {} into RDF subject {}", node, result);
+        LOGGER.debug("Translated node {} into RDF subject {}", node.getPath(), result);
         return createResource(result.toString());
     }
 
@@ -114,7 +114,7 @@ public class HttpGraphSubjects implements GraphSubjects {
 
         if (session.nodeExists(absPath)) {
             node = session.getNode(absPath);
-            LOGGER.trace("RDF resource {} maps to JCR node {}", subject, node);
+            LOGGER.trace("RDF resource {} maps to JCR node {}", subject, absPath);
         } else {
             node = null;
             LOGGER.debug(

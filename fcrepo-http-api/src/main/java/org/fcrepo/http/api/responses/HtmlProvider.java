@@ -16,13 +16,17 @@
 
 package org.fcrepo.http.api.responses;
 
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.ext.Provider;
+
 import org.fcrepo.http.commons.responses.BaseHtmlProvider;
-import org.springframework.stereotype.Component;
 
 /**
  * JAX-RS provider for taking a dataset graph and returning some nice looking
  * HTML
  */
-@Component
+@Provider
+@Produces(MediaType.TEXT_HTML)
 public class HtmlProvider extends BaseHtmlProvider {
 }
