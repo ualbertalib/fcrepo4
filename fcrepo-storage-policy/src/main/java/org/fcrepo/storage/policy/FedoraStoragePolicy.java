@@ -25,7 +25,6 @@ import org.apache.commons.lang.StringUtils;
 import org.fcrepo.http.commons.AbstractResource;
 import org.fcrepo.kernel.services.policy.StoragePolicy;
 import org.fcrepo.kernel.services.policy.StoragePolicyDecisionPoint;
-import org.fcrepo.http.commons.session.InjectedSession;
 import org.modeshape.jcr.api.JcrTools;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

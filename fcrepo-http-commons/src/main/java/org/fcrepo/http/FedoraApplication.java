@@ -19,6 +19,7 @@ import javax.jcr.Session;
 
 import org.fcrepo.http.commons.session.AuthenticatedSessionProvider;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 
 
@@ -30,6 +31,7 @@ public class FedoraApplication extends ResourceConfig {
     public FedoraApplication() {
         super();
         register(new FactoryBinder());
+        register(JacksonFeature.class);
     }
 
     static class FactoryBinder extends AbstractBinder {

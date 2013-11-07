@@ -46,7 +46,6 @@ import org.apache.marmotta.ldpath.exception.LDPathParseException;
 import org.fcrepo.http.api.FedoraNodes;
 import org.fcrepo.http.commons.AbstractResource;
 import org.fcrepo.http.commons.api.rdf.HttpGraphSubjects;
-import org.fcrepo.http.commons.session.InjectedSession;
 import org.fcrepo.kernel.FedoraResource;
 import org.fcrepo.transform.Transformation;
 import org.fcrepo.transform.TransformationFactory;
@@ -55,7 +54,6 @@ import org.modeshape.jcr.api.JcrTools;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.codahale.metrics.annotation.Timed;
 import com.hp.hpl.jena.query.Dataset;
