@@ -65,6 +65,7 @@ import nu.validator.htmlparser.sax.HtmlParser;
 import nu.validator.saxtree.TreeBuilder;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.client.methods.HttpDelete;
@@ -74,6 +75,9 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.BasicHttpEntity;
+import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.cache.CachingHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.fcrepo.http.commons.domain.RDFMediaType;
@@ -100,6 +104,9 @@ public class FedoraNodesIT extends AbstractResourceIT {
         final String pid = randomUUID().toString();
 
         final HttpPost method = postObjMethod(pid);
+        MultipartEntityBuilder foo = MultipartEntityBuilder.create();
+        //method.setEntity(new InputStreamEntity(new NullInputStream(), 0));
+//        method.setEntity(foo.build());
         final HttpResponse response = client.execute(method);
         assertEquals(CREATED.getStatusCode(), response.getStatusLine()
                 .getStatusCode());
@@ -109,6 +116,18 @@ public class FedoraNodesIT extends AbstractResourceIT {
         final String location = response.getFirstHeader("Location").getValue();
         assertEquals("Got wrong Location header for ingest!", serverAddress
                 + pid, location);
+    }
+    
+    static class NullInputStream extends InputStream {
+
+        /**
+         * @inherit
+         */
+        @Override
+        public int read() throws IOException {
+            return -1;
+        }
+        
     }
 
     @Test

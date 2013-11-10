@@ -42,7 +42,6 @@ import org.fcrepo.kernel.Transaction;
 import org.fcrepo.kernel.TxSession;
 import org.fcrepo.kernel.services.TransactionService;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 
 /**
@@ -54,7 +53,7 @@ public class FedoraTransactions extends AbstractResource {
 
     private static final Logger LOGGER = getLogger(FedoraTransactions.class);
 
-    @Autowired
+    @Inject
     private TransactionService txService;
 
     @Inject

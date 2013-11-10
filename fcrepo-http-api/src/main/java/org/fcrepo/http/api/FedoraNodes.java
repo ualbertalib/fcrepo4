@@ -17,7 +17,7 @@
 package org.fcrepo.http.api;
 
 import static com.hp.hpl.jena.rdf.model.ModelFactory.createDefaultModel;
-import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM_TYPE;
+import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
 import static javax.ws.rs.core.MediaType.TEXT_HTML;
 import static javax.ws.rs.core.Response.created;
 import static javax.ws.rs.core.Response.noContent;
@@ -84,7 +84,6 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
-import com.sun.jersey.multipart.FormDataParam;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.riot.Lang;
 import org.fcrepo.http.commons.AbstractResource;
@@ -96,6 +95,7 @@ import org.fcrepo.http.commons.domain.RDFMediaType;
 import org.fcrepo.kernel.Datastream;
 import org.fcrepo.kernel.FedoraResource;
 import org.fcrepo.kernel.rdf.GraphSubjects;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.modeshape.jcr.api.JcrConstants;
 import org.slf4j.Logger;
 
@@ -135,6 +135,8 @@ public class FedoraNodes extends AbstractResource {
             @QueryParam("offset") @DefaultValue("0") final int offset,
             @QueryParam("limit") @DefaultValue("-1") final int limit,
             @QueryParam("non-member-properties") final String nonMemberProperties,
+            @HeaderParam("Content-Type") @DefaultValue(TURTLE)
+            final String requestContentType,
             @Context final Request request,
             @Context final HttpServletResponse servletResponse,
             @Context final UriInfo uriInfo) throws RepositoryException, IOException {
@@ -322,8 +324,8 @@ public class FedoraNodes extends AbstractResource {
     public Response createOrReplaceObjectRdf(
             @PathParam("path") final List<PathSegment> pathList,
             @Context final UriInfo uriInfo,
-            @HeaderParam("Content-Type")
-            final MediaType requestContentType,
+            @HeaderParam("Content-Type") @DefaultValue(TURTLE)
+            final String requestContentType,
             final InputStream requestBodyStream,
             @Context final Request request) throws Exception {
         final String path = toPath(pathList);
@@ -381,16 +383,21 @@ public class FedoraNodes extends AbstractResource {
      * @throws Exception
      */
     @POST
+    @Consumes(MediaType.WILDCARD)
     @Timed
     public Response createObject(@PathParam("path")
             final List<PathSegment> pathList,
             @QueryParam("mixin")
+            @DefaultValue("")
             final String mixin,
             @QueryParam("checksum")
+            @DefaultValue("")
             final String checksum,
             @HeaderParam("Content-Type")
-            final MediaType requestContentType,
+            @DefaultValue("")
+            final String requestContentType,
             @HeaderParam("Slug")
+            @DefaultValue("")
             final String slug,
             @Context
             final UriInfo uriInfo, final InputStream requestBodyStream)
@@ -403,7 +410,7 @@ public class FedoraNodes extends AbstractResource {
         if (nodeService.exists(session, path)) {
             final String pid;
 
-            if (slug != null) {
+            if (!slug.isEmpty()) {
                 pid = slug;
             }  else {
                 pid = pidMinter.mintPid();
@@ -424,7 +431,7 @@ public class FedoraNodes extends AbstractResource {
 
             final URI checksumURI;
 
-            if (checksum != null && !checksum.equals("")) {
+            if (!checksum.isEmpty()) {
                 checksumURI = new URI(checksum);
             } else {
                 checksumURI = null;
@@ -434,12 +441,11 @@ public class FedoraNodes extends AbstractResource {
 
             final String objectType;
 
-            if (mixin != null) {
+            if (!mixin.isEmpty()) {
                 objectType = mixin;
             } else {
-                if (requestContentType != null) {
-                    final String s = requestContentType.toString();
-                    if (s.equals(contentTypeSPARQLUpdate) || contentTypeToLang(s) != null) {
+                if (!requestContentType.isEmpty()) {
+                    if (requestContentType.equals(contentTypeSPARQLUpdate) || contentTypeToLang(requestContentType) != null) {
                         objectType = FEDORA_OBJECT;
                     } else {
                         objectType = FEDORA_DATASTREAM;
@@ -464,17 +470,15 @@ public class FedoraNodes extends AbstractResource {
 
             if (requestBodyStream != null) {
 
-                final MediaType contentType =
+                final String contentType =
                     requestContentType != null ? requestContentType
-                        : APPLICATION_OCTET_STREAM_TYPE;
+                        : APPLICATION_OCTET_STREAM;
 
-                final String contentTypeString = contentType.toString();
-
-                if (contentTypeString.equals(contentTypeSPARQLUpdate)) {
+                if (contentType.equals(contentTypeSPARQLUpdate)) {
                     result.updatePropertiesDataset(subjects, IOUtils.toString(requestBodyStream));
-                } else if (contentTypeToLang(contentTypeString) != null) {
+                } else if (contentTypeToLang(contentType) != null) {
 
-                    final Lang lang = contentTypeToLang(contentTypeString);
+                    final Lang lang = contentTypeToLang(contentType);
 
                     if (lang == null) {
                         throw new NotAcceptableException("Invalid Content type " + contentType);
@@ -493,7 +497,7 @@ public class FedoraNodes extends AbstractResource {
                 } else if (result instanceof Datastream) {
 
                     datastreamService.createDatastreamNode(session,
-                            newObjectPath, contentTypeString,
+                            newObjectPath, contentType,
                             requestBodyStream, checksumURI);
 
                 }
@@ -529,7 +533,7 @@ public class FedoraNodes extends AbstractResource {
      * @return
      * @throws Exception
      */
-    @POST
+    //@POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Timed
     public Response createObjectFromFormPost(

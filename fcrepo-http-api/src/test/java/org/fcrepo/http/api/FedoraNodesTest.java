@@ -16,7 +16,7 @@
 
 package org.fcrepo.http.api;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM_TYPE;
+import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
 import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
@@ -56,7 +56,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.ValueFactory;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -65,7 +64,6 @@ import org.apache.commons.io.IOUtils;
 import org.fcrepo.http.commons.domain.RDFMediaType;
 import org.fcrepo.kernel.Datastream;
 import org.fcrepo.kernel.FedoraObject;
-import org.fcrepo.kernel.FedoraResource;
 import org.fcrepo.kernel.identifiers.PidMinter;
 import org.fcrepo.kernel.rdf.GraphSubjects;
 import org.fcrepo.kernel.services.DatastreamService;
@@ -98,9 +96,6 @@ public class FedoraNodesTest {
 
     @Mock
     private Request mockRequest;
-
-    @Mock
-    private FedoraResource mockResource;
 
     Session mockSession;
 
@@ -156,8 +151,8 @@ public class FedoraNodesTest {
         when(mockObject.getNode()).thenReturn(mockNode);
         when(mockNode.getPath()).thenReturn(path);
         final Response actual =
-                testObj.createObject(createPathList(pid), FEDORA_OBJECT, null,
-                        null, null, getUriInfoImpl(), null);
+                testObj.createObject(createPathList(pid), FEDORA_OBJECT, "",
+                        null, "", getUriInfoImpl(), null);
         assertNotNull(actual);
         assertEquals(CREATED.getStatusCode(), actual.getStatus());
         assertTrue(actual.getEntity().toString().endsWith(pid));
@@ -177,8 +172,8 @@ public class FedoraNodesTest {
         when(mockObject.getNode()).thenReturn(mockNode);
         when(mockNode.getPath()).thenReturn(path);
         final Response actual =
-            testObj.createObject(createPathList(pid), FEDORA_OBJECT, null,
-                                    null, null, getUriInfoImpl(), null);
+            testObj.createObject(createPathList(pid), FEDORA_OBJECT, "",
+                                    null, "", getUriInfoImpl(), null);
         assertNotNull(actual);
         assertEquals(CREATED.getStatusCode(), actual.getStatus());
         assertTrue(actual.getEntity().toString().endsWith("a"));
@@ -197,7 +192,7 @@ public class FedoraNodesTest {
         when(mockObject.getNode()).thenReturn(mockNode);
         when(mockNode.getPath()).thenReturn(path);
         final Response actual =
-            testObj.createObject(createPathList(pid), FEDORA_OBJECT, null,
+            testObj.createObject(createPathList(pid), FEDORA_OBJECT, "",
                                     null, "some-slug", getUriInfoImpl(), null);
         assertNotNull(actual);
         assertEquals(CREATED.getStatusCode(), actual.getStatus());
@@ -226,7 +221,7 @@ public class FedoraNodesTest {
         when(mockNode.getPath()).thenReturn(dsPath);
         final Response actual =
                 testObj.createObject(createPathList(pid, dsId),
-                        FEDORA_DATASTREAM, null, APPLICATION_OCTET_STREAM_TYPE, null, getUriInfoImpl(),
+                        FEDORA_DATASTREAM, "", APPLICATION_OCTET_STREAM, "", getUriInfoImpl(),
                         dsContentStream);
         assertEquals(CREATED.getStatusCode(), actual.getStatus());
         verify(mockDatastreams)
@@ -262,7 +257,7 @@ public class FedoraNodesTest {
                 .thenReturn(mockObject);
         final Request mockRequest = mock(Request.class);
         final Dataset dataset =
-                testObj.describe(createPathList(path), 0, -1, null, mockRequest, mockResponse,
+                testObj.describe(createPathList(path), 0, -1, null, null, mockRequest, mockResponse,
                         uriInfo);
         assertNotNull(dataset.getDefaultModel());
         verify(mockResponse).addHeader("Accept-Patch", "application/sparql-update");
@@ -285,7 +280,7 @@ public class FedoraNodesTest {
             .thenReturn(mockObject);
         final Request mockRequest = mock(Request.class);
         final Dataset dataset =
-            testObj.describe(createPathList(path), 0, -1, "", mockRequest, mockResponse,
+            testObj.describe(createPathList(path), 0, -1, "", null, mockRequest, mockResponse,
                                 uriInfo);
         assertNotNull(dataset.getDefaultModel());
 
@@ -326,7 +321,7 @@ public class FedoraNodesTest {
             new ByteArrayInputStream("<a> <b> <c>".getBytes());
         when(mockNodes.getObject(mockSession, path)).thenReturn(mockObject);
 
-        testObj.createOrReplaceObjectRdf(createPathList(pid), getUriInfoImpl(), RDFMediaType.N3_APPLICATION_TYPE, mockStream, mockRequest);
+        testObj.createOrReplaceObjectRdf(createPathList(pid), getUriInfoImpl(), RDFMediaType.N3_APPLICATION, mockStream, mockRequest);
         verify(mockObject).replaceProperties(any(GraphSubjects.class), any(Model.class));
     }
 

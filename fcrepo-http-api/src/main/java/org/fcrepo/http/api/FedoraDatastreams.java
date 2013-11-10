@@ -65,7 +65,6 @@ import org.fcrepo.kernel.exception.InvalidChecksumException;
 import org.fcrepo.kernel.utils.ContentDigest;
 import org.slf4j.Logger;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.codahale.metrics.annotation.Timed;
 
@@ -73,7 +72,6 @@ import com.codahale.metrics.annotation.Timed;
  * Controller for manipulating binary streams in larger batches
  * by using multipart requests and responses
  */
-@Component
 @Scope("prototype")
 @Path("/{path: .*}/fcr:datastreams")
 public class FedoraDatastreams extends AbstractResource {

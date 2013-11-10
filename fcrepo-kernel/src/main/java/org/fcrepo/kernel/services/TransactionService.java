@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.inject.Singleton;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
@@ -45,6 +46,7 @@ import org.springframework.stereotype.Component;
  * 
  * @author frank asseg
  */
+@Singleton
 @Component
 public class TransactionService {
 

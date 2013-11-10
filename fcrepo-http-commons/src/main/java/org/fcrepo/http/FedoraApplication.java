@@ -18,13 +18,16 @@ package org.fcrepo.http;
 import javax.jcr.Session;
 
 import org.fcrepo.http.commons.session.AuthenticatedSessionProvider;
+import org.fcrepo.kernel.services.TransactionService;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.jackson.JacksonFeature;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 
 
 public class FedoraApplication extends ResourceConfig {
 
+    TransactionService singletonTx = new TransactionService();
     /**
      * THIS IS OUR RESOURCE CONFIG!
      */
@@ -32,6 +35,8 @@ public class FedoraApplication extends ResourceConfig {
         super();
         register(new FactoryBinder());
         register(JacksonFeature.class);
+        register(MultiPartFeature.class);
+        registerInstances(singletonTx);
     }
 
     static class FactoryBinder extends AbstractBinder {

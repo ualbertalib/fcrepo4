@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.security.Principal;
+import java.util.Enumeration;
 import java.util.Set;
 
 import javax.servlet.Filter;

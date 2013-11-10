@@ -38,12 +38,10 @@ import org.fcrepo.http.commons.AbstractResource;
 import org.fcrepo.kernel.FedoraResource;
 import org.fcrepo.generator.dublincore.DCGenerator;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 /**
  * Dublin Core output controller
  */
-@Component
 @Scope("prototype")
 @Path("/{path: .*}/oai:dc")
 public class DublinCoreGenerator extends AbstractResource {

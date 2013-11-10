@@ -127,7 +127,7 @@ public class ContainerWrapper implements ApplicationContextAware {
             }
         }
 
-        application.packages("org.fcrepo.http;org.fcrepo.http.commons.responses;org.fcrepo.http.api");
+        application.packages("org.fcrepo.kernel.services;org.fcrepo.http;org.fcrepo.http.commons.responses;org.fcrepo.http.api");
         server = createHttpServer(uri, application);
         
         appContext.deploy(server);

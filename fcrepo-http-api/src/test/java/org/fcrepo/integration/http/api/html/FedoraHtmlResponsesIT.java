@@ -17,7 +17,6 @@ package org.fcrepo.integration.http.api.html;
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
-import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlButton;
 import com.gargoylesoftware.htmlunit.html.HtmlFileInput;
@@ -35,8 +34,7 @@ import org.junit.Test;
 import java.io.IOException;
 
 import static java.util.UUID.randomUUID;
-import static junit.framework.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -96,7 +94,7 @@ public class FedoraHtmlResponsesIT extends AbstractResourceIT {
         assertTrue(page1.asText().length() > page.asText().length());
     }
 
-    @Test
+    @Ignore
     public void testCreateNewDatastream() throws IOException, InterruptedException {
 
         final String pid = randomUUID().toString();
