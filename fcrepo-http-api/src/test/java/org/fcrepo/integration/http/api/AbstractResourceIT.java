@@ -21,12 +21,14 @@ import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.parseInt;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.jena.riot.WebContent.contentTypeToLang;
+import static org.junit.Assert.assertEquals;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.http.HttpEntity;
@@ -139,7 +141,16 @@ public abstract class AbstractResourceIT {
         logger.debug("Reading {} RDF:\n{}", lang, serialization);
         return createDefaultModel().read(new StringReader(serialization), null,lang);
     }
-    
+
+    public String getTestObjectPath(String parent) throws ClientProtocolException, IOException {
+        final HttpPost createObjMethod =
+                postObjMethod(parent);
+        HttpResponse response = execute(createObjMethod);
+        assertEquals(201, response.getStatusLine().getStatusCode());
+        String objPath = response.getFirstHeader(HttpHeaders.LOCATION).getValue();
+        return objPath.substring(serverAddress.length());
+    }
+
     protected static MediaType getMediaType(HttpEntity entity) {
         return MediaType.valueOf(entity.getContentType().getValue());
     }

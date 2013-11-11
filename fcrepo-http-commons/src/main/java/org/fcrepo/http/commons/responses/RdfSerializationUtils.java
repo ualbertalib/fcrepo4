@@ -29,7 +29,7 @@ import java.util.Locale;
 
 import javax.ws.rs.core.MultivaluedMap;
 
-import org.fcrepo.kernel.rdf.GraphProperties;
+import org.fcrepo.kernel.rdf.SerializationUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormatter;
@@ -39,7 +39,6 @@ import com.hp.hpl.jena.datatypes.xsd.XSDDateTime;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.sparql.core.Quad;
-import com.hp.hpl.jena.sparql.util.Context;
 
 /**
  * Utilities to help with serializing a graph to an HTTP resource
@@ -96,23 +95,6 @@ public class RdfSerializationUtils {
     }
 
     /**
-     * Get the subject of the dataset, given by the context's "uri"
-     *
-     * @param rdf
-     * @return
-     */
-    static Node getDatasetSubject(final Dataset rdf) {
-        final Context context = rdf.getContext();
-        final String uri = context.getAsString(GraphProperties.URI_SYMBOL);
-        logger.debug("uri from context: {}", uri);
-        if (uri != null) {
-            return createURI(uri);
-        } else {
-            return null;
-        }
-    }
-
-    /**
      * Set the cache control and last modified HTTP headers from data in the
      * graph
      *
@@ -126,7 +108,7 @@ public class RdfSerializationUtils {
 
         logger.trace("Attempting to discover the last-modified date of the node for the resource in question...");
         final Iterator<Quad> iterator =
-            rdf.asDatasetGraph().find(ANY, getDatasetSubject(rdf),
+            rdf.asDatasetGraph().find(ANY, SerializationUtils.getDatasetSubject(rdf),
                     lastModifiedPredicate, ANY);
 
         if (!iterator.hasNext()) {

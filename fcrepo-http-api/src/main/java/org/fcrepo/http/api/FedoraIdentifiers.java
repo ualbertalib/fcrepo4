@@ -51,6 +51,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.fcrepo.http.commons.AbstractResource;
 import org.fcrepo.http.commons.api.rdf.HttpGraphSubjects;
+import org.fcrepo.kernel.rdf.SerializationUtils;
 import org.springframework.context.annotation.Scope;
 
 import com.codahale.metrics.annotation.Timed;
@@ -119,7 +120,7 @@ public class FedoraIdentifiers extends AbstractResource {
             model.add(pidsResult, HAS_MEMBER_OF_RESULT, s);
         }
 
-        return create(model).toDataset();
+        return SerializationUtils.setDatasetSubject(create(model).toDataset(), path);
 
     }
 }

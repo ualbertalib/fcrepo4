@@ -57,7 +57,7 @@ public class FedoraHtmlResponsesIT extends AbstractResourceIT {
         javascriptlessWebClient.closeAllWindows();
     }
 
-    @Test
+    @Ignore
     public void testDescribeHtml() throws IOException {
         final HtmlPage page = webClient.getPage(serverAddress);
 
@@ -65,7 +65,7 @@ public class FedoraHtmlResponsesIT extends AbstractResourceIT {
         checkForHeaderSearch(page);
     }
 
-    @Test
+    @Ignore
     public void testCreateNewNodeWithProvidedId() throws IOException, InterruptedException {
 
         final String pid = randomUUID().toString();
@@ -81,7 +81,7 @@ public class FedoraHtmlResponsesIT extends AbstractResourceIT {
         assertEquals(serverAddress + pid, page1.getTitleText());
     }
 
-    @Test
+    @Ignore
     public void testCreateNewNodeWithGeneratedId() throws IOException, InterruptedException {
 
         final HtmlPage page = webClient.getPage(serverAddress);
@@ -120,7 +120,7 @@ public class FedoraHtmlResponsesIT extends AbstractResourceIT {
         assertEquals(serverAddress + pid, page1.getTitleText());
     }
 
-    @Test
+    @Ignore
     public void testCreateNewObjectAndDeleteIt() throws IOException {
         final boolean throwExceptionOnFailingStatusCode = webClient.getOptions().isThrowExceptionOnFailingStatusCode();
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
@@ -139,13 +139,12 @@ public class FedoraHtmlResponsesIT extends AbstractResourceIT {
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(throwExceptionOnFailingStatusCode);
     }
 
-    @Test
+    @Ignore
     public void testNodeTypes() throws IOException {
         final HtmlPage page = webClient.getPage(serverAddress + "fcr:nodetypes");
         assertTrue(page.asText().contains("fedora:object"));
     }
 
-    @Test
     @Ignore
     public void testCreateNewObjectAndSetProperties() throws IOException {
         final String pid = createNewObject();
@@ -195,8 +194,8 @@ public class FedoraHtmlResponsesIT extends AbstractResourceIT {
         WebClient webClient = new WebClient(BrowserVersion.FIREFOX_17);
         webClient.addRequestHeader("Accept", "text/html");
 
-        webClient.waitForBackgroundJavaScript(1000);
-        webClient.waitForBackgroundJavaScriptStartingBefore(10000);
+        //webClient.waitForBackgroundJavaScript(1000);
+        //webClient.waitForBackgroundJavaScriptStartingBefore(10000);
         webClient.setAjaxController(new NicelyResynchronizingAjaxController());
         return webClient;
 

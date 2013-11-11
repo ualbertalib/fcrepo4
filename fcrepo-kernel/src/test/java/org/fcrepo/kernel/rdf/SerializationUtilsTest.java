@@ -20,7 +20,7 @@ import static com.hp.hpl.jena.graph.NodeFactory.createURI;
 import static com.hp.hpl.jena.rdf.model.ModelFactory.createDefaultModel;
 import static org.fcrepo.kernel.rdf.SerializationUtils.getDatasetSubject;
 import static org.fcrepo.kernel.rdf.SerializationUtils.setDatasetSubject;
-import static org.fcrepo.kernel.rdf.SerializationUtils.subjectKey;
+import static org.fcrepo.kernel.rdf.GraphProperties.URI_SYMBOL;
 import static org.fcrepo.kernel.rdf.SerializationUtils.unifyDatasetModel;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -40,7 +40,7 @@ public class SerializationUtilsTest {
 
         setDatasetSubject(dataset, "some-uri");
 
-        assertEquals("some-uri", dataset.getContext().getAsString(subjectKey));
+        assertEquals("some-uri", dataset.getContext().getAsString(URI_SYMBOL));
     }
 
     @Test

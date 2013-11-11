@@ -106,7 +106,7 @@ public class FedoraDatastreams extends AbstractResource {
         final String path = toPath(pathList);
         try {
             for (final String dsid : dsidList) {
-                logger.debug("Purging datastream: " + dsid);
+                logger.debug("Purging datastream: {}", dsid);
                 nodeService.deleteObject(session, path + "/" + dsid);
             }
 
@@ -114,7 +114,7 @@ public class FedoraDatastreams extends AbstractResource {
                 final String dsid =
                         part.getContentDisposition().getParameters()
                                 .get("name");
-                logger.debug("Adding datastream: " + dsid);
+                logger.debug("Adding datastream: {}", dsid);
                 final String dsPath = path + "/" + dsid;
                 final Object obj = part.getEntity();
                 InputStream src = null;

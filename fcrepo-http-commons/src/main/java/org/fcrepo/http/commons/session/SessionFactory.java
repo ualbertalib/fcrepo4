@@ -186,6 +186,7 @@ public class SessionFactory {
                 session = getSession(servletRequest);
             }
 
+            logger.warn("session is {}", session);
             return session;
         } catch (final RepositoryException e) {
             throw propagate(e);

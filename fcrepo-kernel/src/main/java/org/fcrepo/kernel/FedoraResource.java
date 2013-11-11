@@ -44,6 +44,7 @@ import javax.jcr.version.VersionHistory;
 
 import org.fcrepo.jcr.FedoraJcrTypes;
 import org.fcrepo.kernel.rdf.GraphSubjects;
+import org.fcrepo.kernel.rdf.SerializationUtils;
 import org.fcrepo.kernel.utils.JcrPropertyStatementListener;
 import org.fcrepo.kernel.utils.JcrRdfTools;
 import org.fcrepo.kernel.utils.iterators.DifferencingIterator;
@@ -220,6 +221,7 @@ public class FedoraResource extends JcrTools implements FedoraJcrTypes {
     public Dataset updatePropertiesDataset(final GraphSubjects subjects,
             final String sparqlUpdateStatement) throws RepositoryException {
         final Dataset dataset = getPropertiesDataset(subjects);
+        SerializationUtils.getDatasetSubject(dataset);
         final UpdateRequest request =
             create(sparqlUpdateStatement, dataset.getContext().getAsString(
                     URI_SYMBOL));
@@ -262,10 +264,8 @@ public class FedoraResource extends JcrTools implements FedoraJcrTypes {
 
         dataset.addNamedModel(PROBLEMS_MODEL_NAME, problemsModel);
 
-        dataset.getContext().set(URI_SYMBOL,
+        SerializationUtils.setDatasetSubject(dataset,
                 graphSubjects.getGraphSubject(getNode()));
-
-
 
         return dataset;
     }
