@@ -91,7 +91,6 @@ import org.fcrepo.http.commons.api.rdf.HttpGraphSubjects;
 import org.fcrepo.http.commons.domain.MOVE;
 import org.fcrepo.http.commons.domain.PATCH;
 import org.fcrepo.http.commons.domain.COPY;
-import org.fcrepo.http.commons.domain.RDFMediaType;
 import org.fcrepo.kernel.Datastream;
 import org.fcrepo.kernel.FedoraResource;
 import org.fcrepo.kernel.rdf.GraphSubjects;
@@ -142,7 +141,6 @@ public class FedoraNodes extends AbstractResource {
             @Context final UriInfo uriInfo) throws RepositoryException, IOException {
         final String path = toPath(pathList);
         logger.trace("Getting profile for {}", path);
-        logger.debug("Getting profile for {} of type {}", path, request.selectVariant(RDFMediaType.POSSIBLE_RDF_VARIANTS));
 
         try {
             final FedoraResource resource =

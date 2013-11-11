@@ -17,6 +17,7 @@ package org.fcrepo.http;
 
 import javax.jcr.Session;
 
+import org.fcrepo.http.commons.responses.RdfProvider;
 import org.fcrepo.http.commons.session.AuthenticatedSessionProvider;
 import org.fcrepo.kernel.services.TransactionService;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -36,6 +37,9 @@ public class FedoraApplication extends ResourceConfig {
         register(new FactoryBinder());
         register(JacksonFeature.class);
         register(MultiPartFeature.class);
+        //TODO this is a temporary hack to get tests to run
+        // until we know why classpath scanning from mvn isn't working
+        register(RdfProvider.class);
         registerInstances(singletonTx);
     }
 

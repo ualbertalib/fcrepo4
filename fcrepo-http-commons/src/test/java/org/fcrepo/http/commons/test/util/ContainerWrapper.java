@@ -24,11 +24,9 @@ import java.util.Collection;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.ws.rs.core.Application;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 
-import org.fcrepo.http.FedoraApplication;
 import org.fcrepo.http.commons.webxml.WebAppConfig;
 import org.fcrepo.http.commons.webxml.bind.ContextParam;
 import org.fcrepo.http.commons.webxml.bind.Filter;
@@ -41,9 +39,6 @@ import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.servlet.FilterRegistration;
 import org.glassfish.grizzly.servlet.ServletRegistration;
 import org.glassfish.grizzly.servlet.WebappContext;
-import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
-import org.glassfish.jersey.server.ApplicationHandler;
-import org.glassfish.jersey.server.ResourceConfig;
 import org.slf4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -80,12 +75,10 @@ public class ContainerWrapper implements ApplicationContextAware {
 
         final URI uri = URI.create("http://localhost:" + port);
         // create a "root" web application
-        FedoraApplication application = new FedoraApplication();
         appContext = new WebappContext(o.displayName(), "/");
 
         for (final ContextParam p : o.contextParams()) {
             appContext.addContextInitParameter(p.name(), p.value());
-            application.property(p.name(), p.value());
         }
 
         for (final Listener l : o.listeners()) {
@@ -127,8 +120,7 @@ public class ContainerWrapper implements ApplicationContextAware {
             }
         }
 
-        application.packages("org.fcrepo.kernel.services;org.fcrepo.http;org.fcrepo.http.commons.responses;org.fcrepo.http.api");
-        server = createHttpServer(uri, application);
+        server = createHttpServer(uri);
         
         appContext.deploy(server);
         

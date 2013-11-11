@@ -39,6 +39,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
+import org.fcrepo.http.commons.domain.RDFMediaType;
 import org.fcrepo.integration.http.api.AbstractResourceIT;
 import org.junit.Test;
 
@@ -60,6 +61,7 @@ public class LdprIT extends AbstractResourceIT {
     @Test
     public void testProvidesRDFRepresentation() throws IOException {
         final HttpGet testMethod = new HttpGet(serverAddress + "");
+        testMethod.setHeader(HttpHeaders.ACCEPT, RDFMediaType.TURTLE);
         final HttpResponse response = client.execute(testMethod);
         assertEquals("text/turtle", response.getFirstHeader("Content-Type")
                 .getValue());
@@ -79,6 +81,7 @@ public class LdprIT extends AbstractResourceIT {
     @Test
     public void testShouldHaveAtLeastOneRdfType() throws IOException {
         final HttpGet testMethod = new HttpGet(serverAddress + "");
+        testMethod.setHeader(HttpHeaders.ACCEPT, RDFMediaType.TURTLE);
         final HttpResponse response = client.execute(testMethod);
         assertEquals("text/turtle", response.getFirstHeader("Content-Type")
                 .getValue());

@@ -19,6 +19,17 @@ package org.fcrepo.http.commons.responses;
 import static java.util.Collections.singletonList;
 import static org.apache.jena.riot.WebContent.contentTypeToLang;
 import static org.fcrepo.http.commons.responses.RdfSerializationUtils.setCachingHeaders;
+/**
+import static org.fcrepo.http.commons.domain.RDFMediaType.TURTLE;
+import static org.fcrepo.http.commons.domain.RDFMediaType.RDF_XML;
+import static org.fcrepo.http.commons.domain.RDFMediaType.NTRIPLES;
+import static org.fcrepo.http.commons.domain.RDFMediaType.RDF_JSON;
+import static org.fcrepo.http.commons.domain.RDFMediaType.N3_TEXT_RDF;
+import static org.fcrepo.http.commons.domain.RDFMediaType.N3_APPLICATION;
+import static org.fcrepo.http.commons.domain.RDFMediaType.N3_TEXT;
+import static org.fcrepo.http.commons.domain.RDFMediaType.TRI_G;
+import static org.fcrepo.http.commons.domain.RDFMediaType.NQUADS;
+*/
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
@@ -26,6 +37,7 @@ import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
+import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -42,6 +54,9 @@ import com.hp.hpl.jena.query.Dataset;
  * with cache headers.
  */
 @Provider
+@Produces(MediaType.WILDCARD)
+//@Produces(value = {TURTLE, RDF_XML, NTRIPLES, RDF_JSON, N3_TEXT_RDF,
+//        N3_APPLICATION, N3_TEXT, TRI_G, NQUADS})
 public class RdfProvider implements MessageBodyWriter<Dataset> {
 
     private static final Logger logger = getLogger(RdfProvider.class);
@@ -72,12 +87,16 @@ public class RdfProvider implements MessageBodyWriter<Dataset> {
     public boolean isWriteable(final Class<?> type, final Type genericType,
             final Annotation[] annotations, final MediaType mediaType) {
 
+        logger.info("{} with mediaType {}", type.getName(), mediaType.toString());
         // we can return a result for any MIME type that Jena can serialize
         final Boolean appropriateMimeType =
                 mediaType == null ||
                 mediaType.equals(MediaType.WILDCARD_TYPE) ||
                 mediaType.equals(RDFMediaType.RDF_XML_TYPE) ||
                 contentTypeToLang(mediaType.toString()) != null;
+        if (!appropriateMimeType) {
+            logger.info("rejecting {} on grounds of appropriateness", mediaType);
+        }
         return appropriateMimeType &&
                 (Dataset.class.isAssignableFrom(type) || Dataset.class
                         .isAssignableFrom(genericType.getClass()));
