@@ -17,6 +17,12 @@ package org.fcrepo.http;
 
 import javax.jcr.Session;
 
+import org.fcrepo.http.commons.exceptionhandlers.AccessControlExceptionMapper;
+import org.fcrepo.http.commons.exceptionhandlers.InvalidChecksumExceptionMapper;
+import org.fcrepo.http.commons.exceptionhandlers.PathNotFoundExceptionMapper;
+import org.fcrepo.http.commons.exceptionhandlers.RepositoryExceptionMapper;
+import org.fcrepo.http.commons.exceptionhandlers.TransactionMissingExceptionMapper;
+import org.fcrepo.http.commons.exceptionhandlers.WildcardExceptionMapper;
 import org.fcrepo.http.commons.responses.RdfProvider;
 import org.fcrepo.http.commons.session.AuthenticatedSessionProvider;
 import org.fcrepo.kernel.services.TransactionService;
@@ -40,7 +46,12 @@ public class FedoraApplication extends ResourceConfig {
         //TODO this is a temporary hack to get tests to run
         // until we know why classpath scanning from mvn isn't working
         register(RdfProvider.class);
-        registerInstances(singletonTx);
+        register(AccessControlExceptionMapper.class);
+        register(InvalidChecksumExceptionMapper.class);
+        register(PathNotFoundExceptionMapper.class);
+        register(RepositoryExceptionMapper.class);
+        register(TransactionMissingExceptionMapper.class);
+        register(WildcardExceptionMapper.class);
     }
 
     static class FactoryBinder extends AbstractBinder {

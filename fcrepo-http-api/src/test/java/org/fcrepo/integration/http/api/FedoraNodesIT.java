@@ -248,12 +248,11 @@ public class FedoraNodesIT extends AbstractResourceIT {
 
     @Test
     public void testDeleteObject() throws Exception {
-        assertEquals(CREATED.getStatusCode(),
-                getStatus(postObjMethod("FedoraObjectsTest3")));
+        String testObj = getTestObjectPath("FedoraObjectsTest3");
         assertEquals(204, getStatus(new HttpDelete(serverAddress
-                + "FedoraObjectsTest3")));
+                + testObj)));
         assertEquals("Object wasn't really deleted!", 404,
-                getStatus(new HttpGet(serverAddress + "FedoraObjectsTest3")));
+                getStatus(new HttpGet(serverAddress + testObj)));
     }
 
     @Test

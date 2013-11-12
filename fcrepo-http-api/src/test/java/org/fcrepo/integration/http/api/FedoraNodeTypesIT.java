@@ -25,11 +25,14 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.BasicHttpEntity;
+import org.fcrepo.http.commons.domain.RDFMediaType;
 import org.fcrepo.kernel.RdfLexicon;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+
+import javax.ws.rs.core.HttpHeaders;
 
 import static org.fcrepo.http.commons.test.util.TestHelpers.parseTriples;
 import static org.junit.Assert.assertEquals;
@@ -68,6 +71,7 @@ public class FedoraNodeTypesIT  extends AbstractResourceIT {
 
 
         final HttpGet httpGet = new HttpGet(serverAddress + "/fcr:nodetypes");
+        httpGet.setHeader(HttpHeaders.ACCEPT, RDFMediaType.N3_TEXT);
 
         final HttpResponse result = client.execute(httpGet);
 

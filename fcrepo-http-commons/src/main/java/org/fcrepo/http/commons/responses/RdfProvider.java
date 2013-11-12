@@ -87,7 +87,6 @@ public class RdfProvider implements MessageBodyWriter<Dataset> {
     public boolean isWriteable(final Class<?> type, final Type genericType,
             final Annotation[] annotations, final MediaType mediaType) {
 
-        logger.info("{} with mediaType {}", type.getName(), mediaType.toString());
         // we can return a result for any MIME type that Jena can serialize
         final Boolean appropriateMimeType =
                 mediaType == null ||
