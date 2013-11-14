@@ -17,8 +17,8 @@
 package org.fcrepo.http.commons;
 
 import static com.hp.hpl.jena.rdf.model.ModelFactory.createDefaultModel;
-import static javax.ws.rs.core.Response.notAcceptable;
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM_TYPE;
+import static javax.ws.rs.core.Response.notAcceptable;
 import static org.apache.jena.riot.WebContent.contentTypeSPARQLUpdate;
 import static org.apache.jena.riot.WebContent.contentTypeToLang;
 import static org.fcrepo.jcr.FedoraJcrTypes.FEDORA_DATASTREAM;
@@ -32,15 +32,12 @@ import java.util.List;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.PathSegment;
-import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 
-import com.hp.hpl.jena.rdf.model.Model;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.riot.Lang;
 import org.fcrepo.http.commons.api.rdf.HttpTripleUtil;
@@ -58,6 +55,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.eventbus.EventBus;
 import com.hp.hpl.jena.query.Dataset;
+import com.hp.hpl.jena.rdf.model.Model;
 
 /**
  * Abstract superclass for Fedora JAX-RS Resources, providing convenience fields
@@ -107,12 +105,6 @@ public abstract class AbstractResource {
      */
     @Autowired
     protected PidMinter pidMinter;
-
-    @Context
-    private HttpServletRequest servletRequest;
-
-    @Context
-    private SecurityContext securityContext;
 
     /**
      * A convenience object provided by ModeShape for acting against the JCR

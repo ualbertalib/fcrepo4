@@ -167,7 +167,6 @@ public class FedoraNodes extends AbstractResource {
             }
             final HttpGraphSubjects subjects =
                     new HttpGraphSubjects(session, FedoraNodes.class, uriInfo);
-            logger.info("1 session is {} live?: {}", session, session.isLive());
 
             final int realLimit;
             if (nonMemberProperties != null && limit == -1) {
@@ -178,7 +177,6 @@ public class FedoraNodes extends AbstractResource {
 
             final Dataset propertiesDataset =
                     resource.getPropertiesDataset(subjects, offset, realLimit);
-            logger.info("2 session is {} live?: {}", session, session.isLive());
 
             final Model treeModel = propertiesDataset.getNamedModel(propertiesDataset.getContext().getAsString(INLINED_RESOURCES_MODEL, "NO SUCH MODEL"));
             if (limit > 0 && treeModel != null && treeModel
@@ -214,7 +212,6 @@ public class FedoraNodes extends AbstractResource {
                 requestModel.add(subjects.getContext(), FIRST_PAGE, firstPageResource);
 
                 propertiesDataset.addNamedModel("requestModel", requestModel);
-                logger.info("3 session is {} live?: {}", session, session.isLive());
             }
 
             if (!etag.getValue().isEmpty()) {
@@ -230,7 +227,7 @@ public class FedoraNodes extends AbstractResource {
             return propertiesDataset;
 
         } finally {
-            logger.info("finally session is {} live?: {}", session, session.isLive());
+            session.logout();
         }
 
     }

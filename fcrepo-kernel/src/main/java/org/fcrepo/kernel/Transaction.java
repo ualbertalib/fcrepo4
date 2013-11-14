@@ -74,7 +74,7 @@ public class Transaction {
      */
     public Session getSession() {
         updateExpiryDate();
-        return TxAwareSession.newInstance(session, id);
+        return new TxAwareSession(session, id);
     }
 
     /**
@@ -110,8 +110,8 @@ public class Transaction {
      * garbage-collected
      * @return
      */
-    public Date getExpires() {
-        return expires.getTime();
+    public long getExpires() {
+        return expires.getTimeInMillis();
     }
 
     /**

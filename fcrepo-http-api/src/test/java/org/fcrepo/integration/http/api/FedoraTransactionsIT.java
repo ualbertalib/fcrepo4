@@ -73,8 +73,11 @@ public class FedoraTransactionsIT extends AbstractResourceIT {
     public void testCreateAndTimeoutTransaction() throws Exception {
 
         /* create a short-lived tx */
-        final long testTimeout = min(500, REAP_INTERVAL / 2);
-        System.setProperty(TIMEOUT_SYSTEM_PROPERTY, Long.toString(testTimeout));
+        /** this is a pretty fragile test, as it is largely dependent on
+         *  how long it takes to spin up the test resources. Too short,
+         *  and the TX will expire before the first GET
+         */
+        System.setProperty(TIMEOUT_SYSTEM_PROPERTY, Long.toString(5 * REAP_INTERVAL));
 
         /* create a tx */
         final HttpPost createTx = new HttpPost(serverAddress + "fcr:tx");

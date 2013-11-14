@@ -16,7 +16,6 @@
 
 package org.fcrepo.kernel;
 
-import static org.fcrepo.kernel.TxAwareSession.newInstance;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -43,7 +42,7 @@ public class TxAwareSessionTest {
     @Before
     public void setUp() {
         initMocks(this);
-        testObj = newInstance(mockSession, "txid");
+        testObj = new TxAwareSession(mockSession, "txid");
 
     }
 

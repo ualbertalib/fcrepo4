@@ -28,8 +28,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlTextArea;
 import org.fcrepo.integration.http.api.AbstractResourceIT;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
-//import org.junit.Test;
+import org.junit.Test;
 
 import java.io.IOException;
 
@@ -38,7 +37,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-@Ignore
 public class FedoraHtmlResponsesIT extends AbstractResourceIT {
 
     private WebClient webClient;
@@ -58,7 +56,7 @@ public class FedoraHtmlResponsesIT extends AbstractResourceIT {
         javascriptlessWebClient.closeAllWindows();
     }
 
-    @Ignore
+    @Test
     public void testDescribeHtml() throws IOException {
         final HtmlPage page = webClient.getPage(serverAddress);
 
@@ -66,7 +64,7 @@ public class FedoraHtmlResponsesIT extends AbstractResourceIT {
         checkForHeaderSearch(page);
     }
 
-    @Ignore
+    @Test
     public void testCreateNewNodeWithProvidedId() throws IOException, InterruptedException {
 
         final String pid = randomUUID().toString();
@@ -82,7 +80,7 @@ public class FedoraHtmlResponsesIT extends AbstractResourceIT {
         assertEquals(serverAddress + pid, page1.getTitleText());
     }
 
-    @Ignore
+    @Test
     public void testCreateNewNodeWithGeneratedId() throws IOException, InterruptedException {
 
         final HtmlPage page = webClient.getPage(serverAddress);
@@ -95,7 +93,7 @@ public class FedoraHtmlResponsesIT extends AbstractResourceIT {
         assertTrue(page1.asText().length() > page.asText().length());
     }
 
-    @Ignore
+    @Test
     public void testCreateNewDatastream() throws IOException, InterruptedException {
 
         final String pid = randomUUID().toString();
@@ -121,7 +119,7 @@ public class FedoraHtmlResponsesIT extends AbstractResourceIT {
         assertEquals(serverAddress + pid, page1.getTitleText());
     }
 
-    @Ignore
+    @Test
     public void testCreateNewObjectAndDeleteIt() throws IOException {
         final boolean throwExceptionOnFailingStatusCode = webClient.getOptions().isThrowExceptionOnFailingStatusCode();
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
@@ -140,13 +138,13 @@ public class FedoraHtmlResponsesIT extends AbstractResourceIT {
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(throwExceptionOnFailingStatusCode);
     }
 
-    @Ignore
+    @Test
     public void testNodeTypes() throws IOException {
         final HtmlPage page = webClient.getPage(serverAddress + "fcr:nodetypes");
         assertTrue(page.asText().contains("fedora:object"));
     }
 
-    @Ignore
+    @Test
     public void testCreateNewObjectAndSetProperties() throws IOException {
         final String pid = createNewObject();
 

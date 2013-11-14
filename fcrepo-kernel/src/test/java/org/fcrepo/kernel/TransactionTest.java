@@ -54,7 +54,7 @@ public class TransactionTest {
         verify(mockSession).refresh(false);
         verify(mockSession).logout();
         assertEquals(ROLLED_BACK, testObj.getState());
-        final long update = testObj.getExpires().getTime();
+        final long update = testObj.getExpires();
         assertTrue(update <= currentTimeMillis());
     }
 
@@ -64,17 +64,17 @@ public class TransactionTest {
         verify(mockSession).save();
         verify(mockSession).logout();
         assertEquals(COMMITED, testObj.getState());
-        final long update = testObj.getExpires().getTime();
+        final long update = testObj.getExpires();
         assertTrue(update <= currentTimeMillis());
     }
 
     @Test
     public void testExpire() throws RepositoryException {
-        final long orig = testObj.getExpires().getTime();
+        final long orig = testObj.getExpires();
         testObj.expire();
         verify(mockSession, never()).save();
         verify(mockSession).logout();
-        final long update = testObj.getExpires().getTime();
+        final long update = testObj.getExpires();
         assertTrue(update < orig);
         assertTrue(update <= currentTimeMillis());
         assertTrue(update < orig);
@@ -82,9 +82,9 @@ public class TransactionTest {
 
     @Test
     public void testExpiryUpdate() throws RepositoryException {
-        final long orig = testObj.getExpires().getTime();
+        final long orig = testObj.getExpires();
         testObj.updateExpiryDate();
-        final long update = testObj.getExpires().getTime();
+        final long update = testObj.getExpires();
         assertTrue("Unexpected negative expiry delta: " + (update - orig),
                 update - orig >= 0);
     }

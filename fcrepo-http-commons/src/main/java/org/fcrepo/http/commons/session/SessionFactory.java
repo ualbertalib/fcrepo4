@@ -152,7 +152,6 @@ public class SessionFactory {
             final Transaction transaction =
                     getEmbeddedTransaction(servletRequest);
 
-            logger.warn("creds: {} tx: {}", creds, transaction);
             final Session session;
 
             if (transaction != null && creds != null) {
@@ -168,7 +167,7 @@ public class SessionFactory {
                                 httpSession.getAttribute(TX_ATTRIBUTE))) {
                     session = transaction.getSession();
                 } else {
-                    logger.warn("impersonating credentials");
+                    logger.debug("impersonating credentials");
                     session = transaction.getSession().impersonate(creds);
                 }
             } else if (creds != null) {
@@ -186,11 +185,10 @@ public class SessionFactory {
                     session = repo.login(creds);
                 }
             } else {
-                logger.warn("Falling back on a unauthenticated session");
+                logger.info("Falling back on a unauthenticated session");
                 session = getSession(servletRequest);
             }
 
-            logger.warn("session is {} live?: {}", session, session.isLive());
             return session;
         } catch (final org.fcrepo.kernel.exception.TransactionMissingException e) {
             throw new TransactionMissingException(e);

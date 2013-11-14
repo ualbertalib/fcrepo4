@@ -55,13 +55,13 @@ public class AuthenticatedSessionProvider implements
     @Override
     public Session provide() {
         Session result = sessions.getSession(securityContext, request);
-        System.err.println("SESSION PROVIDED " + result.toString());
         return result;
     }
 
     @Override
     public void dispose(Session instance) {
-        System.err.println("SESSION DISPOSED " + instance.toString());
+        // no-op until we can get this called
+        // it ought to be where we handle logout
     }
 
 }

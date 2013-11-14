@@ -78,7 +78,7 @@ public class TransactionService {
                     transactions.entrySet().iterator();
             while (txs.hasNext()) {
                 final Transaction tx = txs.next().getValue();
-                if (tx.getExpires().getTime() <= currentTimeMillis()) {
+                if (tx.getExpires() <= currentTimeMillis()) {
                     try {
                         tx.rollback();
                     } catch (final RepositoryException e) {

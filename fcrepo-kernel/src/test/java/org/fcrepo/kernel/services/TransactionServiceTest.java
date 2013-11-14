@@ -77,7 +77,7 @@ public class TransactionServiceTest {
 
     @Test
     public void testExpiration() throws Exception {
-        final Date fiveSecondsAgo = new Date(currentTimeMillis() - 5000);
+        final long fiveSecondsAgo = currentTimeMillis() - 5000;
         when(mockTx.getExpires()).thenReturn(fiveSecondsAgo);
         service.removeAndRollbackExpired();
         verify(mockTx).rollback();
@@ -85,7 +85,7 @@ public class TransactionServiceTest {
 
     @Test
     public void testExpirationThrowsRepositoryException() throws Exception {
-        final Date fiveSecondsAgo = new Date(currentTimeMillis() - 5000);
+        final long fiveSecondsAgo = currentTimeMillis() - 5000;
         doThrow(new RepositoryException("")).when(mockTx).rollback();
         when(mockTx.getExpires()).thenReturn(fiveSecondsAgo);
         service.removeAndRollbackExpired();

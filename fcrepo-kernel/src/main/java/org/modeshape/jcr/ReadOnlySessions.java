@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-package org.fcrepo.http.commons.exceptions;
+package org.modeshape.jcr;
 
-import javax.ws.rs.WebApplicationException;
+import org.modeshape.jcr.api.Session;
 
 
-public class TransactionMissingException extends WebApplicationException {
-
-    private static final long serialVersionUID = -336224627233731847L;
+public abstract class ReadOnlySessions {
 
     /**
-     * Wrap an exception in a mappable container
+     * A proxy for MODE internals to get a read-only session
+     * @param context
+     * @return
      */
-    public TransactionMissingException(
-            org.fcrepo.kernel.exception.TransactionMissingException e) {
-        super(e);
+    public static Session readOnlySessionUnder(JcrSession context) {
+        return context.spawnSession(true);
     }
-
 }

@@ -46,6 +46,7 @@ import org.springframework.context.annotation.Scope;
 @Path("/{path: .*}/oai:dc")
 public class DublinCoreGenerator extends AbstractResource {
 
+    private static String PNF_PREFIX = "No node found at path: ";
     @Resource
     List<DCGenerator> dcgenerators;
 
@@ -77,7 +78,7 @@ public class DublinCoreGenerator extends AbstractResource {
                 }
             }
             // no indexers = no path for DC
-            throw new PathNotFoundException();
+            throw new PathNotFoundException(PNF_PREFIX.concat(path));
         } finally {
             session.logout();
         }

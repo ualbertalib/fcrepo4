@@ -23,6 +23,7 @@ import static javax.ws.rs.core.Response.status;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -83,7 +84,7 @@ public class FedoraTransactions extends AbstractResource {
                     txService.getTransaction(((TxSession) session)
                             .getTxId());
             t.updateExpiryDate();
-            return noContent().expires(t.getExpires()).build();
+            return noContent().expires(new Date(t.getExpires())).build();
 
         } else {
             final Transaction t = txService.beginTransaction(session);
@@ -96,7 +97,7 @@ public class FedoraTransactions extends AbstractResource {
                             .buildFromMap(
                                     singletonMap("path", "tx:" +
                                             t.getId()))).expires(
-                    t.getExpires()).build();
+                    new Date(t.getExpires())).build();
         }
     }
 
