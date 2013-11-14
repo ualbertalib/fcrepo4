@@ -38,6 +38,7 @@ import javax.ws.rs.core.PathSegment;
 import javax.ws.rs.core.Response;
 
 import org.fcrepo.http.commons.AbstractResource;
+import org.fcrepo.http.commons.session.SessionFactory;
 import org.fcrepo.kernel.Transaction;
 import org.fcrepo.kernel.TxSession;
 import org.fcrepo.kernel.services.TransactionService;
@@ -88,7 +89,7 @@ public class FedoraTransactions extends AbstractResource {
             final Transaction t = txService.beginTransaction(session);
             final HttpSession httpSession = req.getSession(true);
             if (httpSession != null) {
-                httpSession.setAttribute("currentTx", t.getId());
+                httpSession.setAttribute(SessionFactory.TX_ATTRIBUTE, t.getId());
             }
             return created(
                     uriInfo.getBaseUriBuilder().path(FedoraNodes.class)

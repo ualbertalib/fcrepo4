@@ -65,6 +65,6 @@ public class SessionProvider implements Factory<Session> {
 
     @Override
     public void dispose(Session session) {
-        session.logout();
+        //session.logout();
     }
 }

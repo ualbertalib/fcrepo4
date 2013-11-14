@@ -86,7 +86,8 @@ public class FedoraTransactionsIT extends AbstractResourceIT {
         final HttpGet getWithinTx = new HttpGet(location);
         HttpResponse resp = execute(getWithinTx);
         IOUtils.toString(resp.getEntity().getContent());
-        assertEquals(200, resp.getStatusLine().getStatusCode());
+        assertEquals(location + " returned a status of " + resp.getStatusLine().getStatusCode(),
+                200, resp.getStatusLine().getStatusCode());
 
         int statusCode = 0;
 

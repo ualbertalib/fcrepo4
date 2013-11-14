@@ -19,6 +19,7 @@ import javax.jcr.Session;
 
 import org.fcrepo.http.commons.exceptionhandlers.AccessControlExceptionMapper;
 import org.fcrepo.http.commons.exceptionhandlers.InvalidChecksumExceptionMapper;
+import org.fcrepo.http.commons.exceptionhandlers.MultiExceptionMapper;
 import org.fcrepo.http.commons.exceptionhandlers.PathNotFoundExceptionMapper;
 import org.fcrepo.http.commons.exceptionhandlers.RepositoryExceptionMapper;
 import org.fcrepo.http.commons.exceptionhandlers.TransactionMissingExceptionMapper;
@@ -29,12 +30,12 @@ import org.fcrepo.kernel.services.TransactionService;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.glassfish.jersey.process.internal.RequestScoped;
 import org.glassfish.jersey.server.ResourceConfig;
 
 
 public class FedoraApplication extends ResourceConfig {
 
-    TransactionService singletonTx = new TransactionService();
     /**
      * THIS IS OUR RESOURCE CONFIG!
      */
@@ -52,13 +53,16 @@ public class FedoraApplication extends ResourceConfig {
         register(RepositoryExceptionMapper.class);
         register(TransactionMissingExceptionMapper.class);
         register(WildcardExceptionMapper.class);
+        register(MultiExceptionMapper.class);
     }
 
     static class FactoryBinder extends AbstractBinder {
 
         @Override
         protected void configure() {
-            bindFactory(AuthenticatedSessionProvider.class).to(Session.class);
+            bindFactory(AuthenticatedSessionProvider.class)
+            .to(Session.class)
+            .in(RequestScoped.class);
         }
     }
 }

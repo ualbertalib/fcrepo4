@@ -30,8 +30,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.SecurityContext;
 
+import org.fcrepo.http.commons.exceptions.TransactionMissingException;
 import org.fcrepo.kernel.Transaction;
-import org.fcrepo.kernel.exception.TransactionMissingException;
 import org.fcrepo.kernel.services.TransactionService;
 import org.modeshape.jcr.api.ServletCredentials;
 import org.slf4j.Logger;
@@ -41,6 +41,8 @@ import org.slf4j.Logger;
  */
 @Singleton
 public class SessionFactory {
+
+    public static final String TX_ATTRIBUTE = "currentTx";
 
     private static final Logger logger = getLogger(SessionFactory.class);
 
@@ -150,6 +152,7 @@ public class SessionFactory {
             final Transaction transaction =
                     getEmbeddedTransaction(servletRequest);
 
+            logger.warn("creds: {} tx: {}", creds, transaction);
             final Session session;
 
             if (transaction != null && creds != null) {
@@ -162,9 +165,10 @@ public class SessionFactory {
                         servletRequest.getSession(true);
                 if (httpSession != null &&
                         transaction.getId().equals(
-                                httpSession.getAttribute("currentTx"))) {
+                                httpSession.getAttribute(TX_ATTRIBUTE))) {
                     session = transaction.getSession();
                 } else {
+                    logger.warn("impersonating credentials");
                     session = transaction.getSession().impersonate(creds);
                 }
             } else if (creds != null) {
@@ -182,12 +186,14 @@ public class SessionFactory {
                     session = repo.login(creds);
                 }
             } else {
-                logger.debug("Falling back on a unauthenticated session");
+                logger.warn("Falling back on a unauthenticated session");
                 session = getSession(servletRequest);
             }
 
-            logger.warn("session is {}", session);
+            logger.warn("session is {} live?: {}", session, session.isLive());
             return session;
+        } catch (final org.fcrepo.kernel.exception.TransactionMissingException e) {
+            throw new TransactionMissingException(e);
         } catch (final RepositoryException e) {
             throw propagate(e);
         }
@@ -225,7 +231,7 @@ public class SessionFactory {
      */
     private Transaction getEmbeddedTransaction(
             final HttpServletRequest servletRequest)
-        throws TransactionMissingException {
+        throws org.fcrepo.kernel.exception.TransactionMissingException {
         final String requestPath = servletRequest.getPathInfo();
 
         if (requestPath == null) {

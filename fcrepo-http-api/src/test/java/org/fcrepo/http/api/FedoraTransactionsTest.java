@@ -59,7 +59,7 @@ public class FedoraTransactionsTest {
     public void setUp() throws RepositoryException, NoSuchFieldException {
         initMocks(this);
         testObj = new FedoraTransactions();
-        mockSession = TxAwareSession.newInstance(mockSession(testObj), "123");
+        mockSession = new TxAwareSession(mockSession(testObj), "123");
         setField(testObj, "uriInfo", getUriInfoImpl());
         setField(testObj, "session", mockSession);
         setField(testObj, "txService", mockTxService);
