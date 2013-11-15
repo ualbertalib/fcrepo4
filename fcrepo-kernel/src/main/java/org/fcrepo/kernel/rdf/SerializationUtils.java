@@ -81,9 +81,6 @@ public final class SerializationUtils {
         if (uri != null) {
             return createURI(uri);
         } else {
-            java.io.StringWriter sw = new java.io.StringWriter();
-            rdf.getDefaultModel().write(sw);
-            logger.warn("null uri from context: {}", sw.toString());
             return null;
         }
     }

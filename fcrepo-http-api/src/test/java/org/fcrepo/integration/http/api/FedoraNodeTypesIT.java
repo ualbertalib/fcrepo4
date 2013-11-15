@@ -44,6 +44,7 @@ public class FedoraNodeTypesIT  extends AbstractResourceIT {
     public void itShouldContainFcrepoClasses() throws IOException {
 
         final HttpGet httpGet = new HttpGet(serverAddress + "/fcr:nodetypes");
+        httpGet.setHeader(HttpHeaders.ACCEPT, RDFMediaType.N3_TEXT);
 
         final HttpResponse result = client.execute(httpGet);
 
