@@ -126,8 +126,8 @@ public class LdprIT extends AbstractResourceIT {
     // 4.2.8
     @Test
     public void testMustUseEntityTags() throws IOException {
-        client.execute(postObjMethod("Ldpr428"));
-        final HttpHead testMethod = new HttpHead(serverAddress + "Ldpr428");
+        String path = getTestObjectPath("Ldpr428");
+        final HttpHead testMethod = new HttpHead(serverAddress + path);
         final HttpResponse response = client.execute(testMethod);
         assertTrue(response.containsHeader("ETag"));
     }
@@ -179,13 +179,13 @@ public class LdprIT extends AbstractResourceIT {
     // 4.6.1
     @Test
     public void testDelete() throws IOException {
-        client.execute(postObjMethod("Ldpr461"));
+        String path = getTestObjectPath("Ldpr461");
 
-        final HttpGet testMethod = new HttpGet(serverAddress + "Ldpr461");
+        final HttpGet testMethod = new HttpGet(serverAddress + path);
         final HttpResponse response = client.execute(testMethod);
         assertEquals(200, response.getStatusLine().getStatusCode());
 
-        client.execute(new HttpDelete(serverAddress + "Ldpr461"));
+        client.execute(new HttpDelete(serverAddress + path));
 
         final HttpResponse postDeleteResponse = client.execute(testMethod);
         assertEquals(404, postDeleteResponse.getStatusLine().getStatusCode());

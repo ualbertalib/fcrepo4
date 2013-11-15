@@ -712,8 +712,7 @@ public class FedoraNodesIT extends AbstractResourceIT {
     public void testDescribeRdfCached() throws RepositoryException, IOException {
         final CachingHttpClient specialClient = new CachingHttpClient(client);
 
-        final String pid = "FedoraObjectsRdfTest2";
-        final String path = pid;
+        final String path = getTestObjectPath("FedoraObjectsRdfTest2");
         HttpResponse r = specialClient.execute(new HttpPost(serverAddress + path));
         String location = r.getFirstHeader(HttpHeaders.LOCATION).getValue();
         final HttpGet getObjMethod = new HttpGet(location);

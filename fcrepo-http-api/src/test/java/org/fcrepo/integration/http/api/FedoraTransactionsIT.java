@@ -94,7 +94,7 @@ public class FedoraTransactionsIT extends AbstractResourceIT {
 
         int statusCode = 0;
 
-        sleep(REAP_INTERVAL * 2);
+        sleep(REAP_INTERVAL * 6);
         final HttpGet getWithExpiredTx = new HttpGet(location);
         resp = execute(getWithExpiredTx);
         IOUtils.toString(resp.getEntity().getContent());

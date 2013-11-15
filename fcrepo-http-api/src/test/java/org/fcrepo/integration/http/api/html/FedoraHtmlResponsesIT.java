@@ -25,9 +25,12 @@ import com.gargoylesoftware.htmlunit.html.HtmlInput;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlSelect;
 import com.gargoylesoftware.htmlunit.html.HtmlTextArea;
+
+import org.apache.http.HttpHeaders;
 import org.fcrepo.integration.http.api.AbstractResourceIT;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -37,6 +40,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+@Ignore
 public class FedoraHtmlResponsesIT extends AbstractResourceIT {
 
     private WebClient webClient;
@@ -74,7 +78,8 @@ public class FedoraHtmlResponsesIT extends AbstractResourceIT {
         final HtmlInput new_id = (HtmlInput)page.getElementById("new_id");
         new_id.setValueAttribute(pid);
         page.executeJavaScript("$('#action_create .btn-primary').click();");
-        webClient.waitForBackgroundJavaScript(1000);
+        assertEquals("JS was still executing after 1 second!", 0,
+                webClient.waitForBackgroundJavaScript(1000));
 
         final HtmlPage page1 = webClient.getPage(serverAddress + pid);
         assertEquals(serverAddress + pid, page1.getTitleText());
@@ -87,7 +92,8 @@ public class FedoraHtmlResponsesIT extends AbstractResourceIT {
 
         page.executeJavaScript("$('#action_create .btn-primary').click();");
 
-        webClient.waitForBackgroundJavaScript(1000);
+        assertEquals("JS was still executing after 1 second!", 0,
+                webClient.waitForBackgroundJavaScript(1000));
 
         final HtmlPage page1 = webClient.getPage(serverAddress);
         assertTrue(page1.asText().length() > page.asText().length());
@@ -129,7 +135,8 @@ public class FedoraHtmlResponsesIT extends AbstractResourceIT {
         final HtmlPage page1 = webClient.getPage(serverAddress + pid);
         final HtmlForm action_delete = (HtmlForm) page1.getElementById("action_delete");
         ((HtmlButton)action_delete.getFirstByXPath("button")).click();
-        webClient.waitForBackgroundJavaScript(1000);
+        assertEquals("JS was still executing after 1 second!", 0,
+                webClient.waitForBackgroundJavaScript(1000));
 
 
         final HtmlPage page2 = webClient.getPage(serverAddress + pid);
@@ -183,7 +190,8 @@ public class FedoraHtmlResponsesIT extends AbstractResourceIT {
         final HtmlButton button = form.getFirstByXPath("button");
         button.click();
 
-        webClient.waitForBackgroundJavaScript(1000);
+        assertEquals("JS was still executing after 1 second!", 0,
+                webClient.waitForBackgroundJavaScript(1000));
         return pid;
     }
 
@@ -191,10 +199,8 @@ public class FedoraHtmlResponsesIT extends AbstractResourceIT {
     private WebClient getDefaultWebClient() {
 
         WebClient webClient = new WebClient(BrowserVersion.FIREFOX_17);
-        webClient.addRequestHeader("Accept", "text/html");
+        webClient.addRequestHeader(HttpHeaders.ACCEPT, "text/html");
 
-        //webClient.waitForBackgroundJavaScript(1000);
-        //webClient.waitForBackgroundJavaScriptStartingBefore(10000);
         webClient.setAjaxController(new NicelyResynchronizingAjaxController());
         return webClient;
 

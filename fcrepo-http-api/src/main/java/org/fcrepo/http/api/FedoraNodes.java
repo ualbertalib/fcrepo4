@@ -382,22 +382,18 @@ public class FedoraNodes extends AbstractResource {
     @POST
     @Consumes(MediaType.WILDCARD)
     @Timed
-    public Response createObject(@PathParam("path")
-            final List<PathSegment> pathList,
+    public Response createObject(
+            @PathParam("path") final List<PathSegment> pathList,
             @QueryParam("mixin")
-            @DefaultValue("")
-            final String mixin,
+            @DefaultValue("") final String mixin,
             @QueryParam("checksum")
-            @DefaultValue("")
-            final String checksum,
+            @DefaultValue("") final String checksum,
             @HeaderParam("Content-Type")
-            @DefaultValue("")
-            final String requestContentType,
+            @DefaultValue("") final String requestContentType,
             @HeaderParam("Slug")
-            @DefaultValue("")
-            final String slug,
-            @Context
-            final UriInfo uriInfo, final InputStream requestBodyStream)
+            @DefaultValue("") final String slug,
+            @Context final UriInfo uriInfo,
+            final InputStream requestBodyStream)
         throws Exception {
 
         final String newObjectPath;
@@ -530,8 +526,9 @@ public class FedoraNodes extends AbstractResource {
      * @return
      * @throws Exception
      */
-    //@POST
+//    @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.TEXT_HTML)
     @Timed
     public Response createObjectFromFormPost(
                                                 @PathParam("path") final List<PathSegment> pathList,
@@ -541,7 +538,7 @@ public class FedoraNodes extends AbstractResource {
                                                 @FormDataParam("file") final InputStream file
     ) throws Exception {
 
-        return createObject(pathList, mixin, null, null, slug, uriInfo, file);
+        return createObject(pathList, mixin, "", "", slug, uriInfo, file);
 
     }
 
