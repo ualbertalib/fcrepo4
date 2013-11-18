@@ -22,6 +22,7 @@ import static java.lang.Integer.parseInt;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.jena.riot.WebContent.contentTypeToLang;
 import static org.junit.Assert.assertEquals;
+import static org.ops4j.pax.exam.CoreOptions.*;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
@@ -42,22 +43,29 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.util.EntityUtils;
-import org.fcrepo.http.commons.IntegrationTestConfigLocation;
-import org.fcrepo.http.commons.IntegrationTestPort;
-import org.fcrepo.http.commons.WeldJUnit4ClassRunner;
 import org.fcrepo.http.commons.domain.RDFMediaType;
 import org.junit.Before;
 import org.junit.runner.RunWith;
+import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.Configuration;
+import org.ops4j.pax.exam.junit.PaxExam;
 import org.slf4j.Logger;
 
 import com.hp.hpl.jena.rdf.model.Model;
 
-@RunWith(WeldJUnit4ClassRunner.class)
-@IntegrationTestConfigLocation("/web.xml")
-@IntegrationTestPort(8080)
+@RunWith(PaxExam.class)
 public abstract class AbstractResourceIT {
 
     protected Logger logger;
+
+    @Configuration
+    public Option[] configurationBase() {
+        return new Option[] {
+                junitBundles(),
+                org.ops4j.pax.exam.CoreOptions.mavenBundle("org.apache.httpcomponents", "httpclient"),
+                org.ops4j.pax.exam.CoreOptions.mavenBundle("org.apache.httpcomponents", "httpcore"),
+                };
+    }
 
     @Before
     public void setLogger() {

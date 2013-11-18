@@ -105,6 +105,7 @@
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
@@ -160,7 +161,6 @@
     <dependency>
     	<groupId>org.glassfish.hk2.external</groupId>
     	<artifactId>javax.inject</artifactId>
-    	<version>2.2.0-b21</version>
     </dependency>
     <dependency>
     	<groupId>org.jvnet.mimepull</groupId>
@@ -172,6 +172,59 @@
     	<artifactId>weld-servlet</artifactId>
     	<scope>test</scope>
     </dependency>
+    <dependency>
+    	<groupId>org.ops4j.pax.exam</groupId>
+    	<artifactId>pax-exam</artifactId>
+    	<scope>test</scope>
+    </dependency>
+    <dependency>
+    	<groupId>org.ops4j.pax.exam</groupId>
+    	<artifactId>pax-exam-junit4</artifactId>
+    	<scope>test</scope>
+    	<version>3.3.0</version>
+    </dependency>
+    <dependency>
+    	<groupId>org.ops4j.pax.exam</groupId>
+    	<artifactId>pax-exam-container-native</artifactId>
+    	<scope>test</scope>
+    	<version>3.3.0</version>
+    </dependency>
+    <dependency>
+    	<groupId>org.ops4j.pax.exam</groupId>
+    	<artifactId>pax-exam-link-assembly</artifactId>
+    	<scope>test</scope>
+    	<version>3.3.0</version>
+    </dependency>
+    <dependency>
+    	<groupId>org.ops4j.pax.exam</groupId>
+    	<artifactId>pax-exam-link-mvn</artifactId>
+    	<scope>test</scope>
+    	<version>3.3.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.ops4j.pax.url</groupId>
+      <artifactId>pax-url-aether</artifactId>
+      <version>1.6.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient-cache</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpcore</artifactId>
+    </dependency>
+    <dependency>
+    	<groupId>org.apache.felix</groupId>
+    	<artifactId>org.apache.felix.framework</artifactId>
+    	<scope>test</scope>
+    	<version>4.2.1</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -179,6 +232,14 @@
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
+        <configuration>
+          <instructions>
+            <Export-Package>
+              org.fcrepo.http.api.*
+            </Export-Package>
+            <Bundle-Activator>org.frepo.http.api.Activator</Bundle-Activator>
+          </instructions>
+        </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-failsafe-plugin</artifactId>
