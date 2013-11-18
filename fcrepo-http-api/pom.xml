@@ -167,6 +167,11 @@
     	<artifactId>mimepull</artifactId>
     	<version>1.9.3</version>
     </dependency>
+    <dependency>
+    	<groupId>org.jboss.weld.servlet</groupId>
+    	<artifactId>weld-servlet</artifactId>
+    	<scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>

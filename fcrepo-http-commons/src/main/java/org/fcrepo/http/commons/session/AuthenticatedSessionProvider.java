@@ -16,10 +16,13 @@
 
 package org.fcrepo.http.commons.session;
 
+import javax.enterprise.inject.Disposes;
+import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.jcr.Session;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.ext.Provider;
 
 import org.glassfish.hk2.api.Factory;
 import org.glassfish.jersey.process.internal.RequestScoped;
@@ -29,6 +32,7 @@ import org.glassfish.jersey.process.internal.RequestScoped;
  * credentials.
  */
 @RequestScoped
+@Provider
 public class AuthenticatedSessionProvider implements
         Factory<Session> {
 
@@ -53,13 +57,14 @@ public class AuthenticatedSessionProvider implements
     }
 
     @Override
+    @Produces
     public Session provide() {
         Session result = sessions.getSession(securityContext, request);
         return result;
     }
 
     @Override
-    public void dispose(Session instance) {
+    public void dispose(@Disposes Session instance) {
         // no-op until we can get this called
         // it ought to be where we handle logout
     }

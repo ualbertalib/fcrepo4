@@ -45,6 +45,7 @@
       of checkstyle deployed to fcrepo.maven.org -->
     <checkstyle.plugin.version>2.10-fcrepo</checkstyle.plugin.version>
     <jersey.grizzly.version>1.17.1</jersey.grizzly.version>
+    <weld.version>2.1.0.Final</weld.version>
   </properties>
   <modules>
     <module>fcrepo-kernel</module>
@@ -118,6 +119,7 @@
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
         <version>15.0</version>
+        <classifier>cdi1.0</classifier>
       </dependency>
       <dependency>
         <groupId>com.sun.xml.bind</groupId>
@@ -448,6 +450,21 @@
         <groupId>org.powermock</groupId>
         <artifactId>powermock-api-mockito</artifactId>
         <version>${powermock.version}</version>
+      </dependency>
+      <dependency>
+      	<groupId>org.glassfish.jersey.containers.glassfish</groupId>
+      	<artifactId>jersey-gf-cdi</artifactId>
+      	<version>${jersey.version}</version>
+      </dependency>
+      <dependency>
+      	<groupId>org.jboss.weld</groupId>
+      	<artifactId>weld-osgi-bundle</artifactId>
+      	<version>${weld.version}</version>
+      </dependency>
+      <dependency>
+      	<groupId>org.jboss.weld.servlet</groupId>
+      	<artifactId>weld-servlet</artifactId>
+      	<version>${weld.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -813,7 +830,7 @@
               </goals>
               <configuration>
                 <destFile>${project.basedir}/target/jacoco-it.exec</destFile>
-                <propertyName>failsafe.argLine</propertyName>
+                <propertyName>${failsafe.argLine}</propertyName>
               </configuration>
             </execution>
             <execution>

@@ -22,11 +22,14 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.net.URI;
 import java.util.Collection;
 
+import javax.annotation.ManagedBean;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.inject.Inject;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 
+import org.fcrepo.http.commons.IntegrationTestConfig;
 import org.fcrepo.http.commons.webxml.WebAppConfig;
 import org.fcrepo.http.commons.webxml.bind.ContextParam;
 import org.fcrepo.http.commons.webxml.bind.Filter;
@@ -40,29 +43,18 @@ import org.glassfish.grizzly.servlet.FilterRegistration;
 import org.glassfish.grizzly.servlet.ServletRegistration;
 import org.glassfish.grizzly.servlet.WebappContext;
 import org.slf4j.Logger;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
-public class ContainerWrapper implements ApplicationContextAware {
+@ManagedBean
+public class ContainerWrapper {
 
     private static final Logger logger = getLogger(ContainerWrapper.class);
-
-    private int port;
 
     private HttpServer server;
 
     private WebappContext appContext;
 
-    private String configLocation;
-
-    public void setConfigLocation(final String configLocation) {
-        this.configLocation = configLocation.replaceFirst("^classpath:", "/");
-    }
-
-    public void setPort(final int port) {
-        this.port = port;
-    }
+    @Inject
+    private IntegrationTestConfig config;
 
     @PostConstruct
     public void start() throws Exception {
@@ -71,9 +63,9 @@ public class ContainerWrapper implements ApplicationContextAware {
         final Unmarshaller u = context.createUnmarshaller();
         final WebAppConfig o =
                 (WebAppConfig) u.unmarshal(getClass().getResource(
-                        this.configLocation));
+                        this.config.getLocation()));
 
-        final URI uri = URI.create("http://localhost:" + port);
+        final URI uri = URI.create("http://localhost:" + config.getPort());
         // create a "root" web application
         appContext = new WebappContext(o.displayName(), "/");
 
@@ -129,6 +121,7 @@ public class ContainerWrapper implements ApplicationContextAware {
     }
 
     @PreDestroy
+    @Deprecated
     public void stop() {
         try {
             appContext.undeploy();
@@ -137,13 +130,6 @@ public class ContainerWrapper implements ApplicationContextAware {
         } finally {
             server.stop();
         }
-    }
-
-    @Override
-    public void setApplicationContext(final ApplicationContext applicationContext)
-            throws BeansException {
-        // this.applicationContext = applicationContext;
-
     }
 
 }

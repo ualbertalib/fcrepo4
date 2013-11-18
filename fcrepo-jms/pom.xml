@@ -67,6 +67,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
+      <classifier>cdi1.0</classifier>
     </dependency>
     <dependency>
       <groupId>org.apache.abdera</groupId>

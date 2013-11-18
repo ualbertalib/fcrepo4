@@ -42,17 +42,19 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.util.EntityUtils;
+import org.fcrepo.http.commons.IntegrationTestConfigLocation;
+import org.fcrepo.http.commons.IntegrationTestPort;
+import org.fcrepo.http.commons.WeldJUnit4ClassRunner;
 import org.fcrepo.http.commons.domain.RDFMediaType;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.hp.hpl.jena.rdf.model.Model;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("/spring-test/test-container.xml")
+@RunWith(WeldJUnit4ClassRunner.class)
+@IntegrationTestConfigLocation("/web.xml")
+@IntegrationTestPort(8080)
 public abstract class AbstractResourceIT {
 
     protected Logger logger;
