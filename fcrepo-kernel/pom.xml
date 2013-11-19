@@ -20,7 +20,6 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <classifier>cdi1.0</classifier>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -68,6 +67,11 @@
       <artifactId>logback-classic</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <scope>provided</scope>
+    </dependency>
 
     <!-- test gear -->
     <dependency>
@@ -108,6 +112,12 @@
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
+        <configuration>
+         <instructions>
+           <Bundle-Activator>org.frepo.kernel.Activator</Bundle-Activator>
+           <Export-Package>org.fcrepo.kernel.*</Export-Package>
+         </instructions>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

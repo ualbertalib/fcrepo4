@@ -28,6 +28,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import java.util.Locale;
+
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.servlet.http.HttpServletResponse;
@@ -79,7 +81,7 @@ public class FedoraFieldSearchTest {
     @Test
     public void testFieldSearch() throws RepositoryException {
         when(mockRequest.selectVariant(anyListOf(Variant.class))).thenReturn(
-                new Variant(MediaType.valueOf("application/n-triples"), (String)null,
+                new Variant(MediaType.valueOf("application/n-triples"), (Locale)null,
                         null));
         when(
                 mockNodeService

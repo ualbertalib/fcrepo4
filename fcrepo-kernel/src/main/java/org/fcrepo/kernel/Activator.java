@@ -1,4 +1,4 @@
-package org.fcrepo.http.api;
+package org.fcrepo.kernel;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

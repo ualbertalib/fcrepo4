@@ -41,7 +41,7 @@ public class FedoraTransactionsTest {
 
     private FedoraTransactions testObj;
 
-    private Session mockSession;
+    private TxAwareSession mockSession;
 
     @Mock
     private Session regularSession;

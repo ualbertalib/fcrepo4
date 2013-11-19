@@ -22,7 +22,10 @@ import static java.lang.Integer.parseInt;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.jena.riot.WebContent.contentTypeToLang;
 import static org.junit.Assert.assertEquals;
-import static org.ops4j.pax.exam.CoreOptions.*;
+import static org.ops4j.pax.cdi.test.support.TestConfiguration.regressionDefaults;
+import static org.ops4j.pax.cdi.test.support.TestConfiguration.workspaceBundle;
+import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
+import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
@@ -49,22 +52,27 @@ import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.slf4j.Logger;
 
 import com.hp.hpl.jena.rdf.model.Model;
 
 @RunWith(PaxExam.class)
+@ExamReactorStrategy(PerClass.class)
 public abstract class AbstractResourceIT {
 
     protected Logger logger;
 
     @Configuration
     public Option[] configurationBase() {
-        return new Option[] {
-                junitBundles(),
-                org.ops4j.pax.exam.CoreOptions.mavenBundle("org.apache.httpcomponents", "httpclient"),
-                org.ops4j.pax.exam.CoreOptions.mavenBundle("org.apache.httpcomponents", "httpcore"),
-                };
+        // regressionDefaults() requires using the PAX mvn plugin
+        // defaults to PAX CDI version?! workspaceBundle("org.fcrepo", "fcrepo-kernel"),
+        // defaults to PAX CDI version?! workspaceBundle("org.fcrepo", "fcrepo-http-commons"),
+        return options(
+                mavenBundle("org.apache.httpcomponents", "httpclient").version("3.1"),
+                mavenBundle("org.apache.httpcomponents", "httpcore").version("3.1")
+                );
     }
 
     @Before

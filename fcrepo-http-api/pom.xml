@@ -39,14 +39,32 @@
     <dependency>
       <groupId>org.glassfish.jersey.core</groupId>
       <artifactId>jersey-common</artifactId>
+	  <exclusions>
+	    <exclusion>
+	      <groupId>com.google.guava</groupId>
+	      <artifactId>guava</artifactId>
+        </exclusion>
+	  </exclusions>
     </dependency>
     <dependency>
       <groupId>org.glassfish.jersey.media</groupId>
       <artifactId>jersey-media-multipart</artifactId>
+    	<exclusions>
+          <exclusion>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+          </exclusion>
+    	</exclusions>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
+	  <exclusions>
+	    <exclusion>
+	      <groupId>com.google.guava</groupId>
+	      <artifactId>guava</artifactId>
+        </exclusion>
+	  </exclusions>
     </dependency>
 
     <!-- test gear -->
@@ -116,6 +134,11 @@
       <artifactId>httpmime</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.apache.jena</groupId>
+      <artifactId>apache-jena-libs</artifactId>
+      <type>pom</type>
+    </dependency>
+    <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
       <scope>test</scope>
@@ -176,12 +199,24 @@
     	<groupId>org.ops4j.pax.exam</groupId>
     	<artifactId>pax-exam</artifactId>
     	<scope>test</scope>
+    	<exclusions>
+          <exclusion>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+          </exclusion>
+    	</exclusions>
     </dependency>
     <dependency>
     	<groupId>org.ops4j.pax.exam</groupId>
     	<artifactId>pax-exam-junit4</artifactId>
     	<scope>test</scope>
     	<version>3.3.0</version>
+    	<exclusions>
+          <exclusion>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+          </exclusion>
+    	</exclusions>
     </dependency>
     <dependency>
     	<groupId>org.ops4j.pax.exam</groupId>
@@ -200,30 +235,70 @@
     	<artifactId>pax-exam-link-mvn</artifactId>
     	<scope>test</scope>
     	<version>3.3.0</version>
+    	<exclusions>
+    	  <exclusion>
+    	    <groupId>commons-codec</groupId>
+    	    <artifactId>commons-codec</artifactId>
+    	  </exclusion>
+    	  <exclusion>
+    	    <groupId>commons-io</groupId>
+    	    <artifactId>commons-io</artifactId>
+    	  </exclusion>
+    	  <exclusion>
+    	    <groupId>org.codehaus.plexus</groupId>
+    	    <artifactId>plexus-classworlds</artifactId>
+    	  </exclusion>
+    	  <exclusion>
+    	    <groupId>org.codehaus.plexus</groupId>
+    	    <artifactId>plexus-utils</artifactId>
+    	  </exclusion>
+    	  <exclusion>
+            <groupId>org.apache.maven.wagon</groupId>
+            <artifactId>wagon-provider-api</artifactId>
+    	  </exclusion>
+    	</exclusions>
     </dependency>
     <dependency>
-      <groupId>org.ops4j.pax.url</groupId>
-      <artifactId>pax-url-aether</artifactId>
-      <version>1.6.0</version>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-classworlds</artifactId>
+      <version>2.4</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpclient</artifactId>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-utils</artifactId>
+      <version>2.0.7</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpclient-cache</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpcore</artifactId>
+      <groupId>org.apache.maven.wagon</groupId>
+      <artifactId>wagon-provider-api</artifactId>
+      <version>1.0</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+    	  <groupId>org.codehaus.plexus</groupId>
+    	  <artifactId>plexus-utils</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
     	<groupId>org.apache.felix</groupId>
     	<artifactId>org.apache.felix.framework</artifactId>
     	<scope>test</scope>
     	<version>4.2.1</version>
+    </dependency>
+    <dependency>
+    	<groupId>org.ops4j.pax.cdi</groupId>
+    	<artifactId>pax-cdi-extender</artifactId>
+    	<version>0.5.0</version>
+    	<scope>test</scope>
+    </dependency>
+    <dependency>
+    	<groupId>org.ops4j.pax.cdi</groupId>
+    	<artifactId>pax-cdi-test-support</artifactId>
+    	<version>0.5.0</version>
+    	<scope>test</scope>
     </dependency>
   </dependencies>
 
@@ -234,6 +309,11 @@
         <artifactId>maven-bundle-plugin</artifactId>
         <configuration>
           <instructions>
+            <Import-Package>
+            org.osgi.framework,
+            org.apache.http,
+            *;resolution:=optional
+            </Import-Package>
             <Export-Package>
               org.fcrepo.http.api.*
             </Export-Package>

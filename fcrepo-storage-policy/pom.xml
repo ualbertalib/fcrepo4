@@ -109,6 +109,11 @@
       <artifactId>jersey-common</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+    	<groupId>org.fcrepo</groupId>
+    	<artifactId>fcrepo-kernel</artifactId>
+    	<version>${project.version}</version>
+    </dependency>
   </dependencies>
 
   <build>

@@ -18,7 +18,7 @@ public class WeldJUnit4ClassRunner extends BlockJUnit4ClassRunner {
         this.klass = klass;
         this.weld = new Weld();
         IntegrationTestConfig config = weld.select(IntegrationTestConfig.class).get();
-        
+
         if (klass.isAnnotationPresent(IntegrationTestPort.class)) {
             config.setPort(klass.getAnnotation(IntegrationTestPort.class).value());
         }
@@ -27,8 +27,7 @@ public class WeldJUnit4ClassRunner extends BlockJUnit4ClassRunner {
         }
         ContainerWrapper cw = weld.select(ContainerWrapper.class).get();
     }
-    
-    
+
     @Override
     protected Object createTest() throws Exception {
         return this.weld.select(this.klass).get();
