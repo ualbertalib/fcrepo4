@@ -14,6 +14,27 @@
     <hr />
 #end
 
+<form id="action_addprop" onsubmit="addProperty()">
+  <h3>Add Property</h3>
+  <div class="form-group">
+    <label for="add-pre-menu">Property</label>
+    <select id="add-pre-menu" class="form-control">
+      #foreach($option in $predicates.entrySet().iterator())
+        <option value="$option.getValue()">$option.getKey()</option>
+      #end
+    </select>
+    <input type="text" id="add-pre-custom" placeholder="Custom Property URI..."
+        class="form-control"/>
+  </div>
+  <div class="form-group">
+    <label for="add-val">Value</label>
+    <input type="text" id="add-val" class="form-control"/>
+  </div>
+  <input type="submit" class="btn btn-primary" value="Add"/>
+  <hr/>
+</form>
+
+
 <form id="action_create" name="action_create" method="POST" enctype="multipart/form-data">
     <h3>Create New Node</h3>
     <div class="form-group">

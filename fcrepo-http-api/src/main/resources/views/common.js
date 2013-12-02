@@ -226,3 +226,43 @@ function ajaxErrorHandler(xhr, textStatus, errorThrown) {
     $('#errorModal').modal('show');
 
 }
+
+function addProperty() {
+    var sub = $('#main').attr('resource');
+    var pre = $('#add-pre-custom').val();
+    if ( pre == '' ) { pre = $('#add-pre-menu').val(); }
+    var obj = quoteObject( $('#add-val').val() );
+    var update = "insert data { <" + sub + "> <" + pre + "> " + obj + " }";
+
+    // perform sparql update
+    $.ajax({url: sub, type: "PATCH", contentType: "application/sparql-update", data: update, error: ajaxErrorHandler});
+    window.location.reload();
+    return false;
+}
+
+function deleteProperty( id ) {
+    var elem = $('#' + id );
+    var sub = $('#main').attr('resource');
+    var pre = elem.attr('property');
+    var obj = quoteObject( elem.html() );
+    if ( obj.charAt(0) == '"' && obj.indexOf("^^") > -1 ) {
+        obj = obj.substring( 0, obj.indexOf("^^") );
+    }
+    var update = "delete data { <" + sub + "> <" + pre + "> " + obj + " }";
+
+    // perform sparql update
+    $.ajax({url: sub, type: "PATCH", contentType: "application/sparql-update", data: update, error: ajaxErrorHandler});
+    window.location.reload();
+    return false;
+}
+
+function quoteObject( obj ) {
+    if (obj.charAt(0) != '"' && obj.charAt(0) != "'" && obj.charAt(0) != '<') {
+        if (obj.substring(0,4) == "http") {
+            obj = "<" + obj + ">";
+        } else {
+            obj = "\"" + obj.replace(/\"/g,"\\\"") + "\"";
+        }
+    }
+  return obj;
+}

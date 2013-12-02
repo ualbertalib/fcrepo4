@@ -37,6 +37,7 @@ import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.net.URL;
+import java.util.TreeMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -61,6 +62,7 @@ import org.apache.velocity.tools.generic.EscapeTool;
 import org.apache.velocity.tools.generic.FieldTool;
 import org.fcrepo.http.commons.session.SessionFactory;
 import org.fcrepo.kernel.RdfLexicon;
+import org.fcrepo.kernel.services.RepositoryService;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -69,6 +71,9 @@ import com.google.common.collect.ImmutableMap.Builder;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.Statement;
+import com.hp.hpl.jena.rdf.model.StmtIterator;
+
 
 /**
  * A simple JAX-RS Entity Provider that can accept RDF datasets that represent
@@ -84,6 +89,9 @@ public class BaseHtmlProvider implements MessageBodyWriter<Dataset> {
 
     @Autowired
     SessionFactory sessionFactory;
+
+    @Autowired
+    RepositoryService repositoryService;
 
     @javax.ws.rs.core.Context
     UriInfo uriInfo;
@@ -220,6 +228,26 @@ public class BaseHtmlProvider implements MessageBodyWriter<Dataset> {
         context.put("nodeany", ANY);
         context.put("topic", subject);
         context.put("uriInfo", uriInfo);
+
+        // lookup properties
+        Session session = null;
+        Map<String,String> preds = new TreeMap<String,String>();
+        try {
+            session = sessionFactory.getInternalSession();
+            Model m = repositoryService.getNodeTypes(session).asModel();
+            StmtIterator stit = m.listStatements(null, RdfLexicon.RDFS_LABEL,
+                    (String)null);
+            while ( stit.hasNext() ) {
+                Statement s = stit.nextStatement();
+                preds.put( s.getString(), s.getSubject().toString() );
+            }
+        } catch ( Exception ex ) {
+            LOGGER.warn("Error looking up predicates",ex);
+        } finally {
+            if ( session != null ) { session.logout(); }
+        }
+        context.put("predicates",preds);
+
         return context;
     }
 
