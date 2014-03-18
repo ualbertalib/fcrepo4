@@ -117,11 +117,16 @@ public class PropertyToTriple implements
     private Triple propertyvalue2triple(final Property p, final Value v) {
         LOGGER.trace("Rendering triple for Property: {} with Value: {}", p, v);
         try {
-            final Triple triple =
-                create(getGraphSubject(p.getParent()), getPredicateForProperty
-                        .apply(p).asNode(), propertyvalue2node(p, v));
-            LOGGER.trace("Created triple: {} ", triple);
-            return triple;
+            final Node val = propertyvalue2node(p, v);
+            if ( val != null ) {
+                final Triple triple =
+                    create(getGraphSubject(p.getParent()),
+                        getPredicateForProperty.apply(p).asNode(), val);
+                LOGGER.trace("Created triple: {} ", triple);
+                return triple;
+            } else {
+                return null;
+            }
         } catch (final RepositoryException e) {
             throw propagate(e);
         }
@@ -163,12 +168,17 @@ public class PropertyToTriple implements
     private Node traverseLink(final Property p, final Value v)
         throws RepositoryException {
         final javax.jcr.Node refNode;
-        if (v.getType() == PATH) {
-            refNode = p.getParent().getNode(v.getString());
-        } else {
-            refNode = p.getSession().getNodeByIdentifier(v.getString());
+        try {
+            if (v.getType() == PATH) {
+                refNode = p.getParent().getNode(v.getString());
+            } else {
+                refNode = p.getSession().getNodeByIdentifier(v.getString());
+            }
+            return getGraphSubject(refNode);
+        } catch ( Exception ex ) {
+            LOGGER.warn("Exception: " + ex.toString());
+            return null;
         }
-        return getGraphSubject(refNode);
     }
 
     private Node getGraphSubject(final javax.jcr.Node n)

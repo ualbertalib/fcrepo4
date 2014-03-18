@@ -791,7 +791,7 @@ public class FedoraNodesIT extends AbstractResourceIT {
         // upload file to federated filesystem using rest api
         final String uploadLocation = serverAddress + "files/upload/ds1/fcr:content";
         final String uploadContent = "abc123";
-        logger.debug("XXX: uploading to federated filesystem via rest api: " + uploadLocation);
+        logger.debug("Uploading to federated filesystem via rest api: " + uploadLocation);
         final HttpPost post = postDSMethod("files/upload", "ds1", uploadContent);
         final HttpResponse response = client.execute(post);
         assertEquals(CREATED.getStatusCode(), response.getStatusLine().getStatusCode());

@@ -291,7 +291,9 @@ public class RdfStream extends ForwardingIterator<Triple> implements
         final Model model = createDefaultModel();
         model.setNsPrefixes(namespaces());
         for (final Triple t : this) {
-            model.add(model.asStatement(t));
+            if ( t != null ) {
+                model.add(model.asStatement(t));
+            }
         }
         return model;
     }

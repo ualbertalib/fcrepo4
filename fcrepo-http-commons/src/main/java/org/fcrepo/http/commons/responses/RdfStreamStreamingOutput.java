@@ -41,6 +41,8 @@ import org.slf4j.Logger;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Predicates;
+import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.AbstractFuture;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
@@ -107,13 +109,13 @@ public class RdfStreamStreamingOutput extends AbstractFuture<Void> implements
     }
 
     private Iterable<Statement> asStatements() {
-        return new Iterable<Statement>() {
+        return Iterables.filter(new Iterable<Statement>() {
 
             @Override
             public Iterator<Statement> iterator() {
                 return rdfStream.transform(toStatement);
             }
-        };
+        }, Predicates.notNull() );
     }
 
     protected static final Function<? super Triple, Statement> toStatement =
@@ -121,10 +123,14 @@ public class RdfStreamStreamingOutput extends AbstractFuture<Void> implements
 
             @Override
             public Statement apply(final Triple t) {
-                final Value object = getValueForObject(t.getObject());
-                return vfactory.createStatement(vfactory.createURI(t
-                        .getSubject().getURI()), vfactory.createURI(t
-                        .getPredicate().getURI()), object);
+                if ( t != null ) {
+                    final Value object = getValueForObject(t.getObject());
+                    return vfactory.createStatement(vfactory.createURI(t
+                            .getSubject().getURI()), vfactory.createURI(t
+                            .getPredicate().getURI()), object);
+                } else {
+                    return null;
+                }
             }
 
         };
