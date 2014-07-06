@@ -132,7 +132,7 @@ public class HttpIdentifierTranslator extends SpringContextAwareIdentifierTransl
         LOGGER.debug("Resolving graph subjects to a base URI of \"{}\"",
                 normalizedBasePath);
         resetTranslationChain();
-        for (InternalIdentifierConverter converter : translationChain) {
+        for (final InternalIdentifierConverter converter : translationChain) {
             if (converter instanceof HierarchyConverter) {
                 hierarchyLevels = converter.getLevels();
                 break;
@@ -327,11 +327,16 @@ public class HttpIdentifierTranslator extends SpringContextAwareIdentifierTransl
         singletonList((InternalIdentifierConverter) new NamespaceConverter());
 
     /**
-     * Hierarchy levels. Default 1 for converters other than the HierarchyConverter.
+     * Hierarchy levels. Default 0 for converters other than the HierarchyConverter.
      * @return
      */
     @Override
     public int getHierarchyLevels() {
         return hierarchyLevels;
+    }
+
+    @Override
+    public String getSubjectPath(final Resource subject) {
+        return subject.getURI().substring(pathIx);
     }
 }

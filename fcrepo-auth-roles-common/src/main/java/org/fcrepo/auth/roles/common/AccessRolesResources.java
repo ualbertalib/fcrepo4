@@ -56,8 +56,11 @@ public class AccessRolesResources implements UriAwareResourceModelFactory {
 
         if (resource.getNode().isNodeType(
                 FedoraJcrTypes.FEDORA_RESOURCE)) {
+            if (resource.getPath(graphSubjects) == null) {
+                throw new RepositoryException("resource.getPath(graphSubjects) is Null: " + resource.getPath());
+            }
             final Map<String, String> pathMap =
-                    singletonMap("path", resource.getPath().substring(1));
+                    singletonMap("path", resource.getPath(graphSubjects).substring(1));
             final Resource acl = model.createResource(uriInfo.getBaseUriBuilder().path(
                     AccessRoles.class).buildFromMap(pathMap).toASCIIString());
             model.add(s, RdfLexicon.HAS_ACCESS_ROLES_SERVICE, acl);
