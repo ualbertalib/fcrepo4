@@ -16,7 +16,6 @@
 package org.fcrepo.kernel.impl.rdf.impl;
 
 import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -33,8 +32,7 @@ import javax.jcr.nodetype.PropertyDefinition;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.List;
-
+import java.util.Iterator;
 import static com.hp.hpl.jena.datatypes.xsd.XSDDatatype.XSDanyURI;
 import static com.hp.hpl.jena.rdf.model.ResourceFactory.createResource;
 import static com.hp.hpl.jena.vocabulary.RDF.type;
@@ -56,6 +54,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * @author cbeer
+ * @author ajs6f
  */
 public class NodeTypeRdfContextTest {
 
@@ -123,9 +122,7 @@ public class NodeTypeRdfContextTest {
 
     @Test
     public void testShouldMapNodeTypeIteratorToRdf() throws RepositoryException {
-        @SuppressWarnings("rawtypes")
-        final List mockNodeTypeList = singletonList(mockNodeType);
-        @SuppressWarnings("unchecked")
+        final Iterator<NamespacedNodeType> mockNodeTypeList = singletonList(mockNodeType).iterator();
         final Model actual = new NodeTypeRdfContext(mockNodeTypeList).asModel();
         assertTrue(actual.contains(createResource(REPOSITORY_NAMESPACE + mockNodeTypeName),
                 type, Class));
@@ -147,8 +144,8 @@ public class NodeTypeRdfContextTest {
 
         final Model actual = new NodeTypeRdfContext(mockNodeTypeManager).asModel();
         assertTrue(actual.contains(
-                ResourceFactory.createResource(REPOSITORY_NAMESPACE + mockNodeTypeName), type, Class));
-        assertTrue(actual.contains(ResourceFactory.createResource("b#b"), type, Class));
+                createResource(REPOSITORY_NAMESPACE + mockNodeTypeName), type, Class));
+        assertTrue(actual.contains(createResource("b#b"), type, Class));
     }
 
     @Test
@@ -179,19 +176,21 @@ public class NodeTypeRdfContextTest {
     }
 
     @Test
-    public void testShouldIncludeChildNodeRangeWhenTheChildNodeDeclaresRequiredType() throws RepositoryException {
+    public void testShouldIncludeChildNodeRangeWhenTheChildNodeDeclaresRequiredType() throws RepositoryException,
+            IOException {
 
         when(mockNodeDefinitionA.getRequiredPrimaryTypes()).thenReturn(new NodeType[] { mockNodeTypeB });
-        when(mockNodeType.getDeclaredChildNodeDefinitions()).thenReturn(new NodeDefinition[] { mockNodeDefinitionA });
-
+        when(mockNodeType.getChildNodeDefinitions()).thenReturn(new NodeDefinition[] { mockNodeDefinitionA });
+        when(mockNodeType.getDeclaredPropertyDefinitions()).thenReturn(new PropertyDefinition[] { mockProperty });
+        when(mockProperty.getRequiredType()).thenReturn(REFERENCE);
         final Model actual  = new NodeTypeRdfContext(mockNodeType).asModel();
-
+        logRdf("Got RDF: ", actual);
         assertTrue(actual.contains(
                 getResource((NodeDefinition) mockNodeDefinitionA), domain,
                 getResource((NodeType) mockNodeType)));
         assertTrue(actual.contains(
                 getResource((NodeDefinition) mockNodeDefinitionA), range,
-                getResource((NodeType) mockNodeTypeB)));
+                createResource(XSDanyURI.getURI())));
 
     }
 
@@ -275,7 +274,7 @@ public class NodeTypeRdfContextTest {
     private static void logRdf(final String message, final Model model) throws IOException {
         LOGGER.debug(message);
         try (Writer w = new StringWriter()) {
-            model.write(w);
+            model.write(w, "N3");
             LOGGER.debug("\n" + w.toString());
         }
     }

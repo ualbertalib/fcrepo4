@@ -52,11 +52,11 @@ public class AclRdfContext extends NodeRdfContext {
         try {
             resource().getNode().getSession().checkPermission( resource().getPath(), "add_node,set_property,remove" );
             writable = true;
-        } catch ( AccessControlException ex ) {
+        } catch ( final AccessControlException ex ) {
             writable = false;
         }
 
-        concat(create(subject(), WRITABLE.asNode(), createLiteral(String.valueOf(writable), XSDboolean)));
+        append(create(subject(), WRITABLE.asNode(), createLiteral(String.valueOf(writable), XSDboolean)));
     }
 
 }

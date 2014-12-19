@@ -76,6 +76,7 @@ import com.hp.hpl.jena.update.GraphStoreFactory;
  * <p>Abstract TestHelpers class.</p>
  *
  * @author awoods
+ * @author ajs6f
  */
 public abstract class TestHelpers {
 
@@ -227,7 +228,7 @@ public abstract class TestHelpers {
             final MessageDigest md;
             try {
                 md = MessageDigest.getInstance("SHA-1");
-            } catch (NoSuchAlgorithmException e) {
+            } catch (final NoSuchAlgorithmException e) {
                 throw new RuntimeException(e);
             }
             final byte[] digest = md.digest(content.getBytes());
@@ -248,7 +249,7 @@ public abstract class TestHelpers {
             final MessageDigest md;
             try {
                 md = MessageDigest.getInstance("SHA-1");
-            } catch (NoSuchAlgorithmException e) {
+            } catch (final NoSuchAlgorithmException e) {
                 throw new RuntimeException(e);
             }
             final byte[] digest = md.digest(content.getBytes());

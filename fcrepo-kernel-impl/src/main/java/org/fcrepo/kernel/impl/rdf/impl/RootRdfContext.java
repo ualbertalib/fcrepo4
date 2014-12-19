@@ -88,8 +88,7 @@ public class RootRdfContext extends NodeRdfContext {
             final String descriptor = repository.getDescriptor(key);
             if (descriptor != null) {
                 final String uri = REPOSITORY_NAMESPACE + "repository." + key;
-                b.add(create(subject(), createURI(uri),
-                        createLiteral(descriptor)));
+                b.add(create(subject(), createURI(uri), createLiteral(descriptor)));
             }
         }
         final NodeTypeManager nodeTypeManager =
@@ -98,8 +97,7 @@ public class RootRdfContext extends NodeRdfContext {
         final NodeTypeIterator nodeTypes = nodeTypeManager.getAllNodeTypes();
         while (nodeTypes.hasNext()) {
             final NodeType nodeType = nodeTypes.nextNodeType();
-            b.add(create(subject(), HAS_NODE_TYPE.asNode(),
-                    createLiteral(nodeType.getName())));
+            b.add(create(subject(), HAS_NODE_TYPE.asNode(), createLiteral(nodeType.getName())));
         }
 
             /*
@@ -116,8 +114,7 @@ public class RootRdfContext extends NodeRdfContext {
         // this ugly test checks to see whether this is an ordinary JCR
         // repository or a ModeShape repo, which will possess the extra info
         if (JcrRepository.class.isAssignableFrom(repository.getClass())) {
-            final Map<String, String> config =
-                new GetClusterConfiguration().apply(repository);
+            final Map<String, String> config = new GetClusterConfiguration().apply(repository);
             assert (config != null);
 
             for (final Map.Entry<String, String> entry : config.entrySet()) {
@@ -133,9 +130,7 @@ public class RootRdfContext extends NodeRdfContext {
             b.add(create(subject(), HAS_FIXITY_CHECK_COUNT.asNode(),
                     createTypedLiteral(
                             counters.get(
-                                    "org.fcrepo.services."
-                                            + "LowLevelStorageService."
-                                            + "fixity-check-counter")
+                                    "org.fcrepo.services." + "LowLevelStorageService." + "fixity-check-counter")
                                     .getCount()).asNode()));
         }
 
@@ -143,9 +138,7 @@ public class RootRdfContext extends NodeRdfContext {
             b.add(create(subject(), HAS_FIXITY_ERROR_COUNT.asNode(),
                     createTypedLiteral(
                             counters.get(
-                                    "org.fcrepo.services."
-                                            + "LowLevelStorageService."
-                                            + "fixity-error-counter")
+                                    "org.fcrepo.services." + "LowLevelStorageService." + "fixity-error-counter")
                                     .getCount()).asNode()));
         }
 
@@ -154,14 +147,12 @@ public class RootRdfContext extends NodeRdfContext {
             b.add(create(subject(), HAS_FIXITY_REPAIRED_COUNT.asNode(),
                     createTypedLiteral(
                             counters.get(
-                                    "org.fcrepo.services."
-                                            + "LowLevelStorageService."
-                                            + "fixity-repaired-counter")
+                                    "org.fcrepo.services." + "LowLevelStorageService." + "fixity-repaired-counter")
                                     .getCount()).asNode()));
         }
 
         // offer all these accumulated triples
-        concat(b.build());
+        join(b.build());
     }
 
 }

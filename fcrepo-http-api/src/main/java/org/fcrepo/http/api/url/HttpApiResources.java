@@ -55,6 +55,7 @@ import java.util.Map;
  * Inject our HTTP API methods into the object graphs
  *
  * @author awoods
+ * @author ajs6f
  */
 @Component
 public class HttpApiResources implements UriAwareResourceModelFactory {
@@ -77,7 +78,7 @@ public class HttpApiResources implements UriAwareResourceModelFactory {
         }
 
         if (resource instanceof NonRdfSourceDescription) {
-            final NonRdfSource describedResource = ((NonRdfSourceDescription) resource).getDescribedResource();
+            final NonRdfSource describedResource = (NonRdfSource) resource.getDescribedResource();
 
             if (describedResource instanceof FedoraBinary) {
                 addContentStatements(idTranslator, (FedoraBinary)describedResource, model);

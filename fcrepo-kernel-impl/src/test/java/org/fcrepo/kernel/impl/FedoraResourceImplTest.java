@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.fcrepo.kernel.impl;
 
+import static com.google.common.base.Functions.toStringFunction;
 import static com.hp.hpl.jena.rdf.model.ModelFactory.createDefaultModel;
 import static java.util.Calendar.JULY;
 import static org.apache.commons.codec.digest.DigestUtils.shaHex;
@@ -61,19 +63,20 @@ import org.fcrepo.kernel.impl.rdf.impl.DefaultIdentifierTranslator;
 import org.fcrepo.kernel.impl.testutilities.TestPropertyIterator;
 import org.fcrepo.kernel.impl.testutilities.TestTriplesContext;
 import org.fcrepo.kernel.utils.iterators.RdfStream;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
 
 /**
- * <p>FedoraResourceImplTest class.</p>
+ * <p>
+ * FedoraResourceImplTest class.
+ * </p>
  *
  * @author ajs6f
  */
@@ -200,16 +203,8 @@ public class FedoraResourceImplTest {
 
         final ResIterator resIterator = model.listSubjects();
 
-        final ImmutableSet<String> resources = ImmutableSet.copyOf(
-                Iterators.transform(resIterator,
-                        new Function<Resource, String>() {
-                            @Override
-                            public String apply(final Resource resource) {
-                                return resource.getURI();
-                            }
-                        }));
-
-        assertTrue(resources.contains("MockTriplesContextClass"));
+        final Iterator<String> resources = Iterators.transform(resIterator, toStringFunction());
+        assertTrue(Iterators.contains(resources, "MockTriplesContextClass"));
     }
 
     @Test
@@ -273,29 +268,27 @@ public class FedoraResourceImplTest {
 
         final Model propertiesModel = createDefaultModel();
         propertiesModel.add(propertiesModel.createResource("a"),
-                               propertiesModel.createProperty("b"),
-                               "c");
-
+                propertiesModel.createProperty("b"),
+                "c");
 
         propertiesModel.add(propertiesModel.createResource("i"),
-                               propertiesModel.createProperty("j"),
-                               "k");
+                propertiesModel.createProperty("j"),
+                "k");
 
         propertiesModel.add(propertiesModel.createResource("x"),
-                               propertiesModel.createProperty("y"),
-                               "z");
-        final RdfStream propertiesStream = RdfStream.fromModel(propertiesModel);
+                propertiesModel.createProperty("y"),
+                "z");
+        final RdfStream propertiesStream = RdfStream.from(propertiesModel);
 
         final Model replacementModel = createDefaultModel();
 
         replacementModel.add(replacementModel.createResource("a"),
-                                replacementModel.createProperty("b"),
-                               "n");
-
+                replacementModel.createProperty("b"),
+                "n");
 
         replacementModel.add(replacementModel.createResource("i"),
-                                replacementModel.createProperty("j"),
-                               "k");
+                replacementModel.createProperty("j"),
+                "k");
 
         testObj.replaceProperties(defaultGraphSubjects,
                 replacementModel,
@@ -491,7 +484,5 @@ public class FedoraResourceImplTest {
         final FedoraResource actual = testObj.getVersionedAncestor();
         assertEquals(mockContainer, actual.getNode());
     }
-
-
 
 }

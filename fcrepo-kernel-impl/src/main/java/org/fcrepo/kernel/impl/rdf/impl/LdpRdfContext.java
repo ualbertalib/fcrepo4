@@ -33,6 +33,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 
 /**
  * @author cabeer
+ * @author ajs6f
  * @since 9/16/14
  */
 public class LdpRdfContext extends NodeRdfContext {
@@ -49,13 +50,13 @@ public class LdpRdfContext extends NodeRdfContext {
                          final IdentifierConverter<Resource, FedoraResource> idTranslator) {
         super(resource, idTranslator);
 
-        concat(typeContext());
+        append(typeContext());
 
         if (resource instanceof Container) {
-            concat(containerContext());
+            append(containerContext());
 
             if (!resource.hasType(FEDORA_CONTAINER)) {
-                concat(defaultContainerContext());
+                append(defaultContainerContext());
             }
         }
 

@@ -17,13 +17,16 @@ package org.fcrepo.kernel.impl.rdf.converters;
 
 import com.google.common.base.Converter;
 import com.google.common.base.Splitter;
+import com.googlecode.totallylazy.Callable1;
 import com.hp.hpl.jena.datatypes.BaseDatatype;
 import com.hp.hpl.jena.datatypes.RDFDatatype;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
+
 import org.fcrepo.kernel.models.FedoraResource;
 import org.fcrepo.kernel.exception.RepositoryRuntimeException;
+
 import org.slf4j.Logger;
 
 import javax.jcr.Node;
@@ -54,9 +57,10 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * @author cabeer
+ * @author ajs6f
  * @since 10/8/14
  */
-public class ValueConverter extends Converter<Value, RDFNode> {
+public class ValueConverter extends Converter<Value, RDFNode> implements Callable1<Value, RDFNode> {
 
     private static final Logger LOGGER = getLogger(ValueConverter.class);
 
@@ -267,5 +271,10 @@ public class ValueConverter extends Converter<Value, RDFNode> {
         public boolean isResource() {
             return hasDatatypeUri() && datatypeUri.equals("URI");
         }
+    }
+
+    @Override
+    public RDFNode call(final Value v) {
+        return convert(v);
     }
 }

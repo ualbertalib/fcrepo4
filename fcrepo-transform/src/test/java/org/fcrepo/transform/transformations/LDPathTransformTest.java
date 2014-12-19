@@ -135,7 +135,7 @@ public class LDPathTransformTest {
     public void testProgramQuery() {
 
         final RdfStream rdfStream = new RdfStream();
-        rdfStream.concat(new Triple(createResource("abc").asNode(),
+        rdfStream.append(new Triple(createResource("abc").asNode(),
                 createProperty("http://purl.org/dc/elements/1.1/title").asNode(),
                 createLiteral("some-title")));
         rdfStream.topic(createResource("abc").asNode());

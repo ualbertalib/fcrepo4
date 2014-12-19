@@ -94,17 +94,17 @@ public class StreamingBaseHtmlProviderTest {
 
         testData.session(mockSession);
         testData.topic(createURI("test:subject"));
-        testData.concat(
+        testData.append(
                 new Triple(createURI("test:subject"),
                         createURI("test:predicate"),
                         createLiteral("test:object")));
-        testData.concat(
+        testData.append(
                 new Triple(createURI("test:subject"), primaryTypePredicate,
                         createLiteral("nt:file")));
 
         testData2.session(mockSession);
         testData2.topic(createURI("test:subject2"));
-        testData2.concat(
+        testData2.append(
                 new Triple(createURI("test:subject2"), mixinTypesPredicate,
                         createLiteral("childOf:ntFile")));
         final UriInfo info = Mockito.mock(UriInfo.class);

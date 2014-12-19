@@ -36,6 +36,6 @@ public class TestTriplesContext extends RdfStream {
      */
     public TestTriplesContext(final FedoraResource resource,
                               final IdentifierConverter<Resource, FedoraResource> idTranslator) {
-        concat(Triple.create(createURI("MockTriplesContextClass"), createURI("isAThing"), createLiteral("n")));
+        append(Triple.create(createURI("MockTriplesContextClass"), createURI("isAThing"), createLiteral("n")));
     }
 }

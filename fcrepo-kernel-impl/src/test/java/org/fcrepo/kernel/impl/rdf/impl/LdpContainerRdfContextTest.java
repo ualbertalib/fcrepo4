@@ -19,9 +19,11 @@ package org.fcrepo.kernel.impl.rdf.impl;
 import com.google.common.collect.Iterators;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
+
 import org.fcrepo.kernel.models.FedoraResource;
 import org.fcrepo.kernel.impl.testutilities.TestNodeIterator;
 import org.fcrepo.kernel.impl.testutilities.TestPropertyIterator;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -43,6 +45,7 @@ import static org.fcrepo.kernel.FedoraJcrTypes.LDP_INDIRECT_CONTAINER;
 import static org.fcrepo.kernel.FedoraJcrTypes.LDP_INSERTED_CONTENT_RELATION;
 import static org.fcrepo.kernel.FedoraJcrTypes.LDP_MEMBER_RESOURCE;
 import static org.fcrepo.kernel.impl.identifiers.NodeResourceConverter.nodeToResource;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -181,7 +184,7 @@ public class LdpContainerRdfContextTest {
 
         final Model model = testObj.asModel();
 
-        assertTrue("Expected stream to have one triple", model.size() == 1);
+        assertEquals("Expected stream to have one triple", 1, model.size());
         assertTrue(model.contains(
                 subjects.reverse().convert(mockResource),
                 ResourceFactory.createProperty("some:property"),
@@ -217,7 +220,7 @@ public class LdpContainerRdfContextTest {
 
         final Model model = testObj.asModel();
 
-        assertTrue("Expected stream to have one triple", model.size() == 1);
+        assertEquals("Expected stream to have one triple", 1, model.size());
         assertTrue(model.contains(
                 subjects.reverse().convert(mockResource),
                 ResourceFactory.createProperty("some:property"),

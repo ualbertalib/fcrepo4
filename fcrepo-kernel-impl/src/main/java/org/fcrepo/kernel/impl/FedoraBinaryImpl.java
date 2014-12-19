@@ -58,6 +58,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * @author cabeer
+ * @author ajs6f
  * @since 9/19/14
  */
 public class FedoraBinaryImpl extends FedoraResourceImpl implements FedoraBinary {
@@ -90,7 +91,7 @@ public class FedoraBinaryImpl extends FedoraResourceImpl implements FedoraBinary
     private void initializeNewBinaryProperties() {
         try {
             decorateContentNode(node);
-        } catch (RepositoryException e) {
+        } catch (final RepositoryException e) {
             LOGGER.warn("Count not decorate {} with FedoraBinary properties: {}", node, e);
         }
     }
@@ -374,6 +375,6 @@ public class FedoraBinaryImpl extends FedoraResourceImpl implements FedoraBinary
      * @return
      */
     public static boolean hasMixin(final Node node) {
-        return isFedoraBinary.apply(node);
+        return isFedoraBinary.matches(node);
     }
 }

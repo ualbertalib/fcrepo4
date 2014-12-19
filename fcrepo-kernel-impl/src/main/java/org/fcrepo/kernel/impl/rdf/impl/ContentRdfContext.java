@@ -49,11 +49,11 @@ public class ContentRdfContext extends NodeRdfContext {
             final Node subject = translator().reverse().convert(resource()).asNode();
             final Node contentSubject = translator().reverse().convert(contentNode).asNode();
             // add triples representing parent-to-content-child relationship
-            concat(create(subject, DESCRIBES.asNode(), contentSubject));
+            append(create(subject, DESCRIBES.asNode(), contentSubject));
 
         } else if (resource instanceof FedoraBinary) {
             final FedoraResource description = ((FedoraBinary) resource).getDescription();
-            concat(create(translator().reverse().convert(resource).asNode(),
+            append(create(translator().reverse().convert(resource).asNode(),
                     DESCRIBED_BY.asNode(),
                     translator().reverse().convert(description).asNode()));
         }

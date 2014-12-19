@@ -463,6 +463,11 @@
         <artifactId>jul-to-slf4j</artifactId>
         <version>1.7.7</version>
       </dependency>
+      <dependency>
+        <groupId>com.googlecode.totallylazy</groupId>
+        <artifactId>totallylazy</artifactId>
+        <version>1.55</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
   <build>
@@ -1102,6 +1107,10 @@
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
+    </repository>
+    <repository>
+      <id>repo.bodar.com</id>
+      <url>http://repo.bodar.com</url>
     </repository>
 
   </repositories>

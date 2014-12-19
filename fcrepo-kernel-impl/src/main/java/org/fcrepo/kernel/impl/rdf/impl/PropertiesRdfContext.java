@@ -13,26 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.fcrepo.kernel.impl.rdf.impl;
 
-import static com.google.common.base.Predicates.not;
+import static com.googlecode.totallylazy.Predicates.not;
 import static org.fcrepo.kernel.impl.utils.FedoraTypesUtils.isInternalProperty;
 import static org.slf4j.LoggerFactory.getLogger;
-
-import java.util.Iterator;
 
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 
+import com.googlecode.totallylazy.ForwardOnlySequence;
+import com.googlecode.totallylazy.Sequence;
 import com.hp.hpl.jena.rdf.model.Resource;
+
 import org.fcrepo.kernel.models.FedoraResource;
 import org.fcrepo.kernel.identifiers.IdentifierConverter;
 import org.fcrepo.kernel.impl.rdf.impl.mappings.PropertyToTriple;
-import org.fcrepo.kernel.utils.iterators.PropertyIterator;
 import org.slf4j.Logger;
 
-import com.google.common.collect.Iterators;
-import com.google.common.collect.UnmodifiableIterator;
 import com.hp.hpl.jena.graph.Triple;
 
 /**
@@ -43,7 +42,7 @@ import com.hp.hpl.jena.graph.Triple;
  */
 public class PropertiesRdfContext extends NodeRdfContext {
 
-    private PropertyToTriple property2triple;
+    private final PropertyToTriple property2triple;
 
     private static final Logger LOGGER = getLogger(PropertiesRdfContext.class);
 
@@ -55,21 +54,16 @@ public class PropertiesRdfContext extends NodeRdfContext {
      */
 
     public PropertiesRdfContext(final FedoraResource resource,
-                                final IdentifierConverter<Resource, FedoraResource> idTranslator)
-        throws RepositoryException {
+            final IdentifierConverter<Resource, FedoraResource> idTranslator)
+            throws RepositoryException {
         super(resource, idTranslator);
         property2triple = new PropertyToTriple(resource.getNode().getSession(), idTranslator);
-        concat(triplesFromProperties(resource()));
+        join(triplesFromProperties(resource()));
     }
 
-    private Iterator<Triple> triplesFromProperties(final FedoraResource n)
-        throws RepositoryException {
+    private Sequence<Triple> triplesFromProperties(final FedoraResource n) throws RepositoryException {
         LOGGER.trace("Creating triples for node: {}", n);
-        final UnmodifiableIterator<Property> properties =
-            Iterators.filter(new PropertyIterator(n.getNode().getProperties()), not(isInternalProperty));
-
-        return Iterators.concat(Iterators.transform(properties, property2triple));
-
+        return new ForwardOnlySequence<Property>(n.getNode().getProperties()).filter(not(isInternalProperty))
+                .flatMap(property2triple);
     }
-
 }

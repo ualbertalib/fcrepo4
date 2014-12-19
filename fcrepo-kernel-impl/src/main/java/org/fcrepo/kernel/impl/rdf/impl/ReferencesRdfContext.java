@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.fcrepo.kernel.impl.rdf.impl;
 
-import com.google.common.collect.Iterators;
-import com.hp.hpl.jena.graph.Triple;
+import static org.fcrepo.kernel.impl.utils.Sequences.sequence;
+import static org.slf4j.LoggerFactory.getLogger;
+
 import com.hp.hpl.jena.rdf.model.Resource;
+
 import org.fcrepo.kernel.models.FedoraResource;
 import org.fcrepo.kernel.identifiers.IdentifierConverter;
 import org.fcrepo.kernel.impl.rdf.impl.mappings.PropertyToTriple;
-import org.fcrepo.kernel.utils.iterators.PropertyIterator;
+import org.slf4j.Logger;
 
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
@@ -35,7 +38,9 @@ import java.util.Iterator;
  */
 public class ReferencesRdfContext extends NodeRdfContext {
 
-    private PropertyToTriple property2triple;
+    private final PropertyToTriple property2triple;
+
+    private static final Logger log = getLogger(ReferencesRdfContext.class);
 
     /**
      * Add the inbound references from other nodes to this resource to the stream
@@ -46,25 +51,13 @@ public class ReferencesRdfContext extends NodeRdfContext {
      */
 
     public ReferencesRdfContext(final FedoraResource resource,
-                                final IdentifierConverter<Resource, FedoraResource> idTranslator)
-        throws RepositoryException {
+            final IdentifierConverter<Resource, FedoraResource> idTranslator)
+            throws RepositoryException {
         super(resource, idTranslator);
         property2triple = new PropertyToTriple(resource.getNode().getSession(), idTranslator);
-        concat(putStrongReferencePropertiesIntoContext());
-        concat(putWeakReferencePropertiesIntoContext());
-    }
-
-    private Iterator<Triple> putWeakReferencePropertiesIntoContext() throws RepositoryException {
-        final Iterator<Property> properties = new PropertyIterator(resource().getNode().getWeakReferences());
-
-        return Iterators.concat(Iterators.transform(properties, property2triple));
-    }
-
-    private Iterator<Triple> putStrongReferencePropertiesIntoContext() throws RepositoryException {
-        final Iterator<Property> properties = new PropertyIterator(resource().getNode().getReferences());
-
-        return Iterators.concat(Iterators.transform(properties, property2triple));
-
+        final Iterator<Property> weakReferences = resource().getNode().getWeakReferences();
+        final Iterator<Property> strongReferences = resource().getNode().getReferences();
+        join(sequence(weakReferences).join(sequence(strongReferences)).flatMap(property2triple));
     }
 
 }

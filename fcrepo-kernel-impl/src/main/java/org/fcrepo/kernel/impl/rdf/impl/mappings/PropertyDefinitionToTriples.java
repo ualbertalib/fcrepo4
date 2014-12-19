@@ -15,7 +15,6 @@
  */
 package org.fcrepo.kernel.impl.rdf.impl.mappings;
 
-import static com.google.common.base.Throwables.propagate;
 import static com.hp.hpl.jena.datatypes.xsd.XSDDatatype.XSDanyURI;
 import static com.hp.hpl.jena.datatypes.xsd.XSDDatatype.XSDboolean;
 import static com.hp.hpl.jena.datatypes.xsd.XSDDatatype.XSDdate;
@@ -25,7 +24,6 @@ import static com.hp.hpl.jena.datatypes.xsd.XSDDatatype.XSDstring;
 import static com.hp.hpl.jena.graph.NodeFactory.createURI;
 import static com.hp.hpl.jena.graph.Triple.create;
 import static com.hp.hpl.jena.vocabulary.RDFS.range;
-import static java.util.Collections.emptyIterator;
 import static javax.jcr.PropertyType.BINARY;
 import static javax.jcr.PropertyType.BOOLEAN;
 import static javax.jcr.PropertyType.DATE;
@@ -41,7 +39,6 @@ import static javax.jcr.PropertyType.nameFromValue;
 import static org.fcrepo.kernel.RdfLexicon.REPOSITORY_NAMESPACE;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.jcr.RepositoryException;
@@ -58,6 +55,7 @@ import com.hp.hpl.jena.graph.Triple;
 /**
  * Utility for moving Property Definitions into RDFS triples
  * @author cbeer
+ * @author ajs6f
  */
 public class PropertyDefinitionToTriples extends ItemDefinitionToTriples<PropertyDefinition> {
 
@@ -87,7 +85,7 @@ public class PropertyDefinitionToTriples extends ItemDefinitionToTriples<Propert
             .put(STRING, XSDstring).build();
 
     /**
-     * Translate ItemDefinitions into triples. The definitions will hang off
+     * Translate {@link PropertyDefinition}s into triples. The definitions will hang off
      * the provided RDF Node
      * @param domain
      */
@@ -96,38 +94,34 @@ public class PropertyDefinitionToTriples extends ItemDefinitionToTriples<Propert
     }
 
     @Override
-    public Iterator<Triple> apply(final PropertyDefinition input) {
+    public Iterable<Triple> call(final PropertyDefinition propertyDef) throws RepositoryException {
 
-        if (!input.getName().contains(":")) {
+        if (!propertyDef.getName().contains(":")) {
             LOGGER.debug("Received property definition with no namespace: {}",
-                    input.getName());
+                    propertyDef.getName());
             LOGGER.debug("This cannot be serialized into several RDF formats, " +
-                                 "so we assume it is internal and discard it.");
+                    "so we assume it is internal and discard it.");
             // TODO find a better way...
-            return emptyIterator();
+            return new RdfStream();
         }
 
-        try {
-            // skip range declaration for unknown types
-            final int requiredType = input.getRequiredType();
+        // skip range declaration for unknown types
+        final int requiredType = propertyDef.getRequiredType();
 
-            final Node rangeForJcrType = getRangeForJcrType(requiredType);
+        final Node rangeForJcrType = getRangeForJcrType(requiredType);
 
-            if (rangeForJcrType != UNMAPPED_TYPE) {
-                LOGGER.trace("Adding RDFS:range for property: {} with required type: {} as: {}",
-                    input.getName(), nameFromValue(requiredType), rangeForJcrType.getURI());
-                final Triple propertyTriple =
-                    create(getResource(input).asNode(), range.asNode(),
+        if (rangeForJcrType != UNMAPPED_TYPE) {
+            LOGGER.trace("Adding RDFS:range for property: {} with required type: {} as: {}",
+                    propertyDef.getName(), nameFromValue(requiredType), rangeForJcrType.getURI());
+            final Triple propertyTriple =
+                    create(getResource(propertyDef).asNode(), range.asNode(),
                             rangeForJcrType);
-                return new RdfStream(propertyTriple).concat(super.apply(input));
-            }
-            LOGGER.trace(
-                    "Skipping RDFS:range for property: {} with unmappable type: {}",
-                    input.getName(), nameFromValue(requiredType));
-            return super.apply(input);
-        } catch (final RepositoryException e) {
-            throw propagate(e);
+            return new RdfStream(propertyTriple).join(super.call(propertyDef));
         }
+        LOGGER.trace(
+                "Skipping RDFS:range for property: {} with unmappable type: {}",
+                propertyDef.getName(), nameFromValue(requiredType));
+        return super.call(propertyDef);
     }
 
     /**

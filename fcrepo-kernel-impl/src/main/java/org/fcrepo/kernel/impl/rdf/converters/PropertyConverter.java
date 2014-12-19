@@ -60,7 +60,7 @@ public class PropertyConverter extends Converter<javax.jcr.Property, Property> {
                 final String localName = nsProperty.getLocalName();
                 final String rdfLocalName;
 
-                if (isInternalReferenceProperty.apply(property)) {
+                if (isInternalReferenceProperty.matches(property)) {
                     rdfLocalName = getReferencePropertyOriginalName(localName);
                 } else {
                     rdfLocalName = localName;

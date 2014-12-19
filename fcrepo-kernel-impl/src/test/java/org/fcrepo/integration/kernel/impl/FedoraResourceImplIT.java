@@ -359,7 +359,7 @@ public class FedoraResourceImplIT extends AbstractIT {
                 + createGraphSubjectNode(object).getURI() + "> "
                 + "<info:fcrepo/zyx> \"b\" } " + "WHERE { " + "<"
                 + createGraphSubjectNode(object).getURI() + "> "
-                + "<info:fcrepo/zyx> ?o } ", RdfStream.fromModel(model));
+                + "<info:fcrepo/zyx> ?o } ", RdfStream.from(model));
 
         model = object.getTriples(subjects, PropertiesRdfContext.class).asModel();
 

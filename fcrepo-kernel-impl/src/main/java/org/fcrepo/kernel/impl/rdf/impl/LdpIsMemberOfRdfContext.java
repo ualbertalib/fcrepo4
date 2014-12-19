@@ -15,22 +15,21 @@
  */
 package org.fcrepo.kernel.impl.rdf.impl;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterators;
+import com.googlecode.totallylazy.Function1;
+import com.googlecode.totallylazy.Predicate;
+import com.googlecode.totallylazy.Sequence;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
+
 import org.fcrepo.kernel.models.FedoraResource;
-import org.fcrepo.kernel.RdfLexicon;
 import org.fcrepo.kernel.identifiers.IdentifierConverter;
 import org.fcrepo.kernel.impl.rdf.converters.ValueConverter;
-import org.fcrepo.kernel.impl.rdf.impl.mappings.PropertyValueIterator;
+import org.fcrepo.kernel.impl.rdf.impl.mappings.PropertyValues;
 
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
-
-import java.util.Iterator;
+import javax.jcr.Value;
 
 import static com.hp.hpl.jena.graph.Triple.create;
 import static com.hp.hpl.jena.rdf.model.ResourceFactory.createResource;
@@ -42,10 +41,12 @@ import static org.fcrepo.kernel.FedoraJcrTypes.LDP_INDIRECT_CONTAINER;
 import static org.fcrepo.kernel.FedoraJcrTypes.LDP_INSERTED_CONTENT_RELATION;
 import static org.fcrepo.kernel.FedoraJcrTypes.LDP_IS_MEMBER_OF_RELATION;
 import static org.fcrepo.kernel.FedoraJcrTypes.LDP_MEMBER_RESOURCE;
+import static org.fcrepo.kernel.RdfLexicon.MEMBER_SUBJECT;
 import static org.fcrepo.kernel.impl.rdf.converters.PropertyConverter.getPropertyNameFromPredicate;
 
 /**
  * @author cabeer
+ * @author ajs6f
  * @since 10/7/14
  */
 public class LdpIsMemberOfRdfContext extends NodeRdfContext {
@@ -59,8 +60,7 @@ public class LdpIsMemberOfRdfContext extends NodeRdfContext {
      * @throws javax.jcr.RepositoryException
      */
     public LdpIsMemberOfRdfContext(final FedoraResource resource,
-                                   final IdentifierConverter<Resource, FedoraResource> idTranslator)
-            throws RepositoryException {
+            final IdentifierConverter<Resource, FedoraResource> idTranslator) throws RepositoryException {
         super(resource, idTranslator);
 
         valueConverter = new ValueConverter(session(), translator());
@@ -92,11 +92,11 @@ public class LdpIsMemberOfRdfContext extends NodeRdfContext {
                 return;
             }
         } else {
-            insertedContainerProperty = RdfLexicon.MEMBER_SUBJECT.getURI();
+            insertedContainerProperty = MEMBER_SUBJECT.getURI();
         }
 
-        if (insertedContainerProperty.equals(RdfLexicon.MEMBER_SUBJECT.getURI())) {
-            concat(create(subject(), memberRelation.asNode(), membershipResource.asNode()));
+        if (insertedContainerProperty.equals(MEMBER_SUBJECT.getURI())) {
+            append(create(subject(), memberRelation.asNode(), membershipResource.asNode()));
         } else if (container.hasType(LDP_INDIRECT_CONTAINER)) {
             final String insertedContentProperty = getPropertyNameFromPredicate(resource().getNode(), createResource
                     (insertedContainerProperty), null);
@@ -105,25 +105,22 @@ public class LdpIsMemberOfRdfContext extends NodeRdfContext {
                 return;
             }
 
-            final PropertyValueIterator values
-                    = new PropertyValueIterator(resource().getProperty(insertedContentProperty));
-
-            final Iterator<RDFNode> insertedContentRelations = Iterators.filter(
-                    Iterators.transform(values, valueConverter),
+            final Sequence<Value> values =
+                    PropertyValues.forProperty(resource().getProperty(insertedContentProperty));
+            join(values.map(valueConverter).filter(
                     new Predicate<RDFNode>() {
-                        @Override
-                        public boolean apply(final RDFNode input) {
-                            return input.isURIResource() && translator().inDomain(input.asResource());
-                        }
-                    });
 
-            concat(Iterators.transform(insertedContentRelations, new Function<RDFNode, Triple>() {
+                        @Override
+                        public boolean matches(final RDFNode node) {
+                            return node.isURIResource() && translator().inDomain(node.asResource());
+                        }
+                    }).map(new Function1<RDFNode, Triple>() {
+
                 @Override
-                public Triple apply(final RDFNode input) {
-                    return create(input.asNode(), memberRelation.asNode(), membershipResource.asNode());
+                public Triple call(final RDFNode node) {
+                    return create(node.asNode(), memberRelation.asNode(), membershipResource.asNode());
                 }
             }));
-
         }
     }
 

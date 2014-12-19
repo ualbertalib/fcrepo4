@@ -15,18 +15,18 @@
  */
 package org.fcrepo.kernel.impl.rdf.impl;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterators;
-import com.hp.hpl.jena.graph.Triple;
+import com.googlecode.totallylazy.ForwardOnlySequence;
+import com.googlecode.totallylazy.Function1;
 import com.hp.hpl.jena.rdf.model.Resource;
+
 import org.fcrepo.kernel.models.FedoraResource;
 import org.fcrepo.kernel.identifiers.IdentifierConverter;
 import org.fcrepo.kernel.utils.iterators.NodeIterator;
+import org.fcrepo.kernel.utils.iterators.RdfStream;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
-import java.util.Iterator;
 
 import static org.fcrepo.kernel.impl.identifiers.NodeResourceConverter.nodeConverter;
 
@@ -51,17 +51,18 @@ public class HashRdfContext extends NodeRdfContext {
 
         final Node node = resource().getNode();
         if (node.hasNode("#")) {
-            concat(Iterators.concat(Iterators.transform(new NodeIterator(node.getNode("#").getNodes()),
-                    new Function<Node, Iterator<Triple>>() {
+            join(new ForwardOnlySequence<>(new NodeIterator(node.getNode("#").getNodes())).flatMap(
+                    new Function1<Node, RdfStream>() {
+
                         @Override
-                        public Iterator<Triple> apply(final Node input) {
+                        public RdfStream call(final Node input) {
                             final FedoraResource resource = nodeConverter.convert(input);
 
                             return resource.getTriples(idTranslator, ImmutableList.of(TypeRdfContext.class,
                                     PropertiesRdfContext.class,
                                     BlankNodeRdfContext.class));
                         }
-                    })));
+                    }));
         }
     }
 }

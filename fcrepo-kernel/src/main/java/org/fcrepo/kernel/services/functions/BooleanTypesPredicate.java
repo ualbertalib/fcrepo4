@@ -28,8 +28,8 @@ import java.util.Iterator;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
+import com.googlecode.totallylazy.Predicate;
 
 /**
  * Base class for matching sets of node types
@@ -49,7 +49,7 @@ public abstract class BooleanTypesPredicate implements Predicate<Node> {
     }
 
     @Override
-    public boolean apply(final Node input) {
+    public boolean matches(final Node input) {
         if (input == null) {
             throw new IllegalArgumentException(
                     "null node passed to" + getClass().getName()
@@ -76,7 +76,7 @@ public abstract class BooleanTypesPredicate implements Predicate<Node> {
                     }
                 }
             }
-        } catch (RepositoryException e) {
+        } catch (final RepositoryException e) {
             throw propagate(e);
         }
         return test(matched);

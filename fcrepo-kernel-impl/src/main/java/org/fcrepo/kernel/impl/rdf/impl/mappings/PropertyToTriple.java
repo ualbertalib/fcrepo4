@@ -15,13 +15,11 @@
  */
 package org.fcrepo.kernel.impl.rdf.impl.mappings;
 
-import static com.google.common.base.Throwables.propagate;
+import static com.hp.hpl.jena.datatypes.xsd.XSDDatatype.XSDstring;
 import static com.hp.hpl.jena.graph.NodeFactory.createLiteral;
 import static com.hp.hpl.jena.graph.Triple.create;
 import static org.fcrepo.kernel.impl.identifiers.NodeResourceConverter.nodeToResource;
 import static org.slf4j.LoggerFactory.getLogger;
-
-import java.util.Iterator;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
@@ -30,15 +28,17 @@ import javax.jcr.Session;
 import javax.jcr.Value;
 
 import com.google.common.base.Converter;
-import com.google.common.collect.Iterators;
-import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.impl.LiteralLabel;
 import com.hp.hpl.jena.rdf.model.Resource;
+
 import org.fcrepo.kernel.models.FedoraResource;
 import org.fcrepo.kernel.impl.rdf.converters.PropertyConverter;
 import org.fcrepo.kernel.impl.rdf.converters.ValueConverter;
+
 import org.slf4j.Logger;
-import com.google.common.base.Function;
+
+import com.googlecode.totallylazy.Function1;
+import com.googlecode.totallylazy.Sequence;
 import com.hp.hpl.jena.graph.Triple;
 
 /**
@@ -47,18 +47,17 @@ import com.hp.hpl.jena.graph.Triple;
  * @author ajs6f
  * @since Oct 10, 2013
  */
-public class PropertyToTriple implements
-        Function<Property, Iterator<Triple>> {
+public class PropertyToTriple extends Function1<Property, Sequence<Triple>> {
 
     private static final PropertyConverter propertyConverter = new PropertyConverter();
     private final ValueConverter valueConverter;
-    private Converter<Node, Resource> graphSubjects;
+    private final Converter<Node, Resource> graphSubjects;
 
     private static final Logger LOGGER = getLogger(PropertyToTriple.class);
 
     /**
-     * Default constructor. We require a {@link Converter} in order to
-     * construct the externally-meaningful RDF subjects of our triples.
+     * Default constructor. We require a {@link Converter} in order to construct the externally-meaningful RDF
+     * subjects of our triples.
      *
      * @param graphSubjects
      */
@@ -67,33 +66,13 @@ public class PropertyToTriple implements
         this.graphSubjects = nodeToResource(graphSubjects);
     }
 
-    /**
-     * This nightmare of Java signature verbosity is a curried transformation.
-     * We want to go from an iterator of JCR {@link Property} to an iterator
-     * of RDF {@link Triple}s. An annoyance: some properties may produce several
-     * triples (multi-valued properties). So we cannot find a simple Property to
-     * Triple mapping. Instead, we wax clever and offer a function from any
-     * specific property to a new function, one that takes multiple values (such
-     * as occur in our multi-valued properties) to multiple triples. In other
-     * words, this is a function the outputs of which are functions specific to
-     * a given JCR property. Each output knows how to take any specific value of
-     * its specific property to a triple representing the fact that its specific
-     * property obtains that specific value on the node to which that property
-     * belongs. All of this is useful because with these operations represented
-     * as functions instead of ordinary methods, which may have side-effects, we
-     * can use efficient machinery to manipulate iterators of the objects in
-     * which we are interested, and that's exactly what we want to do in this
-     * class. See {@link org.fcrepo.kernel.impl.rdf.impl.PropertiesRdfContext#triplesFromProperties} for an
-     * example of the use of this class with {@link ZippingIterator}.
-     *
-     * @see <a href="http://en.wikipedia.org/wiki/Currying">Currying</a>
-     */
     @Override
-    public Iterator<Triple> apply(final Property p) {
-        return Iterators.transform(new PropertyValueIterator(p), new Function<Value, Triple>() {
+    public Sequence<Triple> call(final Property p) {
+        LOGGER.trace("Producing triples from property: {}", p);
+        return PropertyValues.forProperty(p).map(new Function1<Value, Triple>() {
 
             @Override
-            public Triple apply(final Value v) {
+            public Triple call(final Value v) throws RepositoryException {
                 return propertyvalue2triple(p, v);
             }
         });
@@ -101,24 +80,19 @@ public class PropertyToTriple implements
 
     /**
      * @param p A JCR {@link Property}
-     * @param v The {@link Value} of that Property to use (in the case of
-     *        multi-valued properties)  For single valued properties this
-     *        must be that single value.
-     * @return An RDF {@link Triple} representing that property.
+     * @param v The {@link Value} of that Property to use (in the case of multi-valued properties) For single valued
+     *        properties this must be that single value.
+     * @return An RDF {@link Triple} representing that property and value.
+     * @throws RepositoryException
+     * @throws
+     * @throws
      */
-    private Triple propertyvalue2triple(final Property p, final Value v) {
+    private Triple propertyvalue2triple(final Property p, final Value v) throws RepositoryException {
         LOGGER.trace("Rendering triple for Property: {} with Value: {}", p, v);
-        try {
-
-            final Triple triple = create(graphSubjects.convert(p.getParent()).asNode(),
-                    propertyConverter.convert(p).asNode(),
-                    convertObject(p, v));
-
-            LOGGER.trace("Created triple: {} ", triple);
-            return triple;
-        } catch (final RepositoryException e) {
-            throw propagate(e);
-        }
+        final Triple triple = create(graphSubjects.convert(p.getParent()).asNode(),
+                propertyConverter.convert(p).asNode(), convertObject(p, v));
+        LOGGER.trace("Created triple: {} ", triple);
+        return triple;
     }
 
     private com.hp.hpl.jena.graph.Node convertObject(final Property p, final Value v) throws RepositoryException {
@@ -132,15 +106,13 @@ public class PropertyToTriple implements
                 final LiteralLabel literal = object.getLiteral();
                 final String datatypeURI = literal.getDatatypeURI();
 
-                if (datatypeURI.isEmpty() || datatypeURI.equals(XSDDatatype.XSDstring.getURI())) {
+                if (datatypeURI.isEmpty() || datatypeURI.equals(XSDstring.getURI())) {
 
                     final String lang = propertyName.substring(i + 1);
                     return createLiteral(literal.getLexicalForm(), lang, literal.getDatatype());
                 }
             }
         }
-
         return object;
     }
-
 }

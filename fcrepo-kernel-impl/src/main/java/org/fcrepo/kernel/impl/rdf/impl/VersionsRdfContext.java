@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.fcrepo.kernel.impl.rdf.impl;
 
-import static com.google.common.base.Throwables.propagate;
 import static com.hp.hpl.jena.graph.NodeFactory.createLiteral;
 import static com.hp.hpl.jena.graph.Triple.create;
 import static com.hp.hpl.jena.rdf.model.ResourceFactory.createTypedLiteral;
@@ -25,28 +25,27 @@ import static org.fcrepo.kernel.RdfLexicon.HAS_VERSION_LABEL;
 import static org.fcrepo.kernel.impl.identifiers.NodeResourceConverter.nodeToResource;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.util.Iterator;
-
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 
+import com.googlecode.totallylazy.ForwardOnlySequence;
+import com.googlecode.totallylazy.Function1;
+import com.googlecode.totallylazy.Sequence;
 import com.hp.hpl.jena.rdf.model.Resource;
+
 import org.fcrepo.kernel.models.FedoraResource;
 import org.fcrepo.kernel.identifiers.IdentifierConverter;
 import org.fcrepo.kernel.utils.iterators.RdfStream;
 import org.fcrepo.kernel.utils.iterators.VersionIterator;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterators;
 import com.hp.hpl.jena.graph.Triple;
+
 import org.slf4j.Logger;
 
-
 /**
- * An {@link NodeRdfContext} that supplies {@link Triple}s concerning
- * the versions of a selected {@link Node}.
+ * An {@link NodeRdfContext} that supplies {@link Triple}s concerning the versions of a selected {@link Node}.
  *
  * @author ajs6f
  * @since Oct 15, 2013
@@ -69,28 +68,27 @@ public class VersionsRdfContext extends RdfStream {
      * @throws RepositoryException
      */
     public VersionsRdfContext(final FedoraResource resource,
-                              final IdentifierConverter<Resource, FedoraResource> idTranslator)
-        throws RepositoryException {
+            final IdentifierConverter<Resource, FedoraResource> idTranslator)
+            throws RepositoryException {
         super();
         this.idTranslator = idTranslator;
         this.subject = idTranslator.reverse().convert(resource).asNode();
         versionHistory = resource.getVersionHistory();
 
-        concat(versionTriples());
+        join(versionTriples());
     }
 
-    private Iterator<Triple> versionTriples() throws RepositoryException {
-        return Iterators.concat(Iterators.transform(new VersionIterator(versionHistory
-                .getAllVersions()), version2triples));
+    private Sequence<Triple> versionTriples() throws RepositoryException {
+        return new ForwardOnlySequence<>(new VersionIterator(versionHistory.getAllVersions()))
+                .flatMap(version2triples);
     }
 
-    private Function<Version, Iterator<Triple>> version2triples =
-        new Function<Version, Iterator<Triple>>() {
+    private final Function1<Version, Sequence<Triple>> version2triples =
+            new Function1<Version, Sequence<Triple>>() {
 
-            @Override
-            public Iterator<Triple> apply(final Version version) {
+                @Override
+                public Sequence<Triple> call(final Version version) throws RepositoryException {
 
-                try {
                     /* Discard jcr:rootVersion */
                     if (version.getName().equals(versionHistory.getRootVersion().getName())) {
                         LOGGER.trace("Skipped root version from triples");
@@ -98,30 +96,18 @@ public class VersionsRdfContext extends RdfStream {
                     }
 
                     final Node frozenNode = version.getFrozenNode();
-                    final com.hp.hpl.jena.graph.Node versionSubject
-                            = nodeToResource(idTranslator).convert(frozenNode).asNode();
+                    final com.hp.hpl.jena.graph.Node versionSubject =
+                            nodeToResource(idTranslator).convert(frozenNode).asNode();
 
-                    final RdfStream results = new RdfStream();
+                    final RdfStream results = new RdfStream(create(subject, HAS_VERSION.asNode(), versionSubject));
 
-                    results.concat(create(subject, HAS_VERSION.asNode(),
-                            versionSubject));
-
-                    for (final String label : versionHistory
-                            .getVersionLabels(version)) {
-                        results.concat(create(versionSubject, HAS_VERSION_LABEL
-                                .asNode(), createLiteral(label)));
+                    for (final String label : versionHistory.getVersionLabels(version)) {
+                        results.append(create(versionSubject, HAS_VERSION_LABEL.asNode(), createLiteral(label)));
                     }
-                    results.concat(create(versionSubject, CREATED_DATE.asNode(),
-                            createTypedLiteral(version.getCreated()).asNode()));
+                    results.append(create(versionSubject, CREATED_DATE.asNode(), createTypedLiteral(
+                            version.getCreated()).asNode()));
 
                     return results;
-
-                } catch (final RepositoryException e) {
-                    throw propagate(e);
                 }
-            }
-
-        };
-
-
+            };
 }

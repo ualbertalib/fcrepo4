@@ -72,6 +72,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
  * URI translation.
  *
  * @author cabeer
+ * @author ajs6f
  * @since 10/5/14
  */
 public class HttpResourceConverter extends IdentifierConverter<Resource,FedoraResource> {
@@ -306,7 +307,7 @@ public class HttpResourceConverter extends IdentifierConverter<Resource,FedoraRe
     }
 
     private static String getPath(final FedoraResource resource) {
-        if (isFrozenNode.apply(resource)) {
+        if (isFrozenNode.matches(resource)) {
             try {
 
                 // the versioned resource we're in

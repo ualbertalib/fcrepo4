@@ -34,18 +34,18 @@ import static org.junit.Assert.assertTrue;
  */
 public class GraphDifferencingIteratorTest {
 
-    private Triple t_xyz = new Triple(createURI("x"), createURI("y"), createURI("z"));
-    private Triple t_abc = new Triple(createURI("a"), createURI("b"), createURI("c"));
-    private Triple t_typed_string = new Triple(createURI("i"),
+    private final Triple t_xyz = new Triple(createURI("x"), createURI("y"), createURI("z"));
+    private final Triple t_abc = new Triple(createURI("a"), createURI("b"), createURI("c"));
+    private final Triple t_typed_string = new Triple(createURI("i"),
                                                createURI("j"),
                                                createLiteral("k", XSDDatatype.XSDstring));
-    private Triple t_untyped_string = new Triple(createURI("i"),
+    private final Triple t_untyped_string = new Triple(createURI("i"),
                                                  createURI("j"),
                                                  createLiteral("k"));
-    private Triple t_int = new Triple(createURI("i"),
+    private final Triple t_int = new Triple(createURI("i"),
             createURI("j"),
             createLiteral("0", XSDDatatype.XSDint));
-    private Triple t_int_equivalent = new Triple(createURI("i"),
+    private final Triple t_int_equivalent = new Triple(createURI("i"),
             createURI("j"),
             createLiteral("000", XSDDatatype.XSDint));
 
@@ -56,7 +56,8 @@ public class GraphDifferencingIteratorTest {
         final Graph graph = GraphFactory.createDefaultGraph();
         graph.add(t_xyz);
 
-        final GraphDifferencingIterator iterator = new GraphDifferencingIterator(graph, new RdfStream(t_xyz));
+        final GraphDifferencingIterator iterator =
+                new GraphDifferencingIterator(graph, new RdfStream(t_xyz).iterator());
 
         final ImmutableSet<Triple> removed = copyOf(iterator);
         final ImmutableSet<Triple> added = copyOf(iterator.notCommon());
@@ -75,7 +76,8 @@ public class GraphDifferencingIteratorTest {
         final Graph graph = GraphFactory.createDefaultGraph();
         graph.add(t_xyz);
 
-        final GraphDifferencingIterator iterator = new GraphDifferencingIterator(graph, new RdfStream(t_xyz, t_abc));
+        final GraphDifferencingIterator iterator =
+                new GraphDifferencingIterator(graph, new RdfStream(t_xyz, t_abc).iterator());
 
         final ImmutableSet<Triple> removed = copyOf(iterator);
         final ImmutableSet<Triple> added = copyOf(iterator.notCommon());
@@ -95,7 +97,8 @@ public class GraphDifferencingIteratorTest {
         graph.add(t_abc);
         graph.add(t_xyz);
 
-        final GraphDifferencingIterator iterator = new GraphDifferencingIterator(graph, new RdfStream(t_xyz));
+        final GraphDifferencingIterator iterator =
+                new GraphDifferencingIterator(graph, new RdfStream(t_xyz).iterator());
 
         final ImmutableSet<Triple> removed = copyOf(iterator);
         final ImmutableSet<Triple> added = copyOf(iterator.notCommon());
@@ -114,7 +117,8 @@ public class GraphDifferencingIteratorTest {
         final Graph graph = GraphFactory.createDefaultGraph();
         graph.add(t_xyz);
 
-        final GraphDifferencingIterator iterator = new GraphDifferencingIterator(graph, new RdfStream(t_abc));
+        final GraphDifferencingIterator iterator =
+                new GraphDifferencingIterator(graph, new RdfStream(t_abc).iterator());
 
         final ImmutableSet<Triple> removed = copyOf(iterator);
         final ImmutableSet<Triple> added = copyOf(iterator.notCommon());
@@ -133,7 +137,8 @@ public class GraphDifferencingIteratorTest {
         final Graph graph = GraphFactory.createDefaultGraph();
         graph.add(t_untyped_string);
 
-        final GraphDifferencingIterator iterator = new GraphDifferencingIterator(graph, new RdfStream(t_typed_string));
+        final GraphDifferencingIterator iterator =
+                new GraphDifferencingIterator(graph, new RdfStream(t_typed_string).iterator());
 
         final ImmutableSet<Triple> removed = copyOf(iterator);
         final ImmutableSet<Triple> added = copyOf(iterator.notCommon());
@@ -151,7 +156,8 @@ public class GraphDifferencingIteratorTest {
         final Graph graph = GraphFactory.createDefaultGraph();
         graph.add(t_int_equivalent);
 
-        final GraphDifferencingIterator iterator = new GraphDifferencingIterator(graph, new RdfStream(t_int));
+        final GraphDifferencingIterator iterator =
+                new GraphDifferencingIterator(graph, new RdfStream(t_int).iterator());
 
         final ImmutableSet<Triple> removed = copyOf(iterator);
         final ImmutableSet<Triple> added = copyOf(iterator.notCommon());

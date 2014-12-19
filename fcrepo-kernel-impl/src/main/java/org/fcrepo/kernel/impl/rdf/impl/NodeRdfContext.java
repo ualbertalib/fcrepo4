@@ -55,6 +55,7 @@ public class NodeRdfContext extends RdfStream {
         super();
         this.resource = resource;
         this.idTranslator = idTranslator;
+        LOGGER.trace("Operating on resource: {}", resource);
         this.subject = idTranslator.reverse().convert(resource).asNode();
     }
 

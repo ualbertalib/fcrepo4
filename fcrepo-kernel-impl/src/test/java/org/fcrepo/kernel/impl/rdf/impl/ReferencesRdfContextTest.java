@@ -16,11 +16,14 @@
 package org.fcrepo.kernel.impl.rdf.impl;
 
 import com.hp.hpl.jena.rdf.model.Model;
+
 import org.fcrepo.kernel.models.FedoraResource;
 import org.fcrepo.kernel.impl.testutilities.TestPropertyIterator;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.slf4j.Logger;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
@@ -35,11 +38,15 @@ import static javax.jcr.PropertyType.WEAKREFERENCE;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * @author cbeer
+ * @author ajs6f
  */
 public class ReferencesRdfContextTest {
+
+    private static final Logger log = getLogger(ReferencesRdfContextTest.class);
 
     @Mock
     private Session mockSession;
@@ -97,7 +104,7 @@ public class ReferencesRdfContextTest {
         when(mockStrongValue.getString()).thenReturn("uuid");
 
         weakReferencesProperties = new TestPropertyIterator(mockWeakProperty);
-        when(mockNode.getWeakReferences()).thenReturn(weakReferencesProperties);
+        when(mockNode.getWeakReferences()).thenReturn(new TestPropertyIterator(mockWeakProperty));
 
         strongReferencesProperties = new TestPropertyIterator(mockStrongProperty);
         when(mockNode.getReferences()).thenReturn(strongReferencesProperties);
@@ -108,6 +115,7 @@ public class ReferencesRdfContextTest {
     @Test
     public void testStrongReferences() {
         final Model model = testObj.asModel();
+        log.trace("Got model: " + model);
         assertTrue(model.contains(createResource("info:fedora/b"),
                 createProperty("info:strong"),
                 createResource("info:fedora/a")));
@@ -117,6 +125,7 @@ public class ReferencesRdfContextTest {
     public void testWeakReferences() {
 
         final Model model = testObj.asModel();
+        log.trace("Got model: " + model);
         assertTrue(model.contains(createResource("info:fedora/b"),
                 createProperty("info:weak"),
                 createResource("info:fedora/a")));

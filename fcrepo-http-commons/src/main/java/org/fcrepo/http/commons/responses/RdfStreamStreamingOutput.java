@@ -15,22 +15,21 @@
  */
 package org.fcrepo.http.commons.responses;
 
+import static com.googlecode.totallylazy.Sequences.filter;
 import static javax.ws.rs.core.Response.Status.NOT_ACCEPTABLE;
 import static org.openrdf.model.impl.ValueFactoryImpl.getInstance;
 import static org.openrdf.model.util.Literals.createLiteral;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.OutputStream;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.StreamingOutput;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import org.fcrepo.kernel.utils.iterators.RdfStream;
+
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -44,9 +43,10 @@ import org.openrdf.rio.Rio;
 import org.openrdf.rio.WriterConfig;
 import org.slf4j.Logger;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.util.concurrent.AbstractFuture;
+import com.googlecode.totallylazy.Function1;
+import com.googlecode.totallylazy.Predicate;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 
@@ -100,7 +100,7 @@ public class RdfStreamStreamingOutput extends AbstractFuture<Void> implements
     public void write(final OutputStream output) {
         LOGGER.debug("Serializing RDF stream in: {}", format);
         try {
-            write(asStatements(), output, format);
+            write(rdfStream.map(toStatement), output, format);
         } catch (final RDFHandlerException e) {
             setException(e);
             LOGGER.debug("Error serializing RDF", e);
@@ -130,36 +130,24 @@ public class RdfStreamStreamingOutput extends AbstractFuture<Void> implements
          *  - xmlns, which Sesame helpfully serializes, but normal parsers may complain
          *     about in some serializations (e.g. RDF/XML where xmlns:xmlns is forbidden by XML);
          */
-        return Iterables.filter(namespaces.entrySet(), new Predicate<Map.Entry<String, String>>() {
+        return filter(namespaces.entrySet(), new Predicate<Map.Entry<String, String>>() {
             @Override
-            public boolean apply(final Map.Entry<String, String> input) {
+            public boolean matches(final Map.Entry<String, String> input) {
                 return !input.getKey().equals("xmlns");
             }
         });
     }
 
-
-    private Iterable<Statement> asStatements() {
-        return new Iterable<Statement>() {
-
-            @Override
-            public Iterator<Statement> iterator() {
-                return rdfStream.transform(toStatement);
-            }
-        };
-    }
-
-    protected static final Function<? super Triple, Statement> toStatement =
-        new Function<Triple, Statement>() {
+    protected static final Function1<? super Triple, Statement> toStatement =
+        new Function1<Triple, Statement>() {
 
             @Override
-            public Statement apply(final Triple t) {
+            public Statement call(final Triple t) {
                 final Resource subject = getResourceForSubject(t.getSubject());
                 final URI predicate = vfactory.createURI(t.getPredicate().getURI());
                 final Value object = getValueForObject(t.getObject());
                 return vfactory.createStatement(subject, predicate, object);
             }
-
         };
 
     private static Resource getResourceForSubject(final Node subjectNode) {

@@ -15,10 +15,8 @@
  */
 package org.fcrepo.kernel.impl.rdf.impl;
 
-import static com.google.common.base.Predicates.not;
-import static com.google.common.base.Throwables.propagate;
-import static com.google.common.collect.ImmutableList.copyOf;
-import static com.google.common.collect.Iterators.forArray;
+import static com.googlecode.totallylazy.Predicates.not;
+import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.hp.hpl.jena.graph.NodeFactory.createLiteral;
 import static com.hp.hpl.jena.graph.Triple.create;
 import static com.hp.hpl.jena.vocabulary.RDF.type;
@@ -28,22 +26,25 @@ import static com.hp.hpl.jena.vocabulary.RDFS.subClassOf;
 import static org.fcrepo.kernel.impl.rdf.impl.mappings.ItemDefinitionToTriples.getResource;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterators;
+import java.util.Iterator;
+import java.util.List;
+
+import com.googlecode.totallylazy.Function1;
+import com.googlecode.totallylazy.Predicate;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
+
 import org.fcrepo.kernel.impl.rdf.impl.mappings.NodeDefinitionToTriples;
 import org.fcrepo.kernel.impl.rdf.impl.mappings.PropertyDefinitionToTriples;
-import org.fcrepo.kernel.utils.iterators.NodeTypeIterator;
 import org.fcrepo.kernel.utils.iterators.RdfStream;
+
 import org.slf4j.Logger;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.ItemDefinition;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.NodeTypeManager;
+import javax.jcr.nodetype.PropertyDefinition;
 
 /**
  * Assemble {@link Triple}s derived from the {@link NodeType}s in a repository.
@@ -58,7 +59,7 @@ public class NodeTypeRdfContext extends RdfStream {
         new Predicate<ItemDefinition>() {
 
             @Override
-            public boolean apply(final ItemDefinition input) {
+            public boolean matches(final ItemDefinition input) {
                 return input.getName().equals("*");
             }
         };
@@ -74,10 +75,10 @@ public class NodeTypeRdfContext extends RdfStream {
         throws RepositoryException {
         super();
 
-        concat(new NodeTypeRdfContext(new NodeTypeIterator(nodeTypeManager
-                .getPrimaryNodeTypes())));
-        concat(new NodeTypeRdfContext(new NodeTypeIterator(nodeTypeManager
-                .getMixinNodeTypes())));
+        final Iterator<NodeType> primaryNodeTypes = nodeTypeManager.getPrimaryNodeTypes();
+        join(new NodeTypeRdfContext(primaryNodeTypes));
+        final Iterator<NodeType> mixinNodeTypes = nodeTypeManager.getMixinNodeTypes();
+        join(new NodeTypeRdfContext(mixinNodeTypes));
 
     }
 
@@ -87,12 +88,10 @@ public class NodeTypeRdfContext extends RdfStream {
      * @param nodeTypeIterator
      * @throws RepositoryException
      */
-    public NodeTypeRdfContext(final Iterable<NodeType> nodeTypeIterator)
+    public NodeTypeRdfContext(final Iterator<? extends NodeType> nodeTypeIterator)
         throws RepositoryException {
-        super();
-
-        for (final NodeType t : nodeTypeIterator) {
-            concat(new NodeTypeRdfContext(t));
+        while (nodeTypeIterator.hasNext()) {
+            join(new NodeTypeRdfContext(nodeTypeIterator.next()));
         }
     }
 
@@ -103,52 +102,36 @@ public class NodeTypeRdfContext extends RdfStream {
      * @param nodeType
      * @throws RepositoryException
      */
-    public NodeTypeRdfContext(final NodeType nodeType)
-        throws RepositoryException {
-        super();
-
+    public NodeTypeRdfContext(final NodeType nodeType) throws RepositoryException {
         final Node nodeTypeResource = getResource(nodeType).asNode();
         final String nodeTypeName = nodeType.getName();
 
         LOGGER.trace("Adding triples for nodeType: {} with URI: {}",
                 nodeTypeName, nodeTypeResource.getURI());
-
-        concat(Collections2.transform(copyOf(nodeType.getDeclaredSupertypes()),
-
-                new Function<NodeType, Triple>() {
+        // add triples pointing to any supertypes of this nodetype
+        join(sequence(nodeType.getDeclaredSupertypes()).map(
+                new Function1<NodeType, Triple>() {
 
                     @Override
-                    public Triple apply(final NodeType input) {
-                        final Node supertypeNode;
-                        try {
-                            supertypeNode = getResource(input).asNode();
-                            LOGGER.trace(
-                                    "Adding triple for nodeType: {} with subclass: {}",
-                                    nodeTypeName, supertypeNode.getURI());
-                            return create(nodeTypeResource,
-                                    subClassOf.asNode(), supertypeNode);
-
-                        } catch (final RepositoryException e) {
-                            throw propagate(e);
-                        }
+                    public Triple call(final NodeType input) throws RepositoryException {
+                        final Node supertypeRdfNode = getResource(input).asNode();
+                        LOGGER.trace("Adding triple for nodeType: {} with subclass: {}",
+                                nodeTypeName, supertypeRdfNode.getURI());
+                        return create(nodeTypeResource, subClassOf.asNode(), supertypeRdfNode);
                     }
                 }));
 
-        concat(Iterators.concat(
-            Iterators.transform(Iterators.filter(
-                forArray(nodeType.getDeclaredChildNodeDefinitions()),
-                not(isWildcardResidualDefinition)),
-                new NodeDefinitionToTriples(nodeTypeResource))));
-
-        concat(Iterators.concat(
-            Iterators.transform(Iterators.filter(
-                forArray(nodeType.getDeclaredPropertyDefinitions()),
-                not(isWildcardResidualDefinition)),
-                new PropertyDefinitionToTriples(nodeTypeResource))));
-
-        concat(create(nodeTypeResource, type.asNode(), Class.asNode()), create(
-                nodeTypeResource, label.asNode(), createLiteral(nodeTypeName)));
+        // include RDFS for any child node definitions
+        join(sequence(nodeType.getDeclaredChildNodeDefinitions()).filter(not(isWildcardResidualDefinition)).flatMap(
+                new NodeDefinitionToTriples(nodeTypeResource)));
+        // include RDFS for any property definitions
+        final List<PropertyDefinition> propertyDefs = sequence(nodeType.getDeclaredPropertyDefinitions()).toList();
+        LOGGER.trace("Found property defs: {}", propertyDefs);
+        join(sequence(propertyDefs).filter(not(isWildcardResidualDefinition)).flatMap(
+                new PropertyDefinitionToTriples(nodeTypeResource)));
+        // declare this to be a rdfs:Class
+        append(create(nodeTypeResource, type.asNode(), Class.asNode()));
+        // provide it a rdfs:label
+        append(create(nodeTypeResource, label.asNode(), createLiteral(nodeTypeName)));
     }
-
-
 }

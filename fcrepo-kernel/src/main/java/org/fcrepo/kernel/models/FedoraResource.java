@@ -38,6 +38,11 @@ import com.hp.hpl.jena.rdf.model.Model;
 public interface FedoraResource {
 
     /**
+     * @return The resource described by this resource
+     */
+    FedoraResource getDescribedResource();
+
+    /**
      * @return The JCR node that backs this object.
      */
     Node getNode();

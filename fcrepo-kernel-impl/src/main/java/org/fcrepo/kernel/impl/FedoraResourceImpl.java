@@ -89,6 +89,13 @@ public class FedoraResourceImpl extends JcrTools implements FedoraJcrTypes, Fedo
 
     protected Node node;
 
+
+
+    @Override
+    public FedoraResource getDescribedResource() {
+        return this;
+    }
+
     /**
      * Construct a FedoraObject from an existing JCR Node
      * @param node an existing JCR node to treat as an fcrepo object
@@ -162,7 +169,7 @@ public class FedoraResourceImpl extends JcrTools implements FedoraJcrTypes, Fedo
                 public boolean apply(final Node n) {
                     LOGGER.trace("Testing child node {}", n);
                     try {
-                        return isInternalNode.apply(n)
+                        return isInternalNode.matches(n)
                                 || n.getName().equals(JCR_CONTENT)
                                 || TombstoneImpl.hasMixin(n)
                                 || n.getName().equals("#");
@@ -385,12 +392,9 @@ public class FedoraResourceImpl extends JcrTools implements FedoraJcrTypes, Fedo
 
                 final RdfStream rdfStream = declaredConstructor.newInstance(this, idTranslator);
 
-                stream.concat(rdfStream);
-            } catch (final NoSuchMethodException |
-                    InstantiationException |
-                    IllegalAccessException e) {
-                // Shouldn't happen.
-                throw propagate(e);
+                stream.join(rdfStream);
+            } catch (final NoSuchMethodException | InstantiationException | IllegalAccessException e) {
+                throw new AssertionError(e);
             } catch (final InvocationTargetException e) {
                 final Throwable cause = e.getCause();
                 if (cause instanceof RepositoryException) {
@@ -448,7 +452,7 @@ public class FedoraResourceImpl extends JcrTools implements FedoraJcrTypes, Fedo
         final RdfStream replacementStream = new RdfStream().namespaces(inputModel.getNsPrefixMap());
 
         final GraphDifferencingIterator differencer =
-            new GraphDifferencingIterator(inputModel, originalTriples);
+            new GraphDifferencingIterator(inputModel, originalTriples.iterator());
 
         final StringBuilder exceptions = new StringBuilder();
         try {
@@ -514,7 +518,7 @@ public class FedoraResourceImpl extends JcrTools implements FedoraJcrTypes, Fedo
 
     @Override
     public boolean isFrozenResource() {
-        return isFrozenNode.apply(this);
+        return isFrozenNode.matches(this);
     }
 
     @Override

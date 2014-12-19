@@ -15,6 +15,10 @@
  */
 package org.fcrepo.kernel.impl.utils;
 
+import static javax.jcr.PropertyType.BINARY;
+import static javax.jcr.PropertyType.REFERENCE;
+import static javax.jcr.PropertyType.STRING;
+import static javax.jcr.PropertyType.WEAKREFERENCE;
 import static org.fcrepo.kernel.FedoraJcrTypes.FEDORA_BLANKNODE;
 import static org.fcrepo.kernel.impl.utils.FedoraTypesUtils.getClosestExistingAncestor;
 import static org.fcrepo.kernel.impl.utils.FedoraTypesUtils.getReferencePropertyName;
@@ -28,7 +32,6 @@ import static org.fcrepo.kernel.impl.utils.FedoraTypesUtils.isContainer;
 import static org.fcrepo.kernel.impl.utils.FedoraTypesUtils.isInternalNode;
 import static org.fcrepo.kernel.services.functions.JcrPropertyFunctions.isMultipleValuedProperty;
 import static org.fcrepo.kernel.services.functions.JcrPropertyFunctions.value2string;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -37,13 +40,13 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
+import static org.modeshape.jcr.api.JcrConstants.JCR_DATA;
 
 import java.io.InputStream;
 import java.util.Iterator;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
-import javax.jcr.PropertyType;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -64,12 +67,11 @@ import javax.jcr.version.VersionManager;
 
 import org.fcrepo.kernel.services.functions.JcrPropertyFunctions;
 import org.fcrepo.kernel.exception.RepositoryRuntimeException;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.modeshape.jcr.JcrValueFactory;
-import org.modeshape.jcr.api.JcrConstants;
-
 import com.google.common.base.Predicate;
 
 /**
@@ -181,29 +183,29 @@ public class FedoraTypesUtilsTest {
 
     @Test
     public void testIsBinaryContentProperty() throws RepositoryException {
-        when(mockProperty.getType()).thenReturn(PropertyType.BINARY);
-        when(mockProperty.getName()).thenReturn(JcrConstants.JCR_DATA);
+        when(mockProperty.getType()).thenReturn(BINARY);
+        when(mockProperty.getName()).thenReturn(JCR_DATA);
         assertTrue(isBinaryContentProperty.apply(mockProperty));
     }
 
     @Test
     public void testIsInternalReferenceProperty() throws RepositoryException {
-        when(mockProperty.getType()).thenReturn(PropertyType.REFERENCE);
+        when(mockProperty.getType()).thenReturn(REFERENCE);
         when(mockProperty.getName()).thenReturn(getReferencePropertyName("foo"));
-        assertTrue(isInternalReferenceProperty.apply(mockProperty));
+        assertTrue(isInternalReferenceProperty.matches(mockProperty));
     }
 
     @Test (expected = RepositoryRuntimeException.class)
     public void testIsInternalReferencePropertyException() throws RepositoryException {
         when(mockProperty.getType()).thenThrow(new RepositoryException());
-        assertTrue(isInternalReferenceProperty.apply(mockProperty));
+        assertTrue(isInternalReferenceProperty.matches(mockProperty));
     }
 
     @Test
     public void testIsInternalReferencePropertyWeak() throws RepositoryException {
-        when(mockProperty.getType()).thenReturn(PropertyType.WEAKREFERENCE);
+        when(mockProperty.getType()).thenReturn(WEAKREFERENCE);
         when(mockProperty.getName()).thenReturn(getReferencePropertyName("foo"));
-        assertTrue(isInternalReferenceProperty.apply(mockProperty));
+        assertTrue(isInternalReferenceProperty.matches(mockProperty));
     }
 
     @Test
@@ -211,7 +213,7 @@ public class FedoraTypesUtilsTest {
         when(mockNode.getPrimaryNodeType()).thenReturn(mockNodeType);
         when(mockNodeType.getPropertyDefinitions()).thenReturn(new PropertyDefinition[] { mockPropertyDefinition });
         when(mockPropertyDefinition.getName()).thenReturn("some:reference_property");
-        when(mockPropertyDefinition.getRequiredType()).thenReturn(PropertyType.REFERENCE);
+        when(mockPropertyDefinition.getRequiredType()).thenReturn(REFERENCE);
         assertTrue(isReferenceProperty(mockNode, "some:reference_property"));
     }
 
@@ -220,7 +222,7 @@ public class FedoraTypesUtilsTest {
         when(mockNode.getPrimaryNodeType()).thenReturn(mockNodeType);
         when(mockNodeType.getPropertyDefinitions()).thenReturn(new PropertyDefinition[] { mockPropertyDefinition });
         when(mockPropertyDefinition.getName()).thenReturn("some:reference_property");
-        when(mockPropertyDefinition.getRequiredType()).thenReturn(PropertyType.BINARY);
+        when(mockPropertyDefinition.getRequiredType()).thenReturn(BINARY);
         assertFalse(isReferenceProperty(mockNode, "some:reference_property"));
     }
 
@@ -234,31 +236,31 @@ public class FedoraTypesUtilsTest {
 
     @Test
     public void testIsInternalProperty() throws RepositoryException {
-        when(mockProperty.getType()).thenReturn(PropertyType.BINARY);
-        when(mockProperty.getName()).thenReturn(JcrConstants.JCR_DATA);
-        assertTrue(isInternalProperty.apply(mockProperty));
+        when(mockProperty.getType()).thenReturn(BINARY);
+        when(mockProperty.getName()).thenReturn(JCR_DATA);
+        assertTrue(isInternalProperty.matches(mockProperty));
     }
 
     @Test
     public void testIsNotBinaryContentProperty() throws RepositoryException {
-        when(mockProperty.getType()).thenReturn(PropertyType.STRING);
+        when(mockProperty.getType()).thenReturn(STRING);
         assertFalse(isBinaryContentProperty.apply(mockProperty));
     }
 
     @Test
     public void testContentButNotBinaryContentProperty() throws RepositoryException {
-        when(mockProperty.getType()).thenReturn(PropertyType.STRING);
-        when(mockProperty.getName()).thenReturn(JcrConstants.JCR_DATA);
+        when(mockProperty.getType()).thenReturn(STRING);
+        when(mockProperty.getName()).thenReturn(JCR_DATA);
         assertFalse(isBinaryContentProperty.apply(mockProperty));
     }
 
     @Test
     public void testIsBlanknode() throws RepositoryException {
         when(mockNode.isNodeType(FEDORA_BLANKNODE)).thenReturn(true);
-        assertTrue("Expected to be a blank node", isBlankNode.apply(mockNode));
+        assertTrue("Expected to be a blank node", isBlankNode.matches(mockNode));
 
         when(mockNode.isNodeType(FEDORA_BLANKNODE)).thenReturn(false);
-        assertFalse("Expected to not be a blank node", isBlankNode.apply(mockNode));
+        assertFalse("Expected to not be a blank node", isBlankNode.matches(mockNode));
     }
 
     @Test
@@ -266,16 +268,16 @@ public class FedoraTypesUtilsTest {
         when(mockNode.getPrimaryNodeType()).thenReturn(mockNodeType);
         when(mockNode.isNodeType("mode:system")).thenReturn(true);
         assertTrue("mode:system nodes should be treated as internal nodes!",
-                isInternalNode.apply(mockNode));
+                isInternalNode.matches(mockNode));
 
         when(mockNode.getPrimaryNodeType()).thenReturn(mockNodeType);
         when(mockNode.isNodeType("mode:system")).thenReturn(false);
         assertFalse("Nodes that are not mode:system types should not be "
-                + "treated as internal nodes!", isInternalNode.apply(mockNode));
+                + "treated as internal nodes!", isInternalNode.matches(mockNode));
 
         when(mockNode.isNodeType("mode:system")).thenThrow(new RepositoryException());
         try {
-            isInternalNode.apply(mockNode);
+            isInternalNode.matches(mockNode);
             fail("Unexpected completion of FedoraTypesUtils.isInternalNode" +
                  " after RepositoryException!");
         } catch (final RuntimeException e) {
@@ -289,14 +291,14 @@ public class FedoraTypesUtilsTest {
         when(mockNode.isNodeType(anyString())).thenThrow(new RepositoryException());
 
         try {
-            isContainer.apply(mockNode);
+            isContainer.matches(mockNode);
             fail("Unexpected FedoraTypesUtils.isContainer" +
                     " completion after RepositoryException!");
         } catch (final RuntimeException e) {
             // expected
         }
         try {
-            isNonRdfSourceDescription.apply(mockNode);
+            isNonRdfSourceDescription.matches(mockNode);
             fail("Unexpected FedoraTypesUtils.isNonRdfSourceDescription" +
                  " completion after RepositoryException!");
         } catch (final RuntimeException e) {

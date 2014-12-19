@@ -23,8 +23,6 @@ import org.slf4j.Logger;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeDefinition;
 import javax.jcr.nodetype.NodeType;
-import java.util.Iterator;
-
 import static com.google.common.base.Throwables.propagate;
 import static com.hp.hpl.jena.graph.Triple.create;
 import static com.hp.hpl.jena.vocabulary.RDFS.range;
@@ -48,7 +46,7 @@ public class NodeDefinitionToTriples extends ItemDefinitionToTriples<NodeDefinit
     }
 
     @Override
-    public Iterator<Triple> apply(final NodeDefinition input) {
+    public Iterable<Triple> apply(final NodeDefinition input) {
 
         try {
 
@@ -67,7 +65,7 @@ public class NodeDefinitionToTriples extends ItemDefinitionToTriples<NodeDefinit
                              requiredPrimaryTypes[0].getName());
                 return new RdfStream(create(propertyDefinitionNode, range
                         .asNode(), getResource(requiredPrimaryTypes[0])
-                        .asNode())).concat(super.apply(input));
+                        .asNode())).join(super.apply(input));
             } else {
                 LOGGER.trace("Skipping RDFS:range for {} with no required primary types");
             }

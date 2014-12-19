@@ -18,28 +18,27 @@ package org.fcrepo.kernel.utils.iterators;
 import static com.hp.hpl.jena.graph.NodeFactory.createAnon;
 import static com.hp.hpl.jena.graph.Triple.create;
 import static com.hp.hpl.jena.rdf.model.ModelFactory.createDefaultModel;
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
-import static org.fcrepo.kernel.utils.iterators.RdfStream.fromModel;
+import static org.fcrepo.kernel.utils.iterators.RdfStream.from;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import javax.jcr.Session;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.hp.hpl.jena.graph.Node;
@@ -58,9 +57,6 @@ public class RdfStreamTest {
 
     @Mock
     private Iterator<Triple> mockIterator;
-
-    @Mock
-    private Iterator<Triple> differentMockIterator;
 
     @Mock
     private Iterable<Triple> mockIterable;
@@ -96,51 +92,31 @@ public class RdfStreamTest {
     }
 
     @Test
-    public void testHasNext() {
-        when(mockIterator.hasNext()).thenReturn(true, false);
-        assertTrue(testStream.hasNext());
-        assertFalse(testStream.hasNext());
-    }
-
-    @Test
-    public void testNext() {
-        when(mockIterator.next()).thenReturn(triple1, triple2);
-        assertEquals(triple1, testStream.next());
-        assertEquals(triple2, testStream.next());
-    }
-
-    @Test
-    public void testRemove() {
-        testStream.remove();
-        verify(mockIterator).remove();
-    }
-
-    @Test
     public void testIterator() {
         assertEquals(testStream, testStream);
     }
 
-    @Test
+    @Test(expected = NoSuchElementException.class)
     public void testDefaultConstructor() {
-        assertFalse(new RdfStream().hasNext());
+        new RdfStream().first();
     }
 
     @Test
     public void testIteratorConstructor() {
         testStream = new RdfStream(ImmutableSet.of(triple1, triple2).iterator());
-        assertEquals(triple1, testStream.next());
+        assertEquals(triple1, testStream.first());
     }
 
     @Test
     public void testCollectionConstructor() {
         testStream = new RdfStream(ImmutableSet.of(triple1, triple2));
-        assertEquals(triple1, testStream.next());
+        assertEquals(triple1, testStream.first());
     }
 
     @Test
     public void testVarargsConstructor() {
         testStream = new RdfStream(triple1, triple2);
-        assertEquals(triple1, testStream.next());
+        assertEquals(triple1, testStream.first());
     }
 
     @Test
@@ -148,7 +124,7 @@ public class RdfStreamTest {
         testStream.namespace(prefix1, uri1);
         testStream.topic(NodeFactory.createAnon());
         final RdfStream testStream2 =
-            testStream.withThisContext((Iterator<Triple>) new RdfStream());
+            testStream.withThisContext(new RdfStream().iterator());
         assertEquals(testStream.namespaces(), testStream2.namespaces());
         assertEquals(testStream.topic(), testStream2.topic());
     }
@@ -157,38 +133,9 @@ public class RdfStreamTest {
     public void testWithThisContextIterable() {
         testStream.namespace(prefix1, uri1);
         testStream.topic(createAnon());
-        final RdfStream testStream2 = testStream.withThisContext(new RdfStream().iterable());
+        final RdfStream testStream2 = testStream.withThisContext(new RdfStream());
         assertEquals(testStream.namespaces(), testStream2.namespaces());
         assertEquals(testStream.topic(), testStream2.topic());
-    }
-
-    @Test
-    public void testConcat() {
-        when(mockIterator.next()).thenReturn(triple1, triple2);
-        final RdfStream testStream2 = new RdfStream(ImmutableSet.of(triple3));
-        testStream.concat(testStream2);
-        assertEquals(triple3, testStream.next());
-    }
-
-    @Test
-    public void testCollectionConcat() {
-        when(mockIterator.next()).thenReturn(triple1, triple2);
-        testStream.concat(ImmutableSet.of(triple3));
-        assertEquals(triple3, testStream.next());
-    }
-
-    @Test
-    public void testVarargsConcat() {
-        when(mockIterator.next()).thenReturn(triple1, triple2);
-        testStream.concat(new Triple[]{triple3});
-        assertEquals(triple3, testStream.next());
-    }
-
-    @Test
-    public void testSingletonConcat() {
-        when(mockIterator.next()).thenReturn(triple1, triple2);
-        testStream.concat(triple3);
-        assertEquals(triple3, testStream.next());
     }
 
     @Test
@@ -221,75 +168,11 @@ public class RdfStreamTest {
     public void testFromModel() {
         final Model model = createDefaultModel();
         model.setNsPrefix(prefix1, uri1);
-        testStream = fromModel(model.add(model.asStatement(triple)));
+        testStream = from(model.add(model.asStatement(triple)));
         assertEquals("Didn't find triple in stream from Model!", triple,
-                testStream.next());
+                testStream.first());
         assertEquals("Didn't find namespace mapping in stream from Model!",
                 singletonMap(prefix1, uri1), testStream.namespaces());
-    }
-
-    @Test
-    public void testLimit() {
-        when(mockIterator.hasNext()).thenReturn(true, true, true, false);
-        when(mockIterator.next()).thenReturn(triple);
-        testStream = testStream.limit(2);
-        testStream.next();
-        testStream.next();
-        assertFalse(testStream.hasNext());
-        assertEquals(testStream, testStream.limit(0));
-        setUp();
-        when(mockIterator.hasNext()).thenReturn(true, true, true, false);
-        when(mockIterator.next()).thenReturn(triple);
-        assertEquals(testStream, testStream.limit(-1));
-    }
-
-    @Test
-    public void testSkip() {
-        when(mockIterator.hasNext()).thenReturn(true, true, true, false);
-        testStream = testStream.skip(3);
-        assertFalse(testStream.hasNext());
-        setUp();
-        when(mockIterator.hasNext()).thenReturn(true, true, true, false);
-        assertEquals(testStream, testStream.skip(0));
-    }
-
-    @Test
-    public void testFilter() {
-        final Predicate<Triple> predicate = new Predicate<Triple>() {
-
-            @Override
-            public boolean apply(final Triple t) {
-                return t.equals(triple);
-            }
-
-        };
-        when(mockIterator.hasNext()).thenReturn(true, true, true, false);
-        when(mockIterator.next()).thenReturn(triple1, triple2, triple);
-        testStream = testStream.filter(predicate);
-        assertEquals(triple, testStream.next());
-    }
-
-    @Test
-    public void testTransform() {
-
-        final String oneResult = "One result";
-
-        final String otherResult = "The other result";
-
-        final Function<Triple, String> f = new Function<Triple, String>() {
-
-            @Override
-            public String apply(final Triple t) {
-                return t.equals(triple) ? oneResult : otherResult;
-            }
-
-        };
-        when(mockIterator.hasNext()).thenReturn(true, true, true, false);
-        when(mockIterator.next()).thenReturn(triple1, triple2, triple);
-        final Iterator<String> testIterator = testStream.transform(f);
-        assertEquals(otherResult, testIterator.next());
-        assertEquals(otherResult, testIterator.next());
-        assertEquals(oneResult, testIterator.next());
     }
 
     @Test
@@ -310,10 +193,10 @@ public class RdfStreamTest {
         RdfStream testStreamToCompare = new RdfStream(mockIterator);
         assertEquals(testStream, testStreamToCompare);
         testStreamToCompare.namespace(prefix1, uri1);
-        assertNotEquals(testStream, testStreamToCompare);
-        when(differentMockIterator.hasNext()).thenReturn(true, false);
-        when(differentMockIterator.next()).thenReturn(triple);
-        testStreamToCompare = new RdfStream(differentMockIterator);
+        assertEquals(testStream, testStreamToCompare);
+        when(mockIterator.hasNext()).thenReturn(false);
+        final Iterator<Triple> differentIterator = asList(triple).iterator();
+        testStreamToCompare = new RdfStream(differentIterator);
         assertNotEquals(testStream, testStreamToCompare);
     }
 

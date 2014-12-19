@@ -16,6 +16,7 @@
 package org.fcrepo.kernel.impl.utils.iterators;
 
 import static com.google.common.collect.Sets.newHashSet;
+import static com.googlecode.totallylazy.Sequences.sequence;
 import static com.hp.hpl.jena.graph.NodeFactory.createAnon;
 import static com.hp.hpl.jena.graph.NodeFactory.createURI;
 import static com.hp.hpl.jena.graph.Triple.create;
@@ -24,6 +25,7 @@ import static com.hp.hpl.jena.vocabulary.RDF.type;
 import static org.fcrepo.kernel.RdfLexicon.JCR_NAMESPACE;
 import static org.fcrepo.kernel.RdfLexicon.PAGE;
 import static org.fcrepo.kernel.RdfLexicon.REPOSITORY_NAMESPACE;
+import static org.fcrepo.kernel.utils.iterators.RdfStream.statement2triple;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -39,6 +41,7 @@ import org.fcrepo.kernel.models.FedoraResource;
 import org.fcrepo.kernel.identifiers.IdentifierConverter;
 import org.fcrepo.kernel.impl.rdf.impl.DefaultIdentifierTranslator;
 import org.fcrepo.kernel.utils.iterators.RdfStream;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -62,7 +65,7 @@ public class PersistingRdfStreamConsumerTest {
     @Test
     public void testConsumeAsync() {
 
-        final RdfStream testStream = new RdfStream(profferedStatements);
+        final RdfStream testStream = new RdfStream(sequence(profferedStatements).map(statement2triple));
 
         final Set<Statement> rejectedStatements =
             newHashSet(profferedStatements);

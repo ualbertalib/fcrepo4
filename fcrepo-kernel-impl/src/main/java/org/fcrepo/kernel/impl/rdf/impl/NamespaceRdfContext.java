@@ -59,36 +59,28 @@ public class NamespaceRdfContext extends RdfStream {
      */
     public NamespaceRdfContext(final Session session) throws RepositoryException {
         super();
-        final NamespaceRegistry namespaceRegistry =
-            session.getWorkspace().getNamespaceRegistry();
-        checkNotNull(namespaceRegistry,
-                "Couldn't find namespace registry in repository!");
+        final NamespaceRegistry namespaceRegistry = session.getWorkspace().getNamespaceRegistry();
+        checkNotNull(namespaceRegistry, "Couldn't find namespace registry in repository!");
 
         final ImmutableMap.Builder<String, String> namespaces =
             ImmutableMap.builder();
         final ImmutableCollection.Builder<Triple> nsTriples =
             ImmutableSet.builder();
-        for (String prefix : namespaceRegistry.getPrefixes()) {
+        for (final String prefix : namespaceRegistry.getPrefixes()) {
             if (!prefix.isEmpty() && !prefix.equals("jcr")) {
                 final String nsURI = namespaceRegistry.getURI(prefix);
-                LOGGER.trace(
-                        "Discovered namespace prefix \"{}\" with URI \"{}\"",
-                        prefix, nsURI);
+                LOGGER.trace("Discovered namespace prefix \"{}\" with URI \"{}\"", prefix, nsURI);
                 final String rdfNsUri = getRDFNamespaceForJcrNamespace(nsURI);
                 // first, let's put the namespace in context
                 namespaces.put(prefix, rdfNsUri);
-                LOGGER.trace("Added namespace prefix \"{}\" with URI \"{}\"",
-                        prefix, rdfNsUri);
+                LOGGER.trace("Added namespace prefix \"{}\" with URI \"{}\"", prefix, rdfNsUri);
                 final Node nsSubject = createURI(rdfNsUri);
                 // now, some triples describing this namespace
-                nsTriples.add(create(nsSubject, type.asNode(), VOAF_VOCABULARY
-                        .asNode()));
-                nsTriples.add(create(nsSubject, HAS_NAMESPACE_PREFIX.asNode(),
-                        createLiteral(prefix)));
-                nsTriples.add(create(nsSubject, HAS_NAMESPACE_URI.asNode(),
-                        createLiteral(rdfNsUri)));
+                nsTriples.add(create(nsSubject, type.asNode(), VOAF_VOCABULARY.asNode()));
+                nsTriples.add(create(nsSubject, HAS_NAMESPACE_PREFIX.asNode(), createLiteral(prefix)));
+                nsTriples.add(create(nsSubject, HAS_NAMESPACE_URI.asNode(), createLiteral(rdfNsUri)));
             }
         }
-        concat(nsTriples.build()).namespaces(namespaces.build());
+        namespaces(namespaces.build()).join(nsTriples.build());
     }
 }

@@ -16,13 +16,11 @@
 package org.fcrepo.http.api;
 
 
-import static com.google.common.base.Predicates.alwaysTrue;
-import static com.google.common.base.Predicates.and;
-import static com.google.common.base.Predicates.not;
-import static com.google.common.collect.Iterators.concat;
-import static com.google.common.collect.Iterators.filter;
-import static com.google.common.collect.Iterators.transform;
+import static com.googlecode.totallylazy.Predicates.always;
+import static com.googlecode.totallylazy.Predicates.and;
+import static com.googlecode.totallylazy.Predicates.not;
 import static com.hp.hpl.jena.rdf.model.ModelFactory.createDefaultModel;
+import static com.hp.hpl.jena.vocabulary.RDF.type;
 import static javax.ws.rs.core.HttpHeaders.CACHE_CONTROL;
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM_TYPE;
 import static javax.ws.rs.core.Response.ok;
@@ -41,6 +39,8 @@ import static org.fcrepo.kernel.RdfLexicon.DIRECT_CONTAINER;
 import static org.fcrepo.kernel.RdfLexicon.INDIRECT_CONTAINER;
 import static org.fcrepo.kernel.RdfLexicon.LDP_NAMESPACE;
 import static org.fcrepo.kernel.RdfLexicon.isManagedNamespace;
+import static org.fcrepo.kernel.impl.rdf.ManagedRdf.isManagedTriple;
+import static org.fcrepo.kernel.impl.utils.Sequences.sequence;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
@@ -48,7 +48,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
-import java.util.Iterator;
 
 import javax.inject.Inject;
 import javax.jcr.Binary;
@@ -66,6 +65,7 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 
 import org.apache.jena.riot.Lang;
+
 import org.fcrepo.http.commons.api.rdf.HttpTripleUtil;
 import org.fcrepo.http.commons.domain.MultiPrefer;
 import org.fcrepo.http.commons.domain.PreferTag;
@@ -75,7 +75,6 @@ import org.fcrepo.http.commons.responses.RangeRequestInputStream;
 import org.fcrepo.kernel.exception.InvalidChecksumException;
 import org.fcrepo.kernel.exception.MalformedRdfException;
 import org.fcrepo.kernel.exception.RepositoryRuntimeException;
-import org.fcrepo.kernel.impl.rdf.ManagedRdf;
 import org.fcrepo.kernel.impl.rdf.impl.AclRdfContext;
 import org.fcrepo.kernel.impl.rdf.impl.BlankNodeRdfContext;
 import org.fcrepo.kernel.impl.rdf.impl.ChildrenRdfContext;
@@ -97,18 +96,18 @@ import org.fcrepo.kernel.models.NonRdfSource;
 import org.fcrepo.kernel.models.NonRdfSourceDescription;
 import org.fcrepo.kernel.services.policy.StoragePolicyDecisionPoint;
 import org.fcrepo.kernel.utils.iterators.RdfStream;
+
 import org.glassfish.jersey.media.multipart.ContentDisposition;
 import org.jvnet.hk2.annotations.Optional;
 import org.slf4j.Logger;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterators;
+import com.googlecode.totallylazy.ForwardOnlySequence;
+import com.googlecode.totallylazy.Function1;
+import com.googlecode.totallylazy.Predicate;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Statement;
-import com.hp.hpl.jena.vocabulary.RDF;
 
 /**
  * An abstract class that sits between AbstractResource and any resource that
@@ -116,6 +115,7 @@ import com.hp.hpl.jena.vocabulary.RDF;
  * content.
  *
  * @author Mike Durbin
+ * @author ajs6f
  */
 public abstract class ContentExposingResource extends FedoraBaseResource {
 
@@ -159,11 +159,11 @@ public abstract class ContentExposingResource extends FedoraBaseResource {
                 final Model inputModel = createDefaultModel()
                         .read(content,  (resource()).toString(), format);
 
-                rdfStream.concat(Iterators.transform(inputModel.listStatements(),
-                        new Function<Statement, Triple>() {
+                rdfStream.join(new ForwardOnlySequence<>(inputModel.listStatements()).map(
+                        new Function1<Statement, Triple>() {
 
                             @Override
-                            public Triple apply(final Statement input) {
+                            public Triple call(final Statement input) {
                                 return input.asTriple();
                             }
                         }));
@@ -184,7 +184,7 @@ public abstract class ContentExposingResource extends FedoraBaseResource {
             }
 
         } else {
-            rdfStream.concat(getResourceTriples());
+            rdfStream.join(getResourceTriples());
 
             if (prefer != null) {
                 prefer.getReturn().addResponseHeaders(servletResponse);
@@ -214,80 +214,78 @@ public abstract class ContentExposingResource extends FedoraBaseResource {
 
         final Predicate<Triple> tripleFilter;
         if (ldpPreferences.prefersServerManaged()) {
-            tripleFilter = alwaysTrue();
+            tripleFilter = always();
         } else {
-            tripleFilter = and(not(ManagedRdf.isManagedTriple), not(new Predicate<Triple>() {
+            tripleFilter = and(not(isManagedTriple), not(new Predicate<Triple>() {
+
                 @Override
-                public boolean apply(final Triple input) {
-                    return input.getPredicate().equals(RDF.type.asNode())
+                public boolean matches(final Triple input) {
+                    return input.getPredicate().equals(type.asNode())
                             && isManagedNamespace.apply(input.getObject().getNameSpace());
                 }
             }));
         }
 
         if (ldpPreferences.prefersServerManaged()) {
-            rdfStream.concat(getTriples(LdpRdfContext.class));
+            rdfStream.join(getTriples(LdpRdfContext.class));
         }
 
-        rdfStream.concat(filter(getTriples(TypeRdfContext.class), tripleFilter));
+        rdfStream.join(getTriples(TypeRdfContext.class).filter(tripleFilter));
 
-        rdfStream.concat(filter(getTriples(PropertiesRdfContext.class), tripleFilter));
+        rdfStream.join(getTriples(PropertiesRdfContext.class).filter(tripleFilter));
 
         if (!returnPreference.getValue().equals("minimal")) {
 
             // Additional server-managed triples about this resource
             if (ldpPreferences.prefersServerManaged()) {
-                rdfStream.concat(getTriples(AclRdfContext.class));
-                rdfStream.concat(getTriples(RootRdfContext.class));
-                rdfStream.concat(getTriples(ContentRdfContext.class));
-                rdfStream.concat(getTriples(ParentRdfContext.class));
+                rdfStream.join(getTriples(AclRdfContext.class));
+                rdfStream.join(getTriples(RootRdfContext.class));
+                rdfStream.join(getTriples(ContentRdfContext.class));
+                rdfStream.join(getTriples(ParentRdfContext.class));
             }
 
             // containment triples about this resource
             if (ldpPreferences.prefersContainment()) {
-                rdfStream.concat(getTriples(ChildrenRdfContext.class));
+                rdfStream.join(getTriples(ChildrenRdfContext.class));
             }
 
             // LDP container membership triples for this resource
             if (ldpPreferences.prefersMembership()) {
-                rdfStream.concat(getTriples(LdpContainerRdfContext.class));
-                rdfStream.concat(getTriples(LdpIsMemberOfRdfContext.class));
+                rdfStream.join(getTriples(LdpContainerRdfContext.class));
+                rdfStream.join(getTriples(LdpIsMemberOfRdfContext.class));
             }
 
             // Include binary properties if this is a binary description
             if (resource() instanceof NonRdfSourceDescription) {
                 final FedoraResource described = ((NonRdfSourceDescription) resource()).getDescribedResource();
-                rdfStream.concat(filter(described.getTriples(translator(), ImmutableList.of(TypeRdfContext.class,
+                rdfStream.join(described.getTriples(translator(), ImmutableList.of(TypeRdfContext.class,
                         PropertiesRdfContext.class,
-                        ContentRdfContext.class)), tripleFilter));
+                        ContentRdfContext.class)).filter(tripleFilter));
             }
 
             // Embed all hash and blank nodes
-            rdfStream.concat(filter(getTriples(HashRdfContext.class), tripleFilter));
-            rdfStream.concat(filter(getTriples(BlankNodeRdfContext.class), tripleFilter));
+            rdfStream.join(getTriples(HashRdfContext.class).filter(tripleFilter));
+            rdfStream.join(getTriples(BlankNodeRdfContext.class).filter(tripleFilter));
 
             // Include inbound references to this object
             if (ldpPreferences.prefersReferences()) {
-                rdfStream.concat(getTriples(ReferencesRdfContext.class));
+                rdfStream.join(getTriples(ReferencesRdfContext.class));
             }
 
             // Embed the children of this object
             if (ldpPreferences.prefersEmbed()) {
 
-                final Iterator<FedoraResource> children = resource().getChildren();
-
-                rdfStream.concat(filter(concat(transform(children,
-                        new Function<FedoraResource, RdfStream>() {
+                rdfStream.join(sequence((resource().getChildren())).flatMap(
+                        new Function1<FedoraResource, RdfStream>() {
 
                             @Override
-                            public RdfStream apply(final FedoraResource child) {
+                            public RdfStream call(final FedoraResource child) {
                                 return child.getTriples(translator(), ImmutableList.of(
                                         TypeRdfContext.class,
                                         PropertiesRdfContext.class,
                                         BlankNodeRdfContext.class));
                             }
-                        })), tripleFilter));
-
+                        }).filter(tripleFilter));
             }
         }
 

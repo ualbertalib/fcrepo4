@@ -17,6 +17,7 @@ package org.fcrepo.kernel.impl.rdf.impl;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.hp.hpl.jena.rdf.model.ResourceFactory.createResource;
+import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.common.base.Converter;
 import com.google.common.collect.Lists;
@@ -30,6 +31,8 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import org.fcrepo.kernel.impl.identifiers.HashConverter;
 import org.fcrepo.kernel.impl.identifiers.NamespaceConverter;
 import org.fcrepo.kernel.impl.identifiers.NodeResourceConverter;
+
+import org.slf4j.Logger;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -50,6 +53,8 @@ public class DefaultIdentifierTranslator extends IdentifierConverter<Resource, F
 
 
     private static final NodeResourceConverter nodeResourceConverter = new NodeResourceConverter();
+
+    private static final Logger log = getLogger(DefaultIdentifierTranslator.class);
 
     /**
      * Default namespace to use for node URIs
@@ -102,7 +107,7 @@ public class DefaultIdentifierTranslator extends IdentifierConverter<Resource, F
     @Override
     protected Resource doBackward(final FedoraResource resource) {
         final String absPath = resource.getPath();
-
+        log.trace("Converting from path: {}", absPath);
         return toDomain(absPath);
     }
 

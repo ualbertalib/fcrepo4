@@ -15,13 +15,14 @@
  */
 package org.fcrepo.kernel.impl.testutilities;
 
+import static com.googlecode.totallylazy.Iterators.drop;
+import static java.util.Arrays.asList;
+
 import java.util.Iterator;
 import java.util.List;
 
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
-
-import com.google.common.collect.Lists;
 
 /**
  * A simple {@link PropertyIterator} for test purposes.
@@ -38,15 +39,12 @@ public class TestPropertyIterator implements PropertyIterator {
     }
 
     public TestPropertyIterator(final Property... properties) {
-        this.iterator = Lists.newArrayList(properties).iterator();
+        this.iterator = asList(properties).iterator();
     }
 
     @Override
     public void skip(final long skipNum) {
-        for (int i = 0; i < skipNum; i++) {
-            iterator.next();
-        }
-
+        drop(iterator, (int) skipNum);
     }
 
     @Override

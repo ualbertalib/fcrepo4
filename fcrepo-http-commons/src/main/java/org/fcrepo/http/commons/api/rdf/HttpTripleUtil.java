@@ -15,6 +15,7 @@
  */
 package org.fcrepo.http.commons.api.rdf;
 
+import static org.fcrepo.kernel.utils.iterators.RdfStream.from;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Map;
@@ -22,9 +23,11 @@ import java.util.Map;
 import javax.ws.rs.core.UriInfo;
 
 import com.hp.hpl.jena.rdf.model.Resource;
+
 import org.fcrepo.kernel.identifiers.IdentifierConverter;
 import org.fcrepo.kernel.models.FedoraResource;
 import org.fcrepo.kernel.utils.iterators.RdfStream;
+
 import org.slf4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -72,7 +75,7 @@ public class HttpTripleUtil implements ApplicationContextAware {
             final Model m =
                     uriAwareResourceModelFactory.createModelForResource(
                             resource, uriInfo, idTranslator);
-            rdfStream.concat(RdfStream.fromModel(m));
+            rdfStream.join(from(m));
         }
 
     }

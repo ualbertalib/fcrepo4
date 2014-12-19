@@ -21,6 +21,7 @@ import static org.fcrepo.kernel.impl.rdf.ManagedRdf.isManagedMixin;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.google.common.base.Joiner;
+
 import org.fcrepo.kernel.models.FedoraResource;
 import org.fcrepo.kernel.exception.MalformedRdfException;
 import org.fcrepo.kernel.exception.RepositoryRuntimeException;
@@ -32,11 +33,12 @@ import javax.jcr.Session;
 import org.fcrepo.kernel.impl.rdf.JcrRdfTools;
 import org.fcrepo.kernel.utils.iterators.RdfStream;
 import org.fcrepo.kernel.utils.iterators.RdfStreamConsumer;
+
 import org.slf4j.Logger;
 
-import com.google.common.base.Predicate;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
+import com.googlecode.totallylazy.Predicate;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -80,7 +82,7 @@ public abstract class PersistingRdfStreamConsumer implements RdfStreamConsumer {
         this.isFedoraSubjectTriple = new Predicate<Triple>() {
 
             @Override
-            public boolean apply(final Triple t) {
+            public boolean matches(final Triple t) {
 
                 final boolean result = idTranslator.inDomain(m.asStatement(t).getSubject())
                         || t.getSubject().isBlank();
@@ -96,17 +98,15 @@ public abstract class PersistingRdfStreamConsumer implements RdfStreamConsumer {
 
         };
         // we knock out non-Fedora RDF
-        this.stream =
-                stream.withThisContext(stream.filter(isFedoraSubjectTriple));
-
+        this.stream = stream.withThisContext(stream.filter(isFedoraSubjectTriple));
         this.exceptions = new ArrayList<>();
     }
 
     @Override
     public void consume() throws MalformedRdfException {
-        while (stream.hasNext()) {
-            final Statement t = m.asStatement(stream.next());
-            LOGGER.debug("Operating triple {}.", t);
+        while (!stream.isEmpty()) {
+            final Statement t = m.asStatement(stream.first());
+            LOGGER.debug("Operating on triple {}.", t);
 
             try {
                 operateOnTriple(t);
@@ -132,7 +132,7 @@ public abstract class PersistingRdfStreamConsumer implements RdfStreamConsumer {
             // mixins. If it isn't, treat it as a "data" property.
             if (t.getPredicate().equals(type) && t.getObject().isResource()) {
                 final Resource mixinResource = t.getObject().asResource();
-                if (!isManagedMixin.apply(mixinResource)) {
+                if (!isManagedMixin.matches(mixinResource)) {
                     LOGGER.debug("Operating on node: {} with mixin: {}.",
                             subjectNode, mixinResource);
                     operateOnMixin(mixinResource, subjectNode);

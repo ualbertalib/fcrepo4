@@ -66,7 +66,7 @@ public class SparqlQueryTransformTest {
     @Test
     public void testApply() {
         final RdfStream model = new RdfStream();
-        model.concat(new Triple(createResource("http://example.org/book/book1").asNode(),
+        model.append(new Triple(createResource("http://example.org/book/book1").asNode(),
                 createProperty("http://purl.org/dc/elements/1.1/title").asNode(),
                 createLiteral("some-title")));
         final InputStream query = new ByteArrayInputStream(("SELECT ?title WHERE\n" +

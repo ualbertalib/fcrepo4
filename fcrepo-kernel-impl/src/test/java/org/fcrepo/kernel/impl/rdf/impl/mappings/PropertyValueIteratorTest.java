@@ -15,21 +15,18 @@
  */
 package org.fcrepo.kernel.impl.rdf.impl.mappings;
 
-import org.fcrepo.kernel.impl.testutilities.TestPropertyIterator;
+import java.util.Iterator;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
 import javax.jcr.Property;
-import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 
-import java.util.List;
-
 import static com.google.common.collect.ImmutableList.of;
-import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -39,8 +36,6 @@ import static org.mockito.MockitoAnnotations.initMocks;
  * @author ajs6f
  */
 public class PropertyValueIteratorTest {
-
-    private PropertyValueIterator testObj;
 
     @Mock
     private Property mockProperty;
@@ -57,7 +52,7 @@ public class PropertyValueIteratorTest {
     @Mock
     private Value value3;
 
-    private PropertyIterator propertyIterator;
+    private Iterator<Property> propertyIterator;
 
     @Before
     public void setUp() throws RepositoryException {
@@ -65,27 +60,21 @@ public class PropertyValueIteratorTest {
         when(mockProperty.getValue()).thenReturn(value1);
         when(mockMultivaluedProperty.isMultiple()).thenReturn(true);
         when(mockMultivaluedProperty.getValues()).thenReturn(new Value[] { value2, value3 });
-        propertyIterator = new TestPropertyIterator(mockProperty, mockMultivaluedProperty);
+        propertyIterator = asList(mockProperty, mockMultivaluedProperty).iterator();
     }
 
     @Test
     public void testSingleValueSingleProperty() {
-        testObj = new PropertyValueIterator(mockProperty);
-        final List<Value> values = newArrayList(testObj);
-        assertTrue(values.contains(value1));
+        assertTrue(PropertyValues.forProperty(mockProperty).contains(value1));
     }
 
     @Test
     public void testMultiValueSingleProperty() {
-        testObj = new PropertyValueIterator(mockMultivaluedProperty);
-        final List<Value> values = newArrayList(testObj);
-        assertTrue(values.containsAll(of(value2, value3)));
+        assertTrue(PropertyValues.forProperty(mockMultivaluedProperty).containsAll(of(value2, value3)));
     }
 
     @Test
     public void testSingleValuePropertyIterator() {
-        testObj = new PropertyValueIterator(new org.fcrepo.kernel.utils.iterators.PropertyIterator(propertyIterator));
-        final List<Value> values = newArrayList(testObj);
-        assertTrue(values.containsAll(of(value1, value2, value3)));
+        assertTrue(PropertyValues.forProperties(propertyIterator).containsAll(of(value1, value2, value3)));
     }
 }
