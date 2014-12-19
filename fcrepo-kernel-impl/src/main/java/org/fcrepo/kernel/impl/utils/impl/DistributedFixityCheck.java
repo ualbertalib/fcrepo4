@@ -15,6 +15,7 @@
  */
 package org.fcrepo.kernel.impl.utils.impl;
 
+import static com.googlecode.totallylazy.Unchecked.cast;
 import static org.apache.commons.io.IOUtils.copy;
 import static org.apache.commons.io.output.NullOutputStream.NULL_OUTPUT_STREAM;
 
@@ -30,6 +31,7 @@ import org.fcrepo.kernel.impl.utils.FixityResultImpl;
 import org.fcrepo.kernel.impl.utils.infinispan.CacheLoaderChunkInputStream;
 import org.fcrepo.kernel.utils.ContentDigest;
 import org.fcrepo.kernel.utils.FixityResult;
+
 import org.infinispan.Cache;
 import org.infinispan.CacheImpl;
 import org.infinispan.distexec.DistributedCallable;
@@ -68,8 +70,8 @@ public class DistributedFixityCheck implements DistributedCallable<String, byte[
     public Collection<FixityResult> call() throws Exception {
         final ImmutableSet.Builder<FixityResult> fixityResults = new ImmutableSet.Builder<>();
 
-        for (final CacheLoader<String, byte[]> store : stores()) {
-
+        for (final CacheLoader<?, ?> s : stores()) {
+            final CacheLoader<String, byte[]> store = cast( s);
             try (final InputStream cacheLoaderChunkInputStream = new CacheLoaderChunkInputStream(
                     store, dataKey, chunkSize, length);
 

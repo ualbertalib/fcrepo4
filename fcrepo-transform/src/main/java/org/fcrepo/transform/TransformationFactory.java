@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.googlecode.totallylazy.Unchecked.cast;
 import static org.apache.jena.riot.WebContent.contentTypeSPARQLQuery;
 import static org.fcrepo.transform.transformations.LDPathTransform.APPLICATION_RDF_LDPATH;
 
@@ -34,7 +35,7 @@ import static org.fcrepo.transform.transformations.LDPathTransform.APPLICATION_R
  */
 public class TransformationFactory {
 
-    private Map<String, Transformation<?>> mimeToTransform = new HashMap<>();
+    private final Map<String, Transformation<?>> mimeToTransform = new HashMap<>();
 
     /**
      * Get a new TransformationFactory with the default classes
@@ -56,7 +57,7 @@ public class TransformationFactory {
     public <T> Transformation<T> getTransform(final MediaType contentType, final InputStream inputStream) {
         final String mimeType = contentType.toString();
         if (mimeToTransform.containsKey(mimeType)) {
-            return (Transformation<T>) mimeToTransform.get(contentType.toString()).newTransform(inputStream);
+            return cast(mimeToTransform.get(contentType.toString()).newTransform(inputStream));
         }
         throw new UnsupportedOperationException(
                 "No transform type exists for media type " + mimeType + "!");

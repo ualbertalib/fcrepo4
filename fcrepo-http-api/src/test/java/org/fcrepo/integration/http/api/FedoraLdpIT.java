@@ -86,6 +86,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -93,6 +94,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import javax.ws.rs.core.Link;
@@ -107,7 +109,8 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.annotation.NotThreadSafe;
-import org.apache.http.client.HttpClient;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
@@ -124,8 +127,10 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.cache.CachingHttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.apache.jena.riot.Lang;
+
 import org.fcrepo.http.commons.domain.RDFMediaType;
 import org.fcrepo.kernel.RdfLexicon;
+
 import org.glassfish.jersey.media.multipart.ContentDisposition;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -133,6 +138,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import com.google.common.base.Function;
@@ -172,13 +178,13 @@ public class FedoraLdpIT extends AbstractResourceIT {
 
 
     @Test
-    public void testHeadRepositoryGraph() throws Exception {
+    public void testHeadRepositoryGraph() throws IOException {
         final HttpHead headObjMethod = new HttpHead(serverAddress);
         assertEquals(200, getStatus(headObjMethod));
     }
 
     @Test
-    public void testHeadObject() throws Exception {
+    public void testHeadObject() throws IOException {
         final String pid = getRandomUniquePid();
 
         createObject(pid);
@@ -189,7 +195,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testHeadDefaultContainer() throws Exception {
+    public void testHeadDefaultContainer() throws IOException {
         final String pid = getRandomUniquePid();
 
         createObject(pid);
@@ -204,7 +210,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testHeadBasicContainer() throws Exception {
+    public void testHeadBasicContainer() throws IOException {
         final String pid = getRandomUniquePid();
 
         createObject(pid);
@@ -221,7 +227,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
 
 
     @Test
-    public void testHeadDirectContainer() throws Exception {
+    public void testHeadDirectContainer() throws IOException {
         final String pid = getRandomUniquePid();
 
         createObject(pid);
@@ -237,7 +243,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testHeadIndirectContainer() throws Exception {
+    public void testHeadIndirectContainer() throws IOException {
         final String pid = getRandomUniquePid();
 
         createObject(pid);
@@ -255,7 +261,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
 
 
     @Test
-    public void testHeadDatastream() throws Exception {
+    public void testHeadDatastream() throws IOException, ParseException {
         final String pid = getRandomUniquePid();
 
         createDatastream(pid, "x", "123");
@@ -274,7 +280,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testOptions() throws Exception {
+    public void testOptions() throws IOException {
         final String pid = getRandomUniquePid();
 
         createObject(pid);
@@ -289,7 +295,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testOptionsBinary() throws Exception {
+    public void testOptionsBinary() throws IOException {
         final String pid = getRandomUniquePid();
 
         createDatastream(pid, "x", pid);
@@ -306,7 +312,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testOptionsBinaryMetadata() throws Exception {
+    public void testOptionsBinaryMetadata() throws IOException {
         final String pid = getRandomUniquePid();
 
         createDatastream(pid, "x", pid);
@@ -321,7 +327,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testOptionsBinaryMetadataWithUriEncoding() throws Exception {
+    public void testOptionsBinaryMetadataWithUriEncoding() throws IOException {
         final String pid = getRandomUniquePid();
 
         createDatastream(pid, "x", pid);
@@ -408,7 +414,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
 
 
     @Test
-    public void testGetRDFSource() throws Exception {
+    public void testGetRDFSource() throws IOException {
         final String pid = getRandomUniquePid();
 
         createObject(pid);
@@ -430,7 +436,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testGetNonRDFSource() throws Exception {
+    public void testGetNonRDFSource() throws IOException {
         final String pid = getRandomUniquePid();
 
         createDatastream(pid, "x", "some content");
@@ -449,7 +455,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testGetNonRDFSourceDescription() throws Exception {
+    public void testGetNonRDFSourceDescription() throws IOException {
         final String pid = getRandomUniquePid();
 
         createDatastream(pid, "x", "some content");
@@ -471,7 +477,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testDeleteObject() throws Exception {
+    public void testDeleteObject() throws IOException {
         final String pid = getRandomUniquePid();
 
         createObject(pid);
@@ -482,7 +488,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testDeleteHierarchy() throws Exception {
+    public void testDeleteHierarchy() throws IOException {
         final String pid = getRandomUniquePid();
 
         createObject(pid + "/foo");
@@ -494,7 +500,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testDeleteBinary() throws Exception {
+    public void testDeleteBinary() throws IOException {
         final String pid = getRandomUniquePid();
 
         createDatastream(pid, "x", "some content");
@@ -505,7 +511,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testDeleteObjectAndTombstone() throws Exception {
+    public void testDeleteObjectAndTombstone() throws IOException {
         final String pid = getRandomUniquePid();
 
         createObject(pid);
@@ -526,7 +532,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testEmptyPatch() throws Exception {
+    public void testEmptyPatch() throws IOException {
         final String pid = getRandomUniquePid();
 
         createObject(pid);
@@ -538,7 +544,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testUpdateObjectGraph() throws Exception {
+    public void testUpdateObjectGraph() throws IOException {
         final String pid = getRandomUniquePid();
 
         createObject(pid);
@@ -560,7 +566,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testPatchBinary() throws Exception {
+    public void testPatchBinary() throws IOException {
         final String pid = getRandomUniquePid();
 
 
@@ -573,7 +579,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testPatchBinaryDescription() throws Exception {
+    public void testPatchBinaryDescription() throws IOException {
         final String pid = getRandomUniquePid();
 
 
@@ -594,9 +600,8 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testPatchBinaryDescriptionWithBinaryProperties() throws Exception {
+    public void testPatchBinaryDescriptionWithBinaryProperties() throws IOException {
         final String pid = getRandomUniquePid();
-
 
         createDatastream(pid, "x", "some content");
 
@@ -621,7 +626,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testPatchWithBlankNode() throws Exception {
+    public void testPatchWithBlankNode() throws IOException {
         final String pid = getRandomUniquePid();
 
         createObject(pid);
@@ -663,7 +668,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testReplaceGraph() throws Exception {
+    public void testReplaceGraph() throws IOException {
         final String pid = getRandomUniquePid();
 
         createObject(pid);
@@ -705,7 +710,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
 
 
     @Test
-    public void testCreateGraph() throws Exception {
+    public void testCreateGraph() throws IOException {
         final String pid = getRandomUniquePid();
         final String subjectURI = serverAddress + pid;
         final HttpPut replaceMethod = new HttpPut(subjectURI);
@@ -739,7 +744,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testCreateGraphWithBlanknodes() throws Exception {
+    public void testCreateGraphWithBlanknodes() throws IOException {
         final String pid = getRandomUniquePid();
         final String subjectURI = serverAddress + pid;
         final HttpPut replaceMethod = new HttpPut(subjectURI);
@@ -777,7 +782,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testRoundTripReplaceGraph() throws Exception {
+    public void testRoundTripReplaceGraph() throws IOException {
 
         final String pid = getRandomUniquePid();
 
@@ -811,7 +816,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testPutBinary() throws Exception {
+    public void testPutBinary() throws IOException {
 
         final String pid = getRandomUniquePid();
         createObject(pid);
@@ -838,7 +843,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testPutDatastreamContentOnObject() throws Exception {
+    public void testPutDatastreamContentOnObject() throws IOException {
         final String content = "foo";
         final String pid = getRandomUniquePid();
         createObject(pid);
@@ -852,7 +857,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testEmptyPutToExistingObject() throws Exception {
+    public void testEmptyPutToExistingObject() throws IOException {
         final String pid = getRandomUniquePid();
         createObject(pid);
 
@@ -863,7 +868,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testPutMalformedRDFOnObject() throws Exception {
+    public void testPutMalformedRDFOnObject() throws IOException {
         final String content = "foo";
         final String pid = getRandomUniquePid();
         createObject(pid);
@@ -877,7 +882,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testIngest() throws Exception {
+    public void testIngest() throws IOException {
         final String pid = getRandomUniquePid();
 
         final HttpResponse response = createObject(pid);
@@ -891,7 +896,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testIngestWithNewAndSparqlQuery() throws Exception {
+    public void testIngestWithNewAndSparqlQuery() throws IOException {
         final HttpPost method = postObjMethod("");
         method.addHeader("Content-Type", "application/sparql-update");
         final BasicHttpEntity entity = new BasicHttpEntity();
@@ -921,7 +926,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testIngestWithSparqlQueryJcrNS() throws Exception {
+    public void testIngestWithSparqlQueryJcrNS() throws IOException {
         final HttpPost method = postObjMethod("");
         method.addHeader("Content-Type", "application/sparql-update");
         final BasicHttpEntity entity = new BasicHttpEntity();
@@ -937,7 +942,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testIngestWithNewAndGraph() throws Exception {
+    public void testIngestWithNewAndGraph() throws IOException {
         final HttpPost method = postObjMethod("");
         method.addHeader("Content-Type", "application/n3");
         final BasicHttpEntity entity = new BasicHttpEntity();
@@ -967,7 +972,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testIngestWithSlug() throws Exception {
+    public void testIngestWithSlug() throws IOException {
         final HttpPost method = postObjMethod("");
         method.addHeader("Slug", getRandomUniquePid());
         final HttpResponse response = client.execute(method);
@@ -985,7 +990,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testIngestWithRepeatedSlug() throws Exception {
+    public void testIngestWithRepeatedSlug() throws IOException {
         final String pid = getRandomUniquePid();
         final HttpPut put = new HttpPut(serverAddress + pid);
         assertEquals(201, getStatus(put));
@@ -996,7 +1001,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testIngestWithBinary() throws Exception {
+    public void testIngestWithBinary() throws IOException {
         final HttpPost method = postObjMethod("");
         method.addHeader("Content-Type", "application/octet-stream");
         final BasicHttpEntity entity = new BasicHttpEntity();
@@ -1025,7 +1030,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testIngestOnSubtree() throws Exception {
+    public void testIngestOnSubtree() throws IOException {
         final String pid = getRandomUniquePid();
         createObject(pid);
 
@@ -1039,7 +1044,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testIngestWithRDFLang() throws Exception {
+    public void testIngestWithRDFLang() throws IOException {
         final HttpPost method = postObjMethod("");
         method.addHeader("Content-Type", "application/n3");
         final BasicHttpEntity entity = new BasicHttpEntity();
@@ -1071,7 +1076,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
 
 
     @Test
-    public void testCreateManyObjects() throws Exception {
+    public void testCreateManyObjects() throws IOException, InterruptedException {
         if (System.getProperty(TEST_ACTIVATION_PROPERTY) == null) {
             logger.info("Not running test because system property not set: {}", TEST_ACTIVATION_PROPERTY);
             return;
@@ -1086,7 +1091,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testDeleteWithBadEtag() throws Exception {
+    public void testDeleteWithBadEtag() throws IOException {
 
         final HttpPost method = postObjMethod("");
         final HttpResponse response = client.execute(method);
@@ -1101,7 +1106,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testGetDatastream() throws Exception {
+    public void testGetDatastream() throws IOException, ParseException {
         final String pid = getRandomUniquePid();
 
         createObject(pid);
@@ -1126,7 +1131,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testDeleteDatastream() throws Exception {
+    public void testDeleteDatastream() throws IOException {
         final String pid = getRandomUniquePid();
 
         createObject(pid);
@@ -1140,7 +1145,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testGetRepositoryGraph() throws Exception {
+    public void testGetRepositoryGraph() throws IOException {
         final HttpGet getObjMethod = new HttpGet(serverAddress);
         final GraphStore graphStore = getGraphStore(getObjMethod);
         logger.trace("Retrieved repository graph:\n" + graphStore.toString());
@@ -1151,7 +1156,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testGetObjectGraphHtml() throws Exception {
+    public void testGetObjectGraphHtml() throws IOException {
         final HttpResponse createResponse = createObject("");
 
         final String location = createResponse.getFirstHeader("Location").getValue();
@@ -1166,7 +1171,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testGetObjectGraphVariants() throws Exception {
+    public void testGetObjectGraphVariants() throws IOException {
         final HttpResponse createResponse = createObject("");
 
         final String location = createResponse.getFirstHeader("Location").getValue();
@@ -1189,7 +1194,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testGetObjectGraph() throws Exception {
+    public void testGetObjectGraph() throws IOException {
         logger.debug("Entering testGetObjectGraph()...");
         final HttpResponse createResponse = createObject("");
 
@@ -1219,7 +1224,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void verifyFullSetOfRdfTypes() throws Exception {
+    public void verifyFullSetOfRdfTypes() throws IOException {
         logger.debug("Entering verifyFullSetOfRdfTypes()...");
         final String pid = getRandomUniquePid();
         createObject(pid);
@@ -1260,7 +1265,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
 
 
     @Test
-    public void testGetObjectGraphWithChildren() throws Exception {
+    public void testGetObjectGraphWithChildren() throws IOException {
         final String pid = getRandomUniquePid();
         final HttpResponse createResponse = createObject(pid);
         final String location = createResponse.getFirstHeader("Location").getValue();
@@ -1295,7 +1300,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testGetObjectGraphMinimal() throws Exception {
+    public void testGetObjectGraphMinimal() throws IOException {
         final String pid = getRandomUniquePid();
         createObject(pid);
         addMixin(pid, BASIC_CONTAINER.getURI());
@@ -1328,7 +1333,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testGetObjectOmitMembership() throws Exception {
+    public void testGetObjectOmitMembership() throws IOException {
         final String pid = getRandomUniquePid();
         createObject(pid);
         addMixin(pid, BASIC_CONTAINER.getURI());
@@ -1358,7 +1363,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testGetObjectOmitContainment() throws Exception {
+    public void testGetObjectOmitContainment() throws IOException {
         final String pid = getRandomUniquePid();
         createObject(pid);
         final HttpPatch patch = new HttpPatch(serverAddress + pid);
@@ -1402,7 +1407,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testGetObjectReferences() throws Exception {
+    public void testGetObjectReferences() throws IOException {
         final String pid = getRandomUniquePid();
         createObject(pid);
         createObject(pid + "/a");
@@ -1448,7 +1453,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testGetObjectGraphByUUID() throws Exception {
+    public void testGetObjectGraphByUUID() throws IOException {
         final HttpResponse createResponse = createObject("");
 
         final String location = createResponse.getFirstHeader("Location").getValue();
@@ -1472,7 +1477,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testLinkToNonExistent() throws Exception {
+    public void testLinkToNonExistent() throws IOException {
         final HttpResponse createResponse = createObject("");
         final String subjectURI = createResponse.getFirstHeader("Location").getValue();
         final HttpPatch patch = new HttpPatch(subjectURI);
@@ -1486,7 +1491,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testUpdateAndReplaceObjectGraph() throws Exception {
+    public void testUpdateAndReplaceObjectGraph() throws IOException {
         final HttpResponse createResponse = createObject("");
         final String subjectURI = createResponse.getFirstHeader("Location").getValue();
         final HttpPatch updateObjectGraphMethod = new HttpPatch(subjectURI);
@@ -1533,7 +1538,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testUpdateWithSparqlQueryJcrNS() throws Exception {
+    public void testUpdateWithSparqlQueryJcrNS() throws IOException {
         final HttpResponse createResponse = createObject("");
         final String subjectURI = createResponse.getFirstHeader("Location").getValue();
         final HttpPatch updateObjectGraphMethod = new HttpPatch(subjectURI);
@@ -1555,7 +1560,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testUpdateObjectGraphWithProblems() throws Exception {
+    public void testUpdateObjectGraphWithProblems() throws IOException {
 
         final HttpResponse createResponse = createObject("");
         final String subjectURI = createResponse.getFirstHeader("Location").getValue();
@@ -1580,7 +1585,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testRepeatedPut() throws Exception {
+    public void testRepeatedPut() throws IOException {
         final String pid = getRandomUniquePid();
         final HttpPut firstPut = new HttpPut(serverAddress + pid);
         assertEquals(201, getStatus(firstPut));
@@ -1591,7 +1596,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testCreateResourceWithoutContentType() throws Exception {
+    public void testCreateResourceWithoutContentType() throws IOException {
         final String pid = getRandomUniquePid();
 
         final HttpPut httpPut = new HttpPut(serverAddress + pid);
@@ -1599,7 +1604,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testUpdateObjectWithoutContentType() throws Exception {
+    public void testUpdateObjectWithoutContentType() throws IOException {
         final String pid = getRandomUniquePid();
         createObject(pid);
 
@@ -1609,7 +1614,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testUpdateBinaryWithoutContentType() throws Exception {
+    public void testUpdateBinaryWithoutContentType() throws IOException {
         final String pid = getRandomUniquePid();
         createDatastream(pid, "x", "xyz");
 
@@ -1618,7 +1623,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testRoundTripReplaceGraphForDatastream() throws Exception {
+    public void testRoundTripReplaceGraphForDatastream() throws IOException {
 
         final String pid = getRandomUniquePid();
         final String subjectURI = serverAddress + pid + "/ds1";
@@ -1651,7 +1656,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testResponseContentTypes() throws Exception {
+    public void testResponseContentTypes() throws IOException {
         final String pid = getRandomUniquePid();
         createObject(pid);
 
@@ -1666,7 +1671,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
 
     @Ignore("pending https://www.pivotaltracker.com/story/show/78647248")
     @Test
-    public void testDescribeSize() throws Exception {
+    public void testDescribeSize() throws IOException {
 
         final String sizeNode = getRandomUniquePid();
 
@@ -1701,7 +1706,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
 
     @Ignore("pending https://www.pivotaltracker.com/story/show/78647248")
     @Test
-    public void testDescribeCount() throws Exception {
+    public void testDescribeCount() throws IOException {
         logger.trace("Entering testDescribeCount()...");
         GraphStore graphStore = getGraphStore(new HttpGet(serverAddress + ""));
         logger.trace("For testDescribeCount() first count retrieved repository graph:\n"
@@ -1742,7 +1747,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
      * and ds2
      */
     @Test
-    public void testGetProjectedNode() throws Exception {
+    public void testGetProjectedNode() throws IOException {
         final HttpGet method = new HttpGet(serverAddress + "files/FileSystem1");
         final Graph result = getGraphStore(method).getDefaultGraph();
 
@@ -1762,39 +1767,42 @@ public class FedoraLdpIT extends AbstractResourceIT {
     @Test
     public void testDescribeRdfCached() throws IOException {
         try (final CloseableHttpClient cachingClient =
-                     CachingHttpClientBuilder.create().setCacheConfig(DEFAULT).build()) {
+                CachingHttpClientBuilder.create().setCacheConfig(DEFAULT).build()) {
 
             final HttpResponse createResponse = createObject("");
             final String location = createResponse.getFirstHeader("Location").getValue();
             final HttpGet getObjMethod = new HttpGet(location);
+            final String lastModed;
+            final String etag;
 
-            HttpResponse response = cachingClient.execute(getObjMethod);
-            assertEquals("Client didn't return a OK!", OK.getStatusCode(), response
-                    .getStatusLine().getStatusCode());
-            logger.debug("Found HTTP headers:\n{}", Joiner.on('\n').join(
-                    response.getAllHeaders()));
-            assertTrue("Didn't find Last-Modified header!", response
-                    .containsHeader("Last-Modified"));
-            final String lastModed =
-                    response.getFirstHeader("Last-Modified").getValue();
-            final String etag = response.getFirstHeader("ETag").getValue();
+            try (CloseableHttpResponse response = cachingClient.execute(getObjMethod)) {
+                assertEquals("Client didn't return a OK!", OK.getStatusCode(), response
+                        .getStatusLine().getStatusCode());
+                logger.debug("Found HTTP headers:\n{}", Joiner.on('\n').join(
+                        response.getAllHeaders()));
+                assertTrue("Didn't find Last-Modified header!", response
+                        .containsHeader("Last-Modified"));
+                lastModed = response.getFirstHeader("Last-Modified").getValue();
+                etag = response.getFirstHeader("ETag").getValue();
+            }
+
             final HttpGet getObjMethod2 = new HttpGet(location);
             getObjMethod2.setHeader("If-Modified-Since", lastModed);
             getObjMethod2.setHeader("If-None-Match", etag);
-            response = cachingClient.execute(getObjMethod2);
-            assertEquals("Client didn't return a NOT_MODIFIED!", NOT_MODIFIED
-                    .getStatusCode(), response.getStatusLine().getStatusCode());
-
+            try (CloseableHttpResponse response = cachingClient.execute(getObjMethod2)) {
+                assertEquals("Client didn't return a NOT_MODIFIED!", NOT_MODIFIED
+                        .getStatusCode(), response.getStatusLine().getStatusCode());
+            }
         }
     }
 
     @Test
-    public void testValidHTMLForRepo() throws Exception {
+    public void testValidHTMLForRepo() throws IOException, SAXException {
         validateHTML("");
     }
 
     @Test
-    public void testValidHTMLForObject() throws Exception {
+    public void testValidHTMLForObject() throws IOException, SAXException {
         final String pid = getRandomUniquePid();
         createObject(pid);
 
@@ -1802,13 +1810,13 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testValidHTMLForDS() throws Exception {
+    public void testValidHTMLForDS() throws IOException, SAXException {
         final String pid = getRandomUniquePid();
         createDatastream(pid, "ds", "content");
         validateHTML(pid + "/ds/" + FCR_METADATA);
     }
 
-    private static void validateHTML(final String path) throws Exception {
+    private static void validateHTML(final String path) throws IOException, SAXException {
         final HttpGet getMethod = new HttpGet(serverAddress + path);
         getMethod.addHeader("Accept", "text/html");
         final HttpResponse response = client.execute(getMethod);
@@ -1853,7 +1861,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
      * directory.
      **/
     @Ignore("Enabled once the FedoraFileSystemConnector becomes readable/writable")
-    public void testBreakFederation() throws Exception {
+    public void testBreakFederation() throws IOException {
         final String pid = getRandomUniquePid();
         testGetRepositoryGraph();
         createObject("files/a0/" + pid + "b0");
@@ -1916,7 +1924,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
 
     @Test
     @Ignore("https://www.pivotaltracker.com/story/show/59240160")
-    public void testPaging() throws Exception {
+    public void testPaging() throws IOException {
         // create a node with 4 children
         final String pid = getRandomUniquePid();
         final Node parent = createResource(serverAddress + pid).asNode();
@@ -1993,7 +2001,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testLinkedDeletion() throws Exception {
+    public void testLinkedDeletion() throws IOException {
         final String linkedFrom = UUID.randomUUID().toString();
         final String linkedTo = UUID.randomUUID().toString();
         createObject(linkedFrom);
@@ -2019,9 +2027,14 @@ public class FedoraLdpIT extends AbstractResourceIT {
     /**
      * When I make changes to a resource in a federated filesystem, the parent
      * folder's Last-Modified header should be updated.
+     * @throws InterruptedException
+     * @throws ParseException
+     * @throws IOException
+     * @throws ClientProtocolException
      **/
     @Test
-    public void testLastModifiedUpdatedAfterUpdates() throws Exception {
+    public void testLastModifiedUpdatedAfterUpdates() throws InterruptedException, ParseException,
+            ClientProtocolException, IOException {
 
         // create directory containing a file in filesystem
         final File fed = new File("target/test-classes/test-objects");
@@ -2056,7 +2069,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testUpdateObjectWithSpaces() throws Exception {
+    public void testUpdateObjectWithSpaces() throws IOException {
         final String id = getRandomUniquePid() + " 2";
         final HttpResponse createResponse = createObject(id);
         final String subjectURI = createResponse.getFirstHeader("Location").getValue();
@@ -2071,7 +2084,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testCreatedAndModifiedDates() throws Exception {
+    public void testCreatedAndModifiedDates() throws IOException, ParseException {
         final HttpResponse createResponse = createObject("");
         final String location = createResponse.getFirstHeader("Location").getValue();
         final HttpGet getObjMethod = new HttpGet(location);
@@ -2093,7 +2106,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testLdpContainerInteraction() throws Exception {
+    public void testLdpContainerInteraction() throws IOException {
 
         final String id = getRandomUniquePid();
         final HttpResponse object = createObject(id);
@@ -2193,7 +2206,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testCreateAndReplaceGraphMinimal() throws Exception {
+    public void testCreateAndReplaceGraphMinimal() throws IOException {
         LOGGER.trace("Entering testCreateAndReplaceGraphMinimal()...");
         final String pid = getRandomUniquePid();
 
@@ -2230,7 +2243,7 @@ public class FedoraLdpIT extends AbstractResourceIT {
 
     @Test
     @Ignore("This test needs manual intervention to decide how \"good\" the graph looks")
-    public void testGraphShouldNotBeTooLumpy() throws Exception {
+    public void testGraphShouldNotBeTooLumpy() throws IOException {
 
         final String pid = getRandomUniquePid();
 
@@ -2257,33 +2270,36 @@ public class FedoraLdpIT extends AbstractResourceIT {
     }
 
     @Test
-    public void testExternalMessageBody() throws Exception {
+    public void testExternalMessageBody() throws IOException {
 
         // we need a client that won't automatically follow redirects
-        final HttpClient client = HttpClientBuilder.create().disableRedirectHandling().build();
+        try (final CloseableHttpClient client = HttpClientBuilder.create().disableRedirectHandling().build()) {
 
-        final String pid = getRandomUniquePid();
+            final String pid = getRandomUniquePid();
 
-        final HttpPut httpPut = putObjMethod(pid);
-        httpPut.addHeader("Content-Type", "message/external-body; access-type=URL; " +
-                "URL=\"http://www.example.com/file\"");
+            final HttpPut httpPut = putObjMethod(pid);
+            httpPut.addHeader("Content-Type", "message/external-body; access-type=URL; " +
+                    "URL=\"http://www.example.com/file\"");
+            final String subjectURI;
+            try (final CloseableHttpResponse response = client.execute(httpPut)) {
+                final int status = response.getStatusLine().getStatusCode();
+                assertEquals("Didn't get a CREATED response!", CREATED.getStatusCode(), status);
 
-        final HttpResponse response = client.execute(httpPut);
-        final int status = response.getStatusLine().getStatusCode();
-        assertEquals("Didn't get a CREATED response!", CREATED.getStatusCode(), status);
+                subjectURI = response.getFirstHeader("Location").getValue();
+            }
+            final HttpGet get = new HttpGet(subjectURI);
+            try (final CloseableHttpResponse getResponse = client.execute(get)) {
 
-        final String subjectURI = response.getFirstHeader("Location").getValue();
-
-        final HttpGet get = new HttpGet(subjectURI);
-        final HttpResponse getResponse = client.execute(get);
-
-        LOGGER.error(EntityUtils.toString(getResponse.getEntity()));
-        assertEquals(TEMPORARY_REDIRECT.getStatusCode(), getResponse.getStatusLine().getStatusCode());
-        assertEquals("http://www.example.com/file", getResponse.getFirstHeader("Location").getValue());
+                LOGGER.error(EntityUtils.toString(getResponse.getEntity()));
+                assertEquals(TEMPORARY_REDIRECT.getStatusCode(), getResponse.getStatusLine().getStatusCode());
+                assertEquals("http://www.example.com/file", getResponse.getFirstHeader("Location").getValue());
+            }
+        }
     }
 
-    private Date getDateFromModel(final Model model, final Resource subj, final Property pred) throws Exception {
-        final StmtIterator stmts = model.listStatements(subj, pred, (String) null);
+    private Date getDateFromModel(final Model model, final Resource subj, final Property pred)
+            throws NoSuchElementException, ParseException {
+    final StmtIterator stmts = model.listStatements(subj, pred, (String) null);
         if (stmts.hasNext()) {
             return tripleFormat.parse(stmts.nextStatement().getString());
         }
