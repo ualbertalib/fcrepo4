@@ -57,7 +57,8 @@ public class Sequences {
      * @param element
      * @return
      */
-    public static <T> Sequence<T> sequence(final T element) {
+    @SafeVarargs
+    public static <T> Sequence<T> sequence(final T... element) {
         return com.googlecode.totallylazy.Sequences.sequence(element);
     }
 
