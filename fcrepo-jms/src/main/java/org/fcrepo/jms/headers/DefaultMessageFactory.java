@@ -16,6 +16,7 @@
 package org.fcrepo.jms.headers;
 
 import static org.fcrepo.kernel.RdfLexicon.REPOSITORY_NAMESPACE;
+import static org.fcrepo.kernel.observer.FedoraEvent.BASE_URL_PROPERTY;
 import static org.modeshape.jcr.api.JcrConstants.JCR_CONTENT;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -34,8 +35,6 @@ import org.slf4j.Logger;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 /**
  * Generates JMS {@link Message}s composed entirely of headers, based entirely
@@ -71,10 +70,8 @@ public class DefaultMessageFactory implements JMSEventMessageFactory {
      */
     private void setBaseURL(final FedoraEvent event) {
         try {
-            final String userdata = event.getUserData();
-            if (!StringUtils.isBlank(userdata)) {
-                final JsonObject json = new JsonParser().parse(userdata).getAsJsonObject();
-                String url = json.get("baseURL").getAsString();
+            if (!StringUtils.isBlank(System.getProperty(BASE_URL_PROPERTY))) {
+                String url = System.getProperty(BASE_URL_PROPERTY);
                 while (url.endsWith("/")) {
                     url = url.substring(0, url.length() - 1);
                 }

@@ -23,6 +23,7 @@ import static org.fcrepo.jms.headers.DefaultMessageFactory.IDENTIFIER_HEADER_NAM
 import static org.fcrepo.jms.headers.DefaultMessageFactory.PROPERTIES_HEADER_NAME;
 import static org.fcrepo.jms.headers.DefaultMessageFactory.TIMESTAMP_HEADER_NAME;
 import static org.fcrepo.kernel.RdfLexicon.REPOSITORY_NAMESPACE;
+import static org.fcrepo.kernel.observer.FedoraEvent.BASE_URL_PROPERTY;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.doThrow;
@@ -97,11 +98,11 @@ public class DefaultMessageFactoryTest {
         final Long testDate = 46647758568747L;
         when(mockEvent.getDate()).thenReturn(testDate);
 
-        String url = null;
-        if (!StringUtils.isBlank(baseUrl)) {
-            url = "{\"baseURL\":\"" + baseUrl + "\"}";
+        if (StringUtils.isBlank(baseUrl)) {
+            System.clearProperty(BASE_URL_PROPERTY);
+        } else {
+            System.setProperty(BASE_URL_PROPERTY, baseUrl);
         }
-        when(mockEvent.getUserData()).thenReturn(url);
         when(mockEvent.getPath()).thenReturn(id);
         final Set<Integer> testTypes = singleton(NODE_ADDED);
         final String testReturnType = REPOSITORY_NAMESPACE + EventType.valueOf(NODE_ADDED).toString();

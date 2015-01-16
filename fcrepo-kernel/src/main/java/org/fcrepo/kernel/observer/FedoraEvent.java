@@ -47,6 +47,7 @@ import com.google.common.collect.Iterables;
  */
 public class FedoraEvent {
 
+    public static final String BASE_URL_PROPERTY = "fcrepo.baseURL";
     private Event e;
 
     private Set<Integer> eventTypes = new HashSet<>();

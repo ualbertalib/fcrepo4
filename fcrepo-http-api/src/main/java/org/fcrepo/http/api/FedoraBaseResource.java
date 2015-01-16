@@ -15,6 +15,8 @@
  */
 package org.fcrepo.http.api;
 
+import static org.fcrepo.kernel.observer.FedoraEvent.BASE_URL_PROPERTY;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.hp.hpl.jena.rdf.model.Resource;
 import org.fcrepo.http.commons.AbstractResource;
@@ -26,15 +28,13 @@ import org.fcrepo.kernel.identifiers.IdentifierConverter;
 import org.slf4j.Logger;
 
 import javax.jcr.Session;
-import javax.jcr.observation.ObservationManager;
 import javax.ws.rs.core.UriInfo;
-
-import java.net.URI;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * @author cabeer
+ * @author escowles
  * @since 10/5/14
  */
 abstract public class FedoraBaseResource extends AbstractResource {
@@ -76,11 +76,11 @@ abstract public class FedoraBaseResource extends AbstractResource {
      **/
     protected void setUpJMSBaseURIs(final UriInfo uriInfo) {
         try {
-            final URI baseURL = uriInfo.getBaseUri();
-            LOGGER.debug("setting baseURL = " + baseURL.toString());
-            final ObservationManager obs = session().getWorkspace().getObservationManager();
-            final String json = "{\"baseURL\":\"" + baseURL.toString() + "\"}";
-            obs.setUserData(json);
+            if (System.getProperty(BASE_URL_PROPERTY) == null) {
+                final String baseURL = uriInfo.getBaseUri().toString();
+                LOGGER.debug("setting baseURL = " + baseURL);
+                System.setProperty(BASE_URL_PROPERTY, baseURL);
+            }
         } catch ( Exception ex ) {
             LOGGER.warn("Error setting baseURL", ex);
         }
