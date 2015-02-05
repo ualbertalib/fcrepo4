@@ -33,9 +33,6 @@ import org.fcrepo.kernel.models.FedoraResource;
 
 import org.slf4j.Logger;
 
-import com.google.common.collect.Iterators;
-import com.google.common.collect.UnmodifiableIterator;
-import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.rdf.model.Resource;
 
 /**

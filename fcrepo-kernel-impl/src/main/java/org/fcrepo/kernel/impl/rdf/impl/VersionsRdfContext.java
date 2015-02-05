@@ -18,15 +18,14 @@ package org.fcrepo.kernel.impl.rdf.impl;
 import static com.hp.hpl.jena.graph.NodeFactory.createLiteral;
 import static com.hp.hpl.jena.graph.Triple.create;
 import static com.hp.hpl.jena.rdf.model.ResourceFactory.createTypedLiteral;
-import static java.util.Arrays.stream;
-import static java.util.Spliterators.spliteratorUnknownSize;
-import static java.util.stream.StreamSupport.stream;
 import static org.fcrepo.kernel.RdfLexicon.CREATED_DATE;
 import static org.fcrepo.kernel.RdfLexicon.HAS_VERSION;
 import static org.fcrepo.kernel.RdfLexicon.HAS_VERSION_LABEL;
 import static org.fcrepo.kernel.impl.identifiers.NodeResourceConverter.nodeToResource;
+import static org.fcrepo.kernel.impl.utils.Streams.fromIterator;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -74,7 +73,7 @@ public class VersionsRdfContext extends NodeRdfContext {
         this.versionHistory = resource.getVersionHistory();
         final Iterator<Version> allVersions = versionHistory.getAllVersions();
 
-        final Stream<Version> versionsStream = stream(spliteratorUnknownSize(allVersions, 0), true);
+        final Stream<Version> versionsStream = fromIterator(allVersions);
         concat(versionsStream.flatMap(version2triples));
     }
 
@@ -99,7 +98,7 @@ public class VersionsRdfContext extends NodeRdfContext {
                                 new RdfStream(create(subject(), HAS_VERSION.asNode(), versionSubject),
                                         create(versionSubject, CREATED_DATE.asNode(),
                                                 createTypedLiteral(version.getCreated()).asNode()));
-                        results.concat(stream(versionHistory.getVersionLabels(version)).map(
+                        results.concat(Arrays.stream(versionHistory.getVersionLabels(version)).map(
                                 label -> create(versionSubject, HAS_VERSION_LABEL.asNode(), createLiteral(label))));
                         return results;
 
