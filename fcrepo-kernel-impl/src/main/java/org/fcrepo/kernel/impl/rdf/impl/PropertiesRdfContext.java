@@ -16,7 +16,7 @@
 package org.fcrepo.kernel.impl.rdf.impl;
 
 import static org.fcrepo.kernel.impl.utils.FedoraTypesUtils.isInternalProperty;
-import static org.fcrepo.kernel.impl.utils.Streams.fromIterator;
+import static org.fcrepo.kernel.utils.Streams.fromIterator;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.Iterator;
