@@ -22,6 +22,7 @@ import javax.jcr.RepositoryException;
 
 import org.fcrepo.kernel.exception.RepositoryRuntimeException;
 
+@FunctionalInterface
 public interface UncheckedPredicate<T> extends Predicate<T> {
 
     @Override
@@ -35,20 +36,7 @@ public interface UncheckedPredicate<T> extends Predicate<T> {
 
     boolean testThrows(T elem) throws RepositoryException;
 
-    static <T> UncheckedPredicate<T> uncheck(final ThrowingPredicate<T> p) {
-        return new UncheckedPredicate<T>() {
-
-            @Override
-            public boolean testThrows(final T elem) throws RepositoryException {
-                return p.test(elem);
-            }
-        };
-
-    }
-
-    @FunctionalInterface
-    public static interface ThrowingPredicate<T> {
-
-        boolean test(T element) throws RepositoryException;
+    static <T> UncheckedPredicate<T> uncheck(final UncheckedPredicate<T> p) {
+        return p;
     }
 }

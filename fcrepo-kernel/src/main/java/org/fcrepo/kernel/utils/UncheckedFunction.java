@@ -25,6 +25,7 @@ import org.fcrepo.kernel.exception.RepositoryRuntimeException;
  *
  * @author ajs6f
  */
+
 @FunctionalInterface
 public interface UncheckedFunction<T, R> extends Function<T, R> {
 

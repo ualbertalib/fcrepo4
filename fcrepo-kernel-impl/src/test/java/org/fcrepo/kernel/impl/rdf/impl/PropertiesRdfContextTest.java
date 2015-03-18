@@ -50,6 +50,7 @@ import com.hp.hpl.jena.rdf.model.Statement;
  * PropertiesRdfContextTest class.
  *
  * @author awoods
+ * @author ajs6f
  * @since 2015-03-08
  */
 public class PropertiesRdfContextTest {
@@ -149,7 +150,7 @@ public class PropertiesRdfContextTest {
     }
 
     @Test
-    public void testFedoraBinaryProperties() throws RepositoryException {
+    public void testFedoraBinaryProperties() {
         final Model results = new PropertiesRdfContext(mockBinary, idTranslator).asModel();
 
         assertTrue("Should contain RdfSource statement: " + results + " -- " + RDF_SOURCE_STMT,
@@ -160,7 +161,7 @@ public class PropertiesRdfContextTest {
     }
 
     @Test
-    public void testFedoraResourceProperties() throws RepositoryException {
+    public void testFedoraResourceProperties() {
         final Model results = new PropertiesRdfContext(mockResource, idTranslator).asModel();
 
         assertTrue("Should contain RdfSource statement: " + results + " -- " + RDF_SOURCE_STMT,

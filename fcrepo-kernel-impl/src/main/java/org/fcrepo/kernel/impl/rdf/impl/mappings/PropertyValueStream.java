@@ -15,7 +15,6 @@
  */
 package org.fcrepo.kernel.impl.rdf.impl.mappings;
 
-import static org.fcrepo.kernel.utils.Streams.fromIterator;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.fcrepo.kernel.utils.UncheckedFunction;
@@ -26,7 +25,6 @@ import javax.jcr.Property;
 import javax.jcr.Value;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -40,14 +38,6 @@ import java.util.stream.Stream;
 public class PropertyValueStream extends SpliteratorStream<Value, PropertyValueStream> {
 
     private static final Logger log = getLogger(PropertyValueStream.class);
-
-    /**
-     * Iterate through multiple properties' values
-     * @param properties
-     */
-    public PropertyValueStream(final Iterator<Property> properties) {
-        super(fromIterator(properties).flatMap(fanout));
-    }
 
     /**
      * Iterate through multiple properties' values

@@ -407,6 +407,8 @@ public class FedoraResourceImplTest {
     public void testDelete() throws RepositoryException {
         when(mockNode.getReferences()).thenReturn(new TestPropertyIterator());
         when(mockNode.getWeakReferences()).thenReturn(new TestPropertyIterator());
+        when(mockNode.getParent()).thenReturn(mockRoot);
+        when(mockNode.getName()).thenReturn("/test");
         testObj.delete();
         verify(mockNode).remove();
     }

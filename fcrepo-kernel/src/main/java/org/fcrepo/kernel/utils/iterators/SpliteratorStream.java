@@ -296,9 +296,8 @@ public abstract class SpliteratorStream<T, SelfType extends SpliteratorStream<T,
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public T[] toArray() {
-        return (T[]) stream().toArray();
+    public Object[] toArray() {
+        return stream().toArray();
     }
 
     @Override

@@ -22,6 +22,7 @@ import javax.jcr.RepositoryException;
 
 import org.fcrepo.kernel.exception.RepositoryRuntimeException;
 
+@FunctionalInterface
 public interface UncheckedConsumer<T> extends Consumer<T> {
 
     @Override

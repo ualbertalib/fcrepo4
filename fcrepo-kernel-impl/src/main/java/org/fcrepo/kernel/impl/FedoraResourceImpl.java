@@ -32,7 +32,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
@@ -51,7 +50,6 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 
 import com.google.common.base.Converter;
-import com.google.common.collect.Iterators;
 import com.hp.hpl.jena.rdf.model.Resource;
 
 import org.fcrepo.kernel.FedoraJcrTypes;
@@ -62,7 +60,9 @@ import org.fcrepo.kernel.exception.MalformedRdfException;
 import org.fcrepo.kernel.exception.PathNotFoundRuntimeException;
 import org.fcrepo.kernel.exception.RepositoryRuntimeException;
 import org.fcrepo.kernel.identifiers.IdentifierConverter;
+import org.fcrepo.kernel.impl.rdf.impl.mappings.PropertyValueStream;
 import org.fcrepo.kernel.impl.utils.JcrPropertyStatementListener;
+import org.fcrepo.kernel.utils.UncheckedConsumer;
 import org.fcrepo.kernel.utils.UncheckedFunction;
 import org.fcrepo.kernel.utils.UncheckedPredicate;
 import org.fcrepo.kernel.utils.iterators.GraphDifferencingIterator;
@@ -234,50 +234,37 @@ public class FedoraResourceImpl extends JcrTools implements FedoraJcrTypes, Fedo
     @Override
     public void delete() {
         try {
-            final Iterator<Property> references = node.getReferences();
-            final Iterator<Property> weakReferences = node.getWeakReferences();
-            final Iterator<Property> inboundProperties = Iterators.concat(references, weakReferences);
-
-            while (inboundProperties.hasNext()) {
-                final Property prop = inboundProperties.next();
-                final List<Value> newVals = new ArrayList<>();
-                final Iterator<Value> propIt = property2values.apply(prop);
-                while (propIt.hasNext()) {
-                    final Value v = propIt.next();
-                    if (!node.equals(getSession().getNodeByIdentifier(v.getString()))) {
-                        newVals.add(v);
-                        LOGGER.trace("Keeping multivalue reference property when deleting node");
-                    }
-                }
-                if (newVals.size() == 0) {
-                    prop.remove();
+            // remove inbound references
+            final Iterator<Property> strongRefs = getNode().getReferences();
+            final Iterator<Property> weakRefs = getNode().getWeakReferences();
+            final Stream<Property> references = Stream.concat(fromIterator(strongRefs), fromIterator(weakRefs));
+            references.forEach(UncheckedConsumer.uncheck(p -> {
+                final Value[] values = new PropertyValueStream(p).filter(UncheckedPredicate.uncheck(
+                        // we discard any values than represent references to this resource
+                        (final Value v) -> !getNode().equals(getSession().getNodeByIdentifier(v.getString()))))
+                        .toArray(size -> new Value[size]);
+                if (values.length == 0) {
+                    p.remove();
                 } else {
-                    prop.setValue(newVals.toArray(new Value[newVals.size()]));
+                    p.setValue(values);
                 }
-            }
-
-            final Node parent;
-
-            if (getNode().getDepth() > 0) {
-                parent = getNode().getParent();
-            } else {
-                parent = null;
-            }
+            }));
+            // create a tombstone and remove the persistence for this resource
             final String name = getNode().getName();
-
-            node.remove();
-
-            if (parent != null) {
+            try {
+                final Node parent = getNode().getParent();
+                node.remove();
                 createTombstone(parent, name);
+            } catch (final ItemNotFoundException e) {
+                // this was backed by the root node, which has no parent
             }
-
         } catch (final RepositoryException e) {
             throw new RepositoryRuntimeException(e);
         }
     }
 
-    private void createTombstone(final Node parent, final String path) throws RepositoryException {
-        findOrCreateChild(parent, path, FEDORA_TOMBSTONE);
+    private static void createTombstone(final Node parent, final String name) throws RepositoryException {
+        parent.addNode(name, FEDORA_TOMBSTONE);
     }
 
     /* (non-Javadoc)

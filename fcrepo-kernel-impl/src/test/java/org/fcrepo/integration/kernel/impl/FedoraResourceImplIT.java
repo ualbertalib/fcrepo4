@@ -112,19 +112,19 @@ import com.hp.hpl.jena.vocabulary.RDF;
 public class FedoraResourceImplIT extends AbstractIT {
 
     @Inject
-    Repository repo;
+    private Repository repo;
 
     @Inject
-    NodeService nodeService;
+    private NodeService nodeService;
 
     @Inject
-    ContainerService containerService;
+    private ContainerService containerService;
 
     @Inject
-    BinaryService binaryService;
+    private BinaryService binaryService;
 
     @Inject
-    VersionService versionService;
+    private VersionService versionService;
 
     private Session session;
 
@@ -822,7 +822,9 @@ public class FedoraResourceImplIT extends AbstractIT {
         containerService.findOrCreate(session, pid);
         final Container subject = containerService.findOrCreate(session, pid + "/a");
         final Container referent1 = containerService.findOrCreate(session, pid + "/b");
+        log.debug("Created first referent with ID: {}", referent1.getNode().getIdentifier());
         final Container referent2 = containerService.findOrCreate(session, pid + "/c");
+        log.debug("Created second referent with ID: {}", referent2.getNode().getIdentifier());
         final Value[] values = new Value[2];
         values[0] = session.getValueFactory().createValue(referent1.getNode());
         values[1] = session.getValueFactory().createValue(referent2.getNode());

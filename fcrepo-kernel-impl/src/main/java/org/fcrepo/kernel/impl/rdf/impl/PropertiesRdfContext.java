@@ -26,22 +26,15 @@ import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 
-<<<<<<< HEAD
-=======
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.rdf.model.Resource;
 
+import org.fcrepo.kernel.models.FedoraBinary;
 import org.fcrepo.kernel.models.FedoraResource;
->>>>>>> Further lazi-fying RDF generation
 import org.fcrepo.kernel.identifiers.IdentifierConverter;
 import org.fcrepo.kernel.impl.rdf.impl.mappings.PropertyToTriple;
 
-import org.fcrepo.kernel.models.FedoraBinary;
-import org.fcrepo.kernel.models.FedoraResource;
-
 import org.slf4j.Logger;
-
-import com.hp.hpl.jena.rdf.model.Resource;
 
 /**
  * {@link NodeRdfContext} for RDF that derives from JCR properties on a Resource
@@ -68,7 +61,12 @@ public class PropertiesRdfContext extends NodeRdfContext {
     public Stream<Triple> applyThrows(final Node node) throws RepositoryException {
         LOGGER.trace("Creating triples for resource: {}", resource());
         final Iterator<Property> propertiesIterator = node.getProperties();
-        final Stream<Property> properties = fromIterator(propertiesIterator).filter(isInternalProperty.negate());
-        return properties.flatMap(new PropertyToTriple(session(), translator()));
+        Stream<Property> properties = fromIterator(propertiesIterator);
+        if (resource() instanceof FedoraBinary) {
+            final Iterator<Property> descriptionProperties =
+                    ((FedoraBinary) resource()).getDescription().getNode().getProperties();
+            properties = Stream.concat(properties, fromIterator(descriptionProperties));
+        }
+        return properties.filter(isInternalProperty.negate()).flatMap(new PropertyToTriple(session(), translator()));
     }
 }
